@@ -1,42 +1,71 @@
---// TOATOA HUB
---// Modern Hacker UI - Roblox Studio
---// Performance-focused UI template
+--========================================================
+-- TOATOA HUB v3.0
+-- Modern Hacker UI / Mobile Responsive
+-- Roblox Studio LocalScript
+--========================================================
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Stats = game:GetService("Stats")
 
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
---==================================================
+--========================================================
 -- CONFIG
---==================================================
+--========================================================
 
-local CONFIG = {
+local Config = {
     Title = "TOATOA HUB",
-    Version = "v2.0",
-    Accent = Color3.fromRGB(35, 255, 130),
-    Background = Color3.fromRGB(8, 10, 13),
-    Panel = Color3.fromRGB(13, 16, 20),
-    Panel2 = Color3.fromRGB(18, 22, 27),
-    Text = Color3.fromRGB(230, 235, 235),
-    Muted = Color3.fromRGB(105, 115, 120),
+    Version = "v3.0",
+
+    Accent = Color3.fromRGB(35,255,130),
+    Background = Color3.fromRGB(7,9,12),
+    Panel = Color3.fromRGB(13,16,20),
+    Panel2 = Color3.fromRGB(18,22,27),
+
+    Text = Color3.fromRGB(235,240,240),
+    Muted = Color3.fromRGB(110,120,125),
+
+    Animation = 0.18
 }
 
---==================================================
+--========================================================
+-- STATE
+--========================================================
+
+local State = {
+    Open = true,
+    Minimized = false,
+    Performance = true,
+    CurrentPage = "Dashboard"
+}
+
+--========================================================
+-- CLEAN OLD UI
+--========================================================
+
+local OldUI = PlayerGui:FindFirstChild("ToatoaHubV3")
+
+if OldUI then
+    OldUI:Destroy()
+end
+
+--========================================================
 -- HELPERS
---==================================================
+--========================================================
 
-local function New(class, properties, parent)
-    local object = Instance.new(class)
+local function New(class, props, parent)
+    local obj = Instance.new(class)
 
-    for property, value in pairs(properties) do
-        object[property] = value
+    for property, value in pairs(props) do
+        obj[property] = value
     end
 
-    object.Parent = parent
-    return object
+    obj.Parent = parent
+    return obj
 end
 
 local function Corner(parent, radius)
@@ -53,134 +82,162 @@ local function Stroke(parent, color, transparency)
     }, parent)
 end
 
-local function Tween(object, time, properties)
-    return TweenService:Create(
-        object,
-        TweenInfo.new(time, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+local function Tween(obj, properties, duration)
+    local tween = TweenService:Create(
+        obj,
+        TweenInfo.new(
+            duration or Config.Animation,
+            Enum.EasingStyle.Quad,
+            Enum.EasingDirection.Out
+        ),
         properties
     )
+
+    tween:Play()
+    return tween
 end
 
---==================================================
--- GUI
---==================================================
+--========================================================
+-- SCREEN GUI
+--========================================================
 
-local Gui = New("ScreenGui", {
-    Name = "ToatoaModernUI",
+local GUI = New("ScreenGui", {
+    Name = "ToatoaHubV3",
     ResetOnSpawn = false,
-    IgnoreGuiInset = true
+    IgnoreGuiInset = true,
+    ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 }, PlayerGui)
 
---==================================================
+--========================================================
+-- MOBILE / DESKTOP SIZE
+--========================================================
+
+local Camera = workspace.CurrentCamera
+
+local function GetMainSize()
+    local viewport = Camera.ViewportSize
+
+    if viewport.X <= 600 then
+        return UDim2.new(0.88,0,0,390)
+    else
+        return UDim2.fromOffset(650,420)
+    end
+end
+
+--========================================================
 -- MAIN
---==================================================
+--========================================================
 
 local Main = New("Frame", {
-    Size = UDim2.fromOffset(720, 440),
-    Position = UDim2.fromScale(0.5, 0.5),
-    AnchorPoint = Vector2.new(0.5, 0.5),
-    BackgroundColor3 = CONFIG.Background,
+    Size = GetMainSize(),
+    Position = UDim2.fromScale(0.5,0.5),
+    AnchorPoint = Vector2.new(0.5,0.5),
+    BackgroundColor3 = Config.Background,
     BorderSizePixel = 0
-}, Gui)
+}, GUI)
 
-Corner(Main, 14)
-Stroke(Main, CONFIG.Accent, 0.7)
+Corner(Main,14)
+Stroke(Main,Config.Accent,0.72)
 
---==================================================
+--========================================================
 -- TOP BAR
---==================================================
+--========================================================
 
 local Top = New("Frame", {
-    Size = UDim2.new(1, 0, 0, 58),
-    BackgroundColor3 = CONFIG.Panel,
+    Size = UDim2.new(1,0,0,52),
+    BackgroundColor3 = Config.Panel,
     BorderSizePixel = 0
 }, Main)
 
-Corner(Top, 14)
+Corner(Top,14)
 
 local Title = New("TextLabel", {
-    Size = UDim2.new(1, -150, 1, 0),
-    Position = UDim2.fromOffset(20, 0),
+    Size = UDim2.new(1,-130,1,0),
+    Position = UDim2.fromOffset(15,0),
     BackgroundTransparency = 1,
-    Text = ">_ " .. CONFIG.Title,
-    TextColor3 = CONFIG.Accent,
+    Text = ">_ "..Config.Title,
+    TextColor3 = Config.Accent,
     Font = Enum.Font.Code,
-    TextSize = 22,
+    TextSize = 19,
     TextXAlignment = Enum.TextXAlignment.Left
-}, Top)
+},Top)
 
-local Version = New("TextLabel", {
-    Size = UDim2.fromOffset(80, 30),
-    Position = UDim2.new(1, -155, 0, 14),
-    BackgroundTransparency = 1,
-    Text = CONFIG.Version,
-    TextColor3 = CONFIG.Muted,
+local Minimize = New("TextButton", {
+    Size = UDim2.fromOffset(34,30),
+    Position = UDim2.new(1,-78,0,11),
+    BackgroundColor3 = Config.Panel2,
+    Text = "−",
+    TextColor3 = Config.Text,
     Font = Enum.Font.Code,
-    TextSize = 12
-}, Top)
+    TextSize = 20,
+    AutoButtonColor = false
+},Top)
+
+Corner(Minimize,7)
 
 local Close = New("TextButton", {
-    Size = UDim2.fromOffset(38, 32),
-    Position = UDim2.new(1, -48, 0, 13),
-    BackgroundColor3 = Color3.fromRGB(35, 20, 23),
+    Size = UDim2.fromOffset(34,30),
+    Position = UDim2.new(1,-40,0,11),
+    BackgroundColor3 = Color3.fromRGB(45,20,24),
     Text = "×",
-    TextColor3 = Color3.fromRGB(255, 90, 100),
+    TextColor3 = Color3.fromRGB(255,90,100),
     Font = Enum.Font.Code,
-    TextSize = 22,
+    TextSize = 20,
     AutoButtonColor = false
-}, Top)
+},Top)
 
-Corner(Close, 8)
+Corner(Close,7)
 
---==================================================
+--========================================================
 -- SIDEBAR
---==================================================
+--========================================================
 
 local Sidebar = New("Frame", {
-    Size = UDim2.new(0, 165, 1, -75),
-    Position = UDim2.fromOffset(12, 66),
-    BackgroundColor3 = CONFIG.Panel,
+    Size = UDim2.new(0,145,1,-65),
+    Position = UDim2.fromOffset(10,58),
+    BackgroundColor3 = Config.Panel,
     BorderSizePixel = 0
-}, Main)
+},Main)
 
-Corner(Sidebar, 11)
+Corner(Sidebar,10)
 
-New("UIPadding", {
-    PaddingTop = UDim.new(0, 14),
-    PaddingLeft = UDim.new(0, 10),
-    PaddingRight = UDim.new(0, 10)
-}, Sidebar)
-
-local SidebarLayout = New("UIListLayout", {
-    Padding = UDim.new(0, 7),
+local SideLayout = New("UIListLayout", {
+    Padding = UDim.new(0,6),
+    HorizontalAlignment = Enum.HorizontalAlignment.Center,
     SortOrder = Enum.SortOrder.LayoutOrder
-}, Sidebar)
+},Sidebar)
 
---==================================================
+New("UIPadding",{
+    PaddingTop = UDim.new(0,10)
+},Sidebar)
+
+--========================================================
 -- CONTENT
---==================================================
+--========================================================
 
 local Content = New("Frame", {
-    Size = UDim2.new(1, -190, 1, -75),
-    Position = UDim2.fromOffset(180, 66),
+    Size = UDim2.new(1,-165,1,-65),
+    Position = UDim2.fromOffset(155,58),
     BackgroundTransparency = 1
-}, Main)
+},Main)
 
---==================================================
--- PAGES
---==================================================
+--========================================================
+-- PAGE SYSTEM
+--========================================================
 
 local Pages = {}
 
 local function CreatePage(name)
+
     local page = New("Frame", {
         Name = name,
-        Size = UDim2.fromScale(1, 1),
+        Size = UDim2.fromScale(1,1),
         BackgroundTransparency = 1,
         Visible = false
-    }, Content)
+    },Content)
 
     Pages[name] = page
+
     return page
 end
 
@@ -191,431 +248,597 @@ local Settings = CreatePage("Settings")
 
 Dashboard.Visible = true
 
---==================================================
+--========================================================
 -- PAGE TITLE
---==================================================
+--========================================================
 
-local function PageTitle(parent, text, subtitle)
+local function PageHeader(parent,title,subtitle)
 
-    New("TextLabel", {
-        Size = UDim2.new(1, 0, 0, 35),
+    New("TextLabel",{
+        Size = UDim2.new(1,-10,0,30),
         BackgroundTransparency = 1,
-        Text = text,
-        TextColor3 = CONFIG.Text,
+        Text = title,
+        TextColor3 = Config.Text,
         Font = Enum.Font.Code,
-        TextSize = 21,
+        TextSize = 19,
         TextXAlignment = Enum.TextXAlignment.Left
-    }, parent)
+    },parent)
 
-    New("TextLabel", {
-        Size = UDim2.new(1, 0, 0, 25),
-        Position = UDim2.fromOffset(0, 35),
+    New("TextLabel",{
+        Size = UDim2.new(1,-10,0,22),
+        Position = UDim2.fromOffset(0,30),
         BackgroundTransparency = 1,
         Text = subtitle,
-        TextColor3 = CONFIG.Muted,
+        TextColor3 = Config.Muted,
         Font = Enum.Font.Code,
-        TextSize = 12,
+        TextSize = 11,
         TextXAlignment = Enum.TextXAlignment.Left
-    }, parent)
+    },parent)
+
 end
 
-PageTitle(
+--========================================================
+-- DASHBOARD
+--========================================================
+
+PageHeader(
     Dashboard,
     "SYSTEM DASHBOARD",
-    "Welcome back, " .. Player.DisplayName
+    "Modern interface / optimized mode"
 )
 
---==================================================
--- STATUS CARD
---==================================================
-
-local StatusCard = New("Frame", {
-    Size = UDim2.new(1, 0, 0, 105),
-    Position = UDim2.fromOffset(0, 70),
-    BackgroundColor3 = CONFIG.Panel,
+local StatusCard = New("Frame",{
+    Size = UDim2.new(1,-10,0,95),
+    Position = UDim2.fromOffset(0,62),
+    BackgroundColor3 = Config.Panel,
     BorderSizePixel = 0
-}, Dashboard)
+},Dashboard)
 
-Corner(StatusCard, 10)
-Stroke(StatusCard, CONFIG.Accent, 0.8)
+Corner(StatusCard,10)
+Stroke(StatusCard,Config.Accent,0.82)
 
-New("TextLabel", {
-    Size = UDim2.new(1, -25, 0, 30),
-    Position = UDim2.fromOffset(15, 12),
+New("TextLabel",{
+    Size = UDim2.new(1,-20,0,25),
+    Position = UDim2.fromOffset(12,10),
     BackgroundTransparency = 1,
     Text = "● SYSTEM ONLINE",
-    TextColor3 = CONFIG.Accent,
+    TextColor3 = Config.Accent,
     Font = Enum.Font.Code,
-    TextSize = 16,
+    TextSize = 14,
     TextXAlignment = Enum.TextXAlignment.Left
-}, StatusCard)
+},StatusCard)
 
-New("TextLabel", {
-    Size = UDim2.new(1, -30, 0, 45),
-    Position = UDim2.fromOffset(15, 45),
+local PlayerInfo = New("TextLabel",{
+    Size = UDim2.new(1,-20,0,45),
+    Position = UDim2.fromOffset(12,38),
     BackgroundTransparency = 1,
-    Text = "Interface initialized successfully.\nPerformance mode: ENABLED",
-    TextColor3 = CONFIG.Muted,
+    Text = "USER: "..Player.DisplayName..
+        "\nPLACE: "..tostring(game.PlaceId),
+    TextColor3 = Config.Muted,
     Font = Enum.Font.Code,
-    TextSize = 12,
+    TextSize = 11,
     TextXAlignment = Enum.TextXAlignment.Left,
     TextYAlignment = Enum.TextYAlignment.Top
-}, StatusCard)
+},StatusCard)
 
---==================================================
--- GAMES PAGE
---==================================================
+--========================================================
+-- PERFORMANCE CARD
+--========================================================
 
-PageTitle(
+local PerfCard = New("Frame",{
+    Size = UDim2.new(1,-10,0,80),
+    Position = UDim2.fromOffset(0,168),
+    BackgroundColor3 = Config.Panel,
+    BorderSizePixel = 0
+},Dashboard)
+
+Corner(PerfCard,10)
+
+local FPSLabel = New("TextLabel",{
+    Size = UDim2.new(0.5,-10,1,0),
+    Position = UDim2.fromOffset(10,0),
+    BackgroundTransparency = 1,
+    Text = "FPS: --",
+    TextColor3 = Config.Accent,
+    Font = Enum.Font.Code,
+    TextSize = 14,
+    TextXAlignment = Enum.TextXAlignment.Left
+},PerfCard)
+
+local PingLabel = New("TextLabel",{
+    Size = UDim2.new(0.5,-10,1,0),
+    Position = UDim2.new(0.5,0,0,0),
+    BackgroundTransparency = 1,
+    Text = "PING: --",
+    TextColor3 = Config.Text,
+    Font = Enum.Font.Code,
+    TextSize = 14,
+    TextXAlignment = Enum.TextXAlignment.Left
+},PerfCard)
+
+--========================================================
+-- GAMES
+--========================================================
+
+PageHeader(
     Games,
     "GAME CENTER",
-    "Select a supported game"
+    "Available game profiles"
 )
 
-local GameList = New("Frame", {
-    Size = UDim2.new(1, 0, 1, -70),
-    Position = UDim2.fromOffset(0, 70),
-    BackgroundTransparency = 1
-}, Games)
+local GameContainer = New("ScrollingFrame",{
+    Size = UDim2.new(1,-10,1,-65),
+    Position = UDim2.fromOffset(0,62),
+    BackgroundTransparency = 1,
+    BorderSizePixel = 0,
+    ScrollBarThickness = 2,
+    CanvasSize = UDim2.new(0,0,0,0),
+    AutomaticCanvasSize = Enum.AutomaticSize.Y
+},Games)
 
-local GameLayout = New("UIListLayout", {
-    Padding = UDim.new(0, 8)
-}, GameList)
+local GameLayout = New("UIListLayout",{
+    Padding = UDim.new(0,7)
+},GameContainer)
 
-local function GameCard(name, id)
+local function AddGame(name,id)
 
-    local card = New("TextButton", {
-        Size = UDim2.new(1, 0, 0, 55),
-        BackgroundColor3 = CONFIG.Panel,
+    local Button = New("TextButton",{
+        Size = UDim2.new(1,0,0,52),
+        BackgroundColor3 = Config.Panel,
         Text = "",
         AutoButtonColor = false
-    }, GameList)
+    },GameContainer)
 
-    Corner(card, 9)
+    Corner(Button,9)
 
-    New("TextLabel", {
-        Size = UDim2.new(1, -20, 0, 25),
-        Position = UDim2.fromOffset(12, 6),
+    New("TextLabel",{
+        Size = UDim2.new(1,-20,0,24),
+        Position = UDim2.fromOffset(10,5),
         BackgroundTransparency = 1,
         Text = name,
-        TextColor3 = CONFIG.Text,
+        TextColor3 = Config.Text,
         Font = Enum.Font.Code,
-        TextSize = 14,
+        TextSize = 13,
         TextXAlignment = Enum.TextXAlignment.Left
-    }, card)
+    },Button)
 
-    New("TextLabel", {
-        Size = UDim2.new(1, -20, 0, 18),
-        Position = UDim2.fromOffset(12, 30),
+    New("TextLabel",{
+        Size = UDim2.new(1,-20,0,18),
+        Position = UDim2.fromOffset(10,29),
         BackgroundTransparency = 1,
-        Text = "PlaceID: " .. tostring(id),
-        TextColor3 = CONFIG.Muted,
+        Text = "ID: "..tostring(id),
+        TextColor3 = Config.Muted,
         Font = Enum.Font.Code,
         TextSize = 10,
         TextXAlignment = Enum.TextXAlignment.Left
-    }, card)
+    },Button)
 
-    card.MouseEnter:Connect(function()
-        Tween(card, 0.12, {
-            BackgroundColor3 = Color3.fromRGB(20, 40, 29)
-        }):Play()
+    Button.Activated:Connect(function()
+        PlayerInfo.Text =
+            "USER: "..Player.DisplayName..
+            "\nSELECTED: "..name
+
+        Notify("Selected "..name)
     end)
 
-    card.MouseLeave:Connect(function()
-        Tween(card, 0.12, {
-            BackgroundColor3 = CONFIG.Panel
-        }):Play()
+    Button.MouseEnter:Connect(function()
+        Tween(Button,{
+            BackgroundColor3 = Color3.fromRGB(20,38,28)
+        },0.12)
     end)
 
-    return card
+    Button.MouseLeave:Connect(function()
+        Tween(Button,{
+            BackgroundColor3 = Config.Panel
+        },0.12)
+    end)
 end
 
-GameCard("Murder Mystery 2", 142823291)
-GameCard("99 Nights in the Forest", 79546208627805)
-GameCard("Grow a Garden", 126987765280963)
-GameCard("Steal an Egg", 107778070777162)
+AddGame("Murder Mystery 2",142823291)
+AddGame("99 Nights in the Forest",79546208627805)
+AddGame("Grow a Garden",126987765280963)
+AddGame("Steal an Egg",107778070777162)
 
---==================================================
+--========================================================
 -- SCRIPTS PAGE
---==================================================
+--========================================================
 
-PageTitle(
+PageHeader(
     Scripts,
     "SCRIPT MANAGER",
-    "Manage your legitimate Studio scripts"
+    "Local Studio script tools"
 )
 
-local ScriptBox = New("Frame", {
-    Size = UDim2.new(1, 0, 0, 180),
-    Position = UDim2.fromOffset(0, 70),
-    BackgroundColor3 = CONFIG.Panel,
+local ScriptStatus = New("Frame",{
+    Size = UDim2.new(1,-10,0,150),
+    Position = UDim2.fromOffset(0,62),
+    BackgroundColor3 = Config.Panel,
     BorderSizePixel = 0
-}, Scripts)
+},Scripts)
 
-Corner(ScriptBox, 10)
+Corner(ScriptStatus,10)
 
-New("TextLabel", {
-    Size = UDim2.new(1, -25, 0, 30),
-    Position = UDim2.fromOffset(15, 12),
+New("TextLabel",{
+    Size = UDim2.new(1,-20,0,30),
+    Position = UDim2.fromOffset(10,10),
     BackgroundTransparency = 1,
-    Text = "LOCAL SCRIPT STATUS",
-    TextColor3 = CONFIG.Accent,
+    Text = "LOCAL STATUS",
+    TextColor3 = Config.Accent,
     Font = Enum.Font.Code,
-    TextSize = 15,
+    TextSize = 14,
     TextXAlignment = Enum.TextXAlignment.Left
-}, ScriptBox)
+},ScriptStatus)
 
-New("TextLabel", {
-    Size = UDim2.new(1, -30, 0, 90),
-    Position = UDim2.fromOffset(15, 48),
+New("TextLabel",{
+    Size = UDim2.new(1,-20,0,90),
+    Position = UDim2.fromOffset(10,45),
     BackgroundTransparency = 1,
-    Text = "✓ UI loaded\n✓ Animations optimized\n✓ Event connections active\n✓ Performance mode enabled",
-    TextColor3 = CONFIG.Text,
+    Text =
+        "✓ Interface loaded\n"..
+        "✓ Events initialized\n"..
+        "✓ Performance mode ready\n"..
+        "✓ Mobile layout enabled",
+    TextColor3 = Config.Text,
     Font = Enum.Font.Code,
-    TextSize = 12,
+    TextSize = 11,
     TextXAlignment = Enum.TextXAlignment.Left,
     TextYAlignment = Enum.TextYAlignment.Top
-}, ScriptBox)
+},ScriptStatus)
 
---==================================================
+--========================================================
 -- SETTINGS
---==================================================
+--========================================================
 
-PageTitle(
+PageHeader(
     Settings,
     "SETTINGS",
-    "Interface preferences"
+    "Customize your interface"
 )
 
-local SettingsBox = New("Frame", {
-    Size = UDim2.new(1, 0, 0, 180),
-    Position = UDim2.fromOffset(0, 70),
-    BackgroundColor3 = CONFIG.Panel,
-    BorderSizePixel = 0
-}, Settings)
-
-Corner(SettingsBox, 10)
-
-local PerfButton = New("TextButton", {
-    Size = UDim2.new(1, -30, 0, 45),
-    Position = UDim2.fromOffset(15, 15),
-    BackgroundColor3 = Color3.fromRGB(20, 45, 31),
-    Text = "⚡  PERFORMANCE MODE     ON",
-    TextColor3 = CONFIG.Accent,
+local PerformanceButton = New("TextButton",{
+    Size = UDim2.new(1,-10,0,48),
+    Position = UDim2.fromOffset(0,62),
+    BackgroundColor3 = Color3.fromRGB(20,42,29),
+    Text = "⚡ PERFORMANCE MODE  •  ON",
+    TextColor3 = Config.Accent,
     Font = Enum.Font.Code,
-    TextSize = 13,
+    TextSize = 12,
     AutoButtonColor = false
-}, SettingsBox)
+},Settings)
 
-Corner(PerfButton, 8)
+Corner(PerformanceButton,9)
 
-PerfButton.Activated:Connect(function()
+PerformanceButton.Activated:Connect(function()
 
-    local enabled = PerfButton:GetAttribute("Enabled")
+    State.Performance = not State.Performance
 
-    if enabled == nil then
-        enabled = true
-    end
+    if State.Performance then
+        PerformanceButton.Text =
+            "⚡ PERFORMANCE MODE  •  ON"
 
-    enabled = not enabled
-    PerfButton:SetAttribute("Enabled", enabled)
-
-    if enabled then
-        PerfButton.Text = "⚡  PERFORMANCE MODE     ON"
-        PerfButton.TextColor3 = CONFIG.Accent
+        PerformanceButton.TextColor3 =
+            Config.Accent
     else
-        PerfButton.Text = "⚡  PERFORMANCE MODE     OFF"
-        PerfButton.TextColor3 = CONFIG.Muted
+        PerformanceButton.Text =
+            "⚡ PERFORMANCE MODE  •  OFF"
+
+        PerformanceButton.TextColor3 =
+            Config.Muted
     end
+
+    Notify(
+        "Performance mode: "..
+        (State.Performance and "ON" or "OFF")
+    )
 end)
 
---==================================================
--- NOTIFICATION
---==================================================
-
-local NotificationHolder = New("Frame", {
-    Size = UDim2.fromOffset(280, 200),
-    Position = UDim2.new(1, -300, 1, -220),
-    BackgroundTransparency = 1
-}, Gui)
-
-local NotificationLayout = New("UIListLayout", {
-    Padding = UDim.new(0, 8),
-    VerticalAlignment = Enum.VerticalAlignment.Bottom
-}, NotificationHolder)
-
-local function Notify(text)
-
-    local notification = New("Frame", {
-        Size = UDim2.fromOffset(280, 50),
-        BackgroundColor3 = CONFIG.Panel2,
-        BorderSizePixel = 0
-    }, NotificationHolder)
-
-    Corner(notification, 9)
-    Stroke(notification, CONFIG.Accent, 0.75)
-
-    New("TextLabel", {
-        Size = UDim2.new(1, -20, 1, 0),
-        Position = UDim2.fromOffset(10, 0),
-        BackgroundTransparency = 1,
-        Text = "●  " .. text,
-        TextColor3 = CONFIG.Text,
-        Font = Enum.Font.Code,
-        TextSize = 12,
-        TextXAlignment = Enum.TextXAlignment.Left
-    }, notification)
-
-    notification.Position = UDim2.new(1, 40, 0, 0)
-
-    Tween(notification, 0.2, {
-        Position = UDim2.new(0, 0, 0, 0)
-    }):Play()
-
-    task.delay(3, function()
-
-        if notification.Parent then
-            local tween = Tween(notification, 0.2, {
-                Position = UDim2.new(1, 40, 0, 0)
-            })
-
-            tween:Play()
-            tween.Completed:Wait()
-
-            notification:Destroy()
-        end
-
-    end)
-end
-
---==================================================
+--========================================================
 -- NAVIGATION
---==================================================
+--========================================================
 
-local Buttons = {}
+local NavButtons = {}
 
-local function NavButton(text, page)
+local function AddNav(text,pageName)
 
-    local button = New("TextButton", {
-        Size = UDim2.new(1, 0, 0, 42),
-        BackgroundColor3 = CONFIG.Panel2,
+    local Button = New("TextButton",{
+        Size = UDim2.new(1,-16,0,40),
+        BackgroundColor3 = Config.Panel2,
         Text = text,
-        TextColor3 = CONFIG.Muted,
+        TextColor3 = Config.Muted,
         Font = Enum.Font.Code,
-        TextSize = 13,
+        TextSize = 11,
         AutoButtonColor = false,
-        LayoutOrder = #Buttons + 1
-    }, Sidebar)
+        LayoutOrder = #NavButtons + 1
+    },Sidebar)
 
-    Corner(button, 8)
+    Corner(Button,8)
 
-    table.insert(Buttons, button)
+    table.insert(NavButtons,Button)
 
-    button.Activated:Connect(function()
+    Button.Activated:Connect(function()
 
-        for pageName, pageObject in pairs(Pages) do
-            pageObject.Visible = pageName == page
+        State.CurrentPage = pageName
+
+        for name,page in pairs(Pages) do
+            page.Visible = (name == pageName)
         end
 
-        for _, b in ipairs(Buttons) do
-            b.TextColor3 = CONFIG.Muted
-            b.BackgroundColor3 = CONFIG.Panel2
+        for _,nav in ipairs(NavButtons) do
+            nav.BackgroundColor3 = Config.Panel2
+            nav.TextColor3 = Config.Muted
         end
 
-        button.TextColor3 = CONFIG.Accent
-        button.BackgroundColor3 = Color3.fromRGB(20, 40, 29)
+        Button.BackgroundColor3 =
+            Color3.fromRGB(20,42,29)
 
-        Notify("Opened " .. page)
+        Button.TextColor3 =
+            Config.Accent
     end)
 
-    return button
 end
 
-NavButton("▣  DASHBOARD", "Dashboard")
-NavButton("◈  GAMES", "Games")
-NavButton("⌘  SCRIPTS", "Scripts")
-NavButton("⚙  SETTINGS", "Settings")
+AddNav("▣  DASHBOARD","Dashboard")
+AddNav("◈  GAMES","Games")
+AddNav("⌘  SCRIPTS","Scripts")
+AddNav("⚙  SETTINGS","Settings")
 
-Buttons[1].TextColor3 = CONFIG.Accent
-Buttons[1].BackgroundColor3 = Color3.fromRGB(20, 40, 29)
+NavButtons[1].BackgroundColor3 =
+    Color3.fromRGB(20,42,29)
 
---==================================================
+NavButtons[1].TextColor3 =
+    Config.Accent
+
+--========================================================
+-- OPEN BUTTON
+--========================================================
+
+local OpenButton = New("TextButton",{
+    Size = UDim2.fromOffset(52,52),
+    Position = UDim2.new(0,15,0.5,0),
+    AnchorPoint = Vector2.new(0,0.5),
+    BackgroundColor3 = Config.Panel,
+    Text = ">_",
+    TextColor3 = Config.Accent,
+    Font = Enum.Font.Code,
+    TextSize = 18,
+    Visible = false,
+    AutoButtonColor = false
+},GUI)
+
+Corner(OpenButton,12)
+Stroke(OpenButton,Config.Accent,0.6)
+
+--========================================================
+-- NOTIFICATIONS
+--========================================================
+
+local Notifications = New("Frame",{
+    Size = UDim2.fromOffset(260,180),
+    Position = UDim2.new(1,-275,1,-195),
+    BackgroundTransparency = 1
+},GUI)
+
+local NotificationLayout = New("UIListLayout",{
+    Padding = UDim.new(0,6),
+    VerticalAlignment = Enum.VerticalAlignment.Bottom
+},Notifications)
+
+function Notify(message)
+
+    local Note = New("Frame",{
+        Size = UDim2.fromOffset(260,45),
+        BackgroundColor3 = Config.Panel2,
+        BorderSizePixel = 0
+    },Notifications)
+
+    Corner(Note,8)
+    Stroke(Note,Config.Accent,0.75)
+
+    New("TextLabel",{
+        Size = UDim2.new(1,-15,1,0),
+        Position = UDim2.fromOffset(8,0),
+        BackgroundTransparency = 1,
+        Text = "● "..message,
+        TextColor3 = Config.Text,
+        Font = Enum.Font.Code,
+        TextSize = 11,
+        TextXAlignment = Enum.TextXAlignment.Left
+    },Note)
+
+    task.delay(2.5,function()
+
+        if Note and Note.Parent then
+            Tween(Note,{
+                BackgroundTransparency = 1
+            },0.15)
+
+            task.wait(0.16)
+
+            if Note then
+                Note:Destroy()
+            end
+        end
+
+    end)
+end
+
+--========================================================
+-- OPEN / CLOSE
+--========================================================
+
+local FullSize = Main.Size
+
+local function OpenUI()
+
+    State.Open = true
+
+    OpenButton.Visible = false
+    Main.Visible = true
+
+    Main.Size = UDim2.fromOffset(0,0)
+
+    Tween(Main,{
+        Size = FullSize
+    },0.25)
+
+end
+
+local function CloseUI()
+
+    State.Open = false
+
+    local tween = Tween(Main,{
+        Size = UDim2.fromOffset(0,0)
+    },0.22)
+
+    tween.Completed:Connect(function()
+
+        Main.Visible = false
+        OpenButton.Visible = true
+
+    end)
+end
+
+Close.Activated:Connect(CloseUI)
+OpenButton.Activated:Connect(OpenUI)
+
+--========================================================
+-- MINIMIZE
+--========================================================
+
+Minimize.Activated:Connect(function()
+
+    State.Minimized = not State.Minimized
+
+    Sidebar.Visible = not State.Minimized
+    Content.Visible = not State.Minimized
+
+    if State.Minimized then
+        Minimize.Text = "+"
+        Main.Size = UDim2.new(
+            Main.Size.X.Scale,
+            Main.Size.X.Offset,
+            0,52
+        )
+    else
+        Minimize.Text = "−"
+        Main.Size = FullSize
+    end
+
+end)
+
+--========================================================
 -- DRAG SYSTEM
---==================================================
+--========================================================
 
-local dragging = false
-local dragStart
-local startPosition
+local Dragging = false
+local DragStart
+local StartPosition
 
 Top.InputBegan:Connect(function(input)
 
     if input.UserInputType == Enum.UserInputType.MouseButton1
         or input.UserInputType == Enum.UserInputType.Touch then
 
-        dragging = true
-        dragStart = input.Position
-        startPosition = Main.Position
+        Dragging = true
+        DragStart = input.Position
+        StartPosition = Main.Position
 
         input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
+
+            if input.UserInputState ==
+                Enum.UserInputState.End then
+
+                Dragging = false
             end
+
         end)
+
     end
+
 end)
 
 UserInputService.InputChanged:Connect(function(input)
 
-    if not dragging then
+    if not Dragging then
         return
     end
 
-    if input.UserInputType == Enum.UserInputType.MouseMovement
-        or input.UserInputType == Enum.UserInputType.Touch then
+    if input.UserInputType ==
+        Enum.UserInputType.MouseMovement
+        or input.UserInputType ==
+        Enum.UserInputType.Touch then
 
-        local delta = input.Position - dragStart
+        local Delta =
+            input.Position - DragStart
 
         Main.Position = UDim2.new(
-            startPosition.X.Scale,
-            startPosition.X.Offset + delta.X,
-            startPosition.Y.Scale,
-            startPosition.Y.Offset + delta.Y
+            StartPosition.X.Scale,
+            StartPosition.X.Offset + Delta.X,
+            StartPosition.Y.Scale,
+            StartPosition.Y.Offset + Delta.Y
         )
     end
 end)
 
---==================================================
--- CLOSE
---==================================================
+--========================================================
+-- RESPONSIVE RESIZE
+--========================================================
 
-Close.Activated:Connect(function()
+Camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
 
-    local tween = Tween(
-        Main,
-        0.2,
-        {
-            Size = UDim2.fromOffset(0, 0)
-        }
-    )
+    if not State.Minimized then
+        Main.Size = GetMainSize()
+        FullSize = Main.Size
+    end
 
-    tween:Play()
-    tween.Completed:Wait()
-
-    Gui:Destroy()
 end)
 
---==================================================
--- START ANIMATION
---==================================================
+--========================================================
+-- FPS / PING
+--========================================================
 
-local originalSize = Main.Size
+local Frames = 0
+local LastFPSUpdate = os.clock()
 
-Main.Size = UDim2.fromOffset(0, 0)
+RunService.RenderStepped:Connect(function()
 
-Tween(Main, 0.35, {
-    Size = originalSize
-}):Play()
+    Frames += 1
 
-task.delay(0.4, function()
-    Notify("TOATOA HUB initialized")
+    local now = os.clock()
+
+    if now - LastFPSUpdate >= 1 then
+
+        FPSLabel.Text =
+            "FPS: "..tostring(Frames)
+
+        Frames = 0
+        LastFPSUpdate = now
+
+        local ping = 0
+
+        pcall(function()
+            ping = math.floor(
+                Player:GetNetworkPing() * 1000
+            )
+        end)
+
+        PingLabel.Text =
+            "PING: "..tostring(ping).."ms"
+
+    end
+end)
+
+--========================================================
+-- START
+--========================================================
+
+Main.Size = UDim2.fromOffset(0,0)
+
+Tween(Main,{
+    Size = FullSize
+},0.3)
+
+task.delay(0.35,function()
+    Notify("TOATOA HUB v3.0 loaded")
 end)
