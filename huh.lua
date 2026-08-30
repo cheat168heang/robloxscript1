@@ -1,219 +1,524 @@
+--==================================================
+-- PERSONAL DATA UI
+-- Roblox Studio - LocalScript
+-- Put inside StarterGui
+--==================================================
+
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 
-local player = Players.LocalPlayer
-local gui = script.Parent
-
---// CONFIG
-local MIN_SIZE = Vector2.new(300, 200)
-local MAX_SIZE = Vector2.new(700, 500)
-local START_SIZE = Vector2.new(420, 300)
-
---// ScreenGui
-gui.ResetOnSpawn = false
-gui.IgnoreGuiInset = true
-
---// Main Window
-local main = Instance.new("Frame")
-main.Name = "MainWindow"
-main.Size = UDim2.fromOffset(START_SIZE.X, START_SIZE.Y)
-main.Position = UDim2.new(0.5, -START_SIZE.X/2, 0.5, -START_SIZE.Y/2)
-main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-main.BorderSizePixel = 0
-main.Parent = gui
-
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 10)
-corner.Parent = main
-
---// Header
-local header = Instance.new("Frame")
-header.Name = "Header"
-header.Size = UDim2.new(1, 0, 0, 40)
-header.BackgroundTransparency = 1
-header.Active = true
-header.Parent = main
-
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, -50, 1, 0)
-title.Position = UDim2.fromOffset(15, 0)
-title.BackgroundTransparency = 1
-title.Text = "Webhook Logger"
-title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.TextSize = 18
-title.Font = Enum.Font.GothamBold
-title.TextXAlignment = Enum.TextXAlignment.Left
-title.Parent = header
-
---// Close Button
-local close = Instance.new("TextButton")
-close.Size = UDim2.fromOffset(35, 35)
-close.Position = UDim2.new(1, -40, 0, 3)
-close.BackgroundTransparency = 1
-close.Text = "×"
-close.TextColor3 = Color3.fromRGB(255, 255, 255)
-close.TextSize = 25
-close.Font = Enum.Font.GothamBold
-close.Parent = header
-
---// Content
-local content = Instance.new("Frame")
-content.Position = UDim2.fromOffset(15, 50)
-content.Size = UDim2.new(1, -30, 1, -65)
-content.BackgroundTransparency = 1
-content.Parent = main
-
-local info = Instance.new("TextLabel")
-info.Size = UDim2.new(1, 0, 0, 50)
-info.BackgroundTransparency = 1
-info.Text = "Resize from the bottom-right corner"
-info.TextColor3 = Color3.fromRGB(180, 180, 180)
-info.TextSize = 14
-info.Font = Enum.Font.Gotham
-info.TextWrapped = true
-info.Parent = content
-
---// Resize Handle
-local resizeHandle = Instance.new("TextButton")
-resizeHandle.Name = "ResizeHandle"
-resizeHandle.Size = UDim2.fromOffset(25, 25)
-resizeHandle.Position = UDim2.new(1, -25, 1, -25)
-resizeHandle.BackgroundTransparency = 1
-resizeHandle.Text = "↘"
-resizeHandle.TextColor3 = Color3.fromRGB(180, 180, 180)
-resizeHandle.TextSize = 20
-resizeHandle.Font = Enum.Font.GothamBold
-resizeHandle.Parent = main
+local Player = Players.LocalPlayer
 
 --==================================================
--- DRAG WINDOW
+-- CONFIG
 --==================================================
 
-local dragging = false
-local dragStart
-local startPosition
+local CONFIG = {
+	Title = "My Roblox Data",
 
-header.InputBegan:Connect(function(input)
+	MinSize = Vector2.new(300, 220),
+	MaxSize = Vector2.new(650, 500),
 
-	if input.UserInputType == Enum.UserInputType.MouseButton1
-		or input.UserInputType == Enum.UserInputType.Touch then
+	StartSize = Vector2.new(420, 320),
 
-		dragging = true
-		dragStart = input.Position
-		startPosition = main.Position
+	Background = Color3.fromRGB(25, 25, 25),
+	Header = Color3.fromRGB(35, 35, 35),
 
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
+	-- Set true if you want the window movable
+	Draggable = true,
+
+	-- Set true if you want resizing
+Resizable = true,
+}
+
+--==================================================
+-- SCREEN GUI
+--==================================================
+
+local GUI = Instance.new("ScreenGui")
+
+GUI.Name = "PersonalDataUI"
+GUI.ResetOnSpawn = false
+GUI.IgnoreGuiInset = true
+GUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+GUI.Parent = Player:WaitForChild("PlayerGui")
+
+--==================================================
+-- MAIN WINDOW
+--==================================================
+
+local Main = Instance.new("Frame")
+
+Main.Name = "Main"
+Main.Size = UDim2.fromOffset(
+	CONFIG.StartSize.X,
+	CONFIG.StartSize.Y
+)
+
+Main.Position = UDim2.new(
+	0.5,
+	-CONFIG.StartSize.X / 2,
+	0.5,
+	-CONFIG.StartSize.Y / 2
+)
+
+Main.BackgroundColor3 = CONFIG.Background
+Main.BorderSizePixel = 0
+Main.Active = true
+
+Main.Parent = GUI
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 12)
+MainCorner.Parent = Main
+
+--==================================================
+-- HEADER
+--==================================================
+
+local Header = Instance.new("Frame")
+
+Header.Name = "Header"
+Header.Size = UDim2.new(1, 0, 0, 45)
+
+Header.BackgroundColor3 = CONFIG.Header
+Header.BorderSizePixel = 0
+Header.Active = true
+
+Header.Parent = Main
+
+local HeaderCorner = Instance.new("UICorner")
+HeaderCorner.CornerRadius = UDim.new(0, 12)
+HeaderCorner.Parent = Header
+
+--==================================================
+-- TITLE
+--==================================================
+
+local Title = Instance.new("TextLabel")
+
+Title.Name = "Title"
+
+Title.Position = UDim2.fromOffset(15, 0)
+Title.Size = UDim2.new(1, -60, 1, 0)
+
+Title.BackgroundTransparency = 1
+
+Title.Text = CONFIG.Title
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+Title.TextSize = 18
+Title.Font = Enum.Font.GothamBold
+
+Title.TextXAlignment = Enum.TextXAlignment.Left
+
+Title.Parent = Header
+
+--==================================================
+-- CLOSE BUTTON
+--==================================================
+
+local Close = Instance.new("TextButton")
+
+Close.Name = "Close"
+
+Close.Size = UDim2.fromOffset(40, 40)
+Close.Position = UDim2.new(1, -42, 0, 2)
+
+Close.BackgroundTransparency = 1
+
+Close.Text = "×"
+Close.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+Close.TextSize = 26
+Close.Font = Enum.Font.GothamBold
+
+Close.Parent = Header
+
+--==================================================
+-- DATA CONTAINER
+--==================================================
+
+local DataFrame = Instance.new("Frame")
+
+DataFrame.Name = "Data"
+
+DataFrame.Position = UDim2.fromOffset(20, 60)
+
+DataFrame.Size = UDim2.new(
+	1,
+	-40,
+	1,
+	-125
+)
+
+DataFrame.BackgroundTransparency = 1
+
+DataFrame.Parent = Main
+
+--==================================================
+-- DATA TEXT
+--==================================================
+
+local DataText = Instance.new("TextLabel")
+
+DataText.Name = "DataText"
+
+DataText.Size = UDim2.new(1, 0, 1, 0)
+
+DataText.BackgroundTransparency = 1
+
+DataText.Text = "Loading..."
+
+DataText.TextColor3 = Color3.fromRGB(220, 220, 220)
+
+DataText.TextSize = 15
+DataText.Font = Enum.Font.Gotham
+
+DataText.TextXAlignment = Enum.TextXAlignment.Left
+DataText.TextYAlignment = Enum.TextYAlignment.Top
+
+DataText.TextWrapped = true
+
+DataText.Parent = DataFrame
+
+--==================================================
+-- REFRESH BUTTON
+--==================================================
+
+local Refresh = Instance.new("TextButton")
+
+Refresh.Name = "Refresh"
+
+Refresh.Size = UDim2.fromOffset(120, 40)
+
+Refresh.Position = UDim2.new(
+	0,
+	20,
+	1,
+	-55
+)
+
+Refresh.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+Refresh.Text = "Refresh"
+
+Refresh.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+Refresh.TextSize = 15
+Refresh.Font = Enum.Font.GothamBold
+
+Refresh.Parent = Main
+
+local RefreshCorner = Instance.new("UICorner")
+RefreshCorner.CornerRadius = UDim.new(0, 8)
+RefreshCorner.Parent = Refresh
+
+--==================================================
+-- RESIZE HANDLE
+--==================================================
+
+local Resize = Instance.new("TextButton")
+
+Resize.Name = "Resize"
+
+Resize.Size = UDim2.fromOffset(40, 40)
+
+Resize.AnchorPoint = Vector2.new(1, 1)
+
+Resize.Position = UDim2.new(
+	1,
+	-4,
+	1,
+	-4
+)
+
+Resize.BackgroundTransparency = 1
+
+Resize.Text = "↘"
+
+Resize.TextColor3 = Color3.fromRGB(180, 180, 180)
+
+Resize.TextSize = 22
+Resize.Font = Enum.Font.GothamBold
+
+Resize.Visible = CONFIG.Resizable
+
+Resize.Parent = Main
+
+--==================================================
+-- OPEN BUTTON
+--==================================================
+
+local Open = Instance.new("TextButton")
+
+Open.Name = "OpenButton"
+
+Open.Size = UDim2.fromOffset(55, 55)
+
+Open.Position = UDim2.new(
+	0,
+	20,
+	0.5,
+	-27
+)
+
+Open.BackgroundColor3 = CONFIG.Background
+
+Open.Text = "☰"
+
+Open.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+Open.TextSize = 22
+Open.Font = Enum.Font.GothamBold
+
+Open.Visible = false
+
+Open.Parent = GUI
+
+local OpenCorner = Instance.new("UICorner")
+OpenCorner.CornerRadius = UDim.new(1, 0)
+OpenCorner.Parent = Open
+
+--==================================================
+-- DATA
+--==================================================
+
+local function UpdateData()
+
+	local username = Player.Name
+	local displayName = Player.DisplayName
+	local userId = Player.UserId
+
+	local placeId = game.PlaceId
+
+	local jobId = game.JobId
+
+	if jobId == "" then
+		jobId = "Studio"
 	end
-end)
 
-UserInputService.InputChanged:Connect(function(input)
+	DataText.Text =
+		"PLAYER INFORMATION\n\n" ..
 
-	if not dragging then
-		return
-	end
+		"Username      : "
+		.. username ..
 
-	if input.UserInputType == Enum.UserInputType.MouseMovement
-		or input.UserInputType == Enum.UserInputType.Touch then
+		"\nDisplay Name  : "
+		.. displayName ..
 
-		local delta = input.Position - dragStart
+		"\nUser ID       : "
+		.. tostring(userId) ..
 
-		main.Position = UDim2.new(
-			startPosition.X.Scale,
-			startPosition.X.Offset + delta.X,
-			startPosition.Y.Scale,
-			startPosition.Y.Offset + delta.Y
+		"\n\nGAME INFORMATION\n\n" ..
+
+		"Place ID      : "
+		.. tostring(placeId) ..
+
+		"\nServer Job ID : "
+		.. jobId
+end
+
+--==================================================
+-- DRAG SYSTEM
+--==================================================
+
+local Dragging = false
+
+local DragStart
+local StartPosition
+
+local DragInput
+
+if CONFIG.Draggable then
+
+	Header.InputBegan:Connect(function(Input)
+
+		if Input.UserInputType == Enum.UserInputType.MouseButton1
+			or Input.UserInputType == Enum.UserInputType.Touch then
+
+			Dragging = true
+
+			DragStart = Input.Position
+
+			StartPosition = Main.Position
+
+			Input.Changed:Connect(function()
+
+				if Input.UserInputState == Enum.UserInputState.End then
+					Dragging = false
+				end
+
+			end)
+
+		end
+
+	end)
+
+	Header.InputChanged:Connect(function(Input)
+
+		if Input.UserInputType == Enum.UserInputType.MouseMovement
+			or Input.UserInputType == Enum.UserInputType.Touch then
+
+			DragInput = Input
+
+		end
+
+	end)
+
+	UserInputService.InputChanged:Connect(function(Input)
+
+		if not Dragging then
+			return
+		end
+
+		if Input ~= DragInput then
+			return
+		end
+
+		local Delta = Input.Position - DragStart
+
+		Main.Position = UDim2.new(
+
+			StartPosition.X.Scale,
+
+			StartPosition.X.Offset + Delta.X,
+
+			StartPosition.Y.Scale,
+
+			StartPosition.Y.Offset + Delta.Y
+
 		)
-	end
+
+	end)
+
+end
+
+--==================================================
+-- RESIZE SYSTEM
+--==================================================
+
+local Resizing = false
+
+local ResizeStart
+local StartSize
+
+local ResizeInput
+
+if CONFIG.Resizable then
+
+	Resize.InputBegan:Connect(function(Input)
+
+		if Input.UserInputType == Enum.UserInputType.MouseButton1
+			or Input.UserInputType == Enum.UserInputType.Touch then
+
+			Resizing = true
+
+			ResizeStart = Input.Position
+
+			StartSize = Main.AbsoluteSize
+
+			Input.Changed:Connect(function()
+
+				if Input.UserInputState == Enum.UserInputState.End then
+					Resizing = false
+				end
+
+			end)
+
+		end
+
+	end)
+
+	Resize.InputChanged:Connect(function(Input)
+
+		if Input.UserInputType == Enum.UserInputType.MouseMovement
+			or Input.UserInputType == Enum.UserInputType.Touch then
+
+			ResizeInput = Input
+
+		end
+
+	end)
+
+	UserInputService.InputChanged:Connect(function(Input)
+
+		if not Resizing then
+			return
+		end
+
+		if Input ~= ResizeInput then
+			return
+		end
+
+		local Delta = Input.Position - ResizeStart
+
+		local NewWidth = math.clamp(
+
+			StartSize.X + Delta.X,
+
+			CONFIG.MinSize.X,
+
+			CONFIG.MaxSize.X
+
+		)
+
+		local NewHeight = math.clamp(
+
+			StartSize.Y + Delta.Y,
+
+			CONFIG.MinSize.Y,
+
+			CONFIG.MaxSize.Y
+
+		)
+
+		Main.Size = UDim2.fromOffset(
+			NewWidth,
+			NewHeight
+		)
+
+	end)
+
+end
+
+--==================================================
+-- CLOSE
+--==================================================
+
+Close.Activated:Connect(function()
+
+	Main.Visible = false
+
+	Open.Visible = true
+
 end)
 
 --==================================================
--- RESIZE WINDOW
+-- OPEN
 --==================================================
 
-local resizing = false
-local resizeStart
-local startSize
+Open.Activated:Connect(function()
 
-resizeHandle.InputBegan:Connect(function(input)
+	Main.Visible = true
 
-	if input.UserInputType == Enum.UserInputType.MouseButton1
-		or input.UserInputType == Enum.UserInputType.Touch then
+	Open.Visible = false
 
-		resizing = true
-		resizeStart = input.Position
-		startSize = Vector2.new(
-			main.AbsoluteSize.X,
-			main.AbsoluteSize.Y
-		)
-
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				resizing = false
-			end
-		end)
-	end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-
-	if not resizing then
-		return
-	end
-
-	if input.UserInputType == Enum.UserInputType.MouseMovement
-		or input.UserInputType == Enum.UserInputType.Touch then
-
-		local delta = input.Position - resizeStart
-
-		local newWidth = math.clamp(
-			startSize.X + delta.X,
-			MIN_SIZE.X,
-			MAX_SIZE.X
-		)
-
-		local newHeight = math.clamp(
-			startSize.Y + delta.Y,
-			MIN_SIZE.Y,
-			MAX_SIZE.Y
-		)
-
-		main.Size = UDim2.fromOffset(
-			newWidth,
-			newHeight
-		)
-	end
 end)
 
 --==================================================
--- CLOSE / OPEN
+-- REFRESH
 --==================================================
 
-local openButton = Instance.new("TextButton")
-openButton.Name = "OpenButton"
-openButton.Size = UDim2.fromOffset(55, 55)
-openButton.Position = UDim2.new(0, 20, 0.5, -27)
-openButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-openButton.Text = "☰"
-openButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-openButton.TextSize = 22
-openButton.Font = Enum.Font.GothamBold
-openButton.Visible = false
-openButton.Parent = gui
+Refresh.Activated:Connect(function()
 
-local openCorner = Instance.new("UICorner")
-openCorner.CornerRadius = UDim.new(1, 0)
-openCorner.Parent = openButton
+	UpdateData()
 
-close.MouseButton1Click:Connect(function()
-	main.Visible = false
-	openButton.Visible = true
 end)
 
-openButton.MouseButton1Click:Connect(function()
-	main.Visible = true
-	openButton.Visible = false
-end)
+--==================================================
+-- START
+--==================================================
+
+UpdateData()
