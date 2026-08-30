@@ -1,56 +1,93 @@
---==================================================
--- PERSONAL DATA UI
--- Roblox Studio - LocalScript
--- Put inside StarterGui
---==================================================
+--========================================================--
+--                 CH3A5 PERSONAL DATA                   --
+--                         v6.1                           --
+--========================================================--
+--  Premium UI / Mobile / Drag / Resize / Refresh
+--  Created by CH3A5
+--
+--  USE:
+--  Roblox Studio -> StarterGui -> LocalScript
+--
+--  IMPORTANT:
+--  This client UI only displays data available to the
+--  current player. Private/server-side data must be
+--  supplied by a server script that you control.
+--========================================================--
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
 local Player = Players.LocalPlayer
 
---==================================================
+--========================================================--
 -- CONFIG
---==================================================
+--========================================================--
 
 local CONFIG = {
-	Title = "My Roblox Data",
 
-	MinSize = Vector2.new(300, 220),
-	MaxSize = Vector2.new(650, 500),
+	Version = "6.1",
+	Creator = "CH3A5",
 
-	StartSize = Vector2.new(420, 320),
+	Title = "Personal Data",
+	Subtitle = "Secure Player Dashboard",
 
-	Background = Color3.fromRGB(25, 25, 25),
-	Header = Color3.fromRGB(35, 35, 35),
+	StartSize = Vector2.new(460, 360),
 
-	-- Set true if you want the window movable
+	MinSize = Vector2.new(320, 260),
+	MaxSize = Vector2.new(760, 600),
+
+	AnimationTime = 0.25,
+
 	Draggable = true,
+	Resizable = true,
 
-	-- Set true if you want resizing
-Resizable = true,
 }
 
---==================================================
+--========================================================--
+-- COLORS
+--========================================================--
+
+local COLORS = {
+
+	Background = Color3.fromRGB(13, 14, 18),
+	Surface = Color3.fromRGB(20, 22, 28),
+	Surface2 = Color3.fromRGB(27, 29, 36),
+
+	Border = Color3.fromRGB(55, 58, 68),
+
+	Text = Color3.fromRGB(245, 245, 248),
+	SubText = Color3.fromRGB(160, 164, 175),
+
+	Accent = Color3.fromRGB(125, 95, 255),
+	Accent2 = Color3.fromRGB(92, 72, 210),
+
+	Success = Color3.fromRGB(80, 210, 130),
+	Danger = Color3.fromRGB(240, 85, 95),
+
+}
+
+--========================================================--
 -- SCREEN GUI
---==================================================
+--========================================================--
 
 local GUI = Instance.new("ScreenGui")
 
-GUI.Name = "PersonalDataUI"
+GUI.Name = "CH3A5_PersonalData_v61"
 GUI.ResetOnSpawn = false
 GUI.IgnoreGuiInset = true
 GUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 GUI.Parent = Player:WaitForChild("PlayerGui")
 
---==================================================
+--========================================================--
 -- MAIN WINDOW
---==================================================
+--========================================================--
 
 local Main = Instance.new("Frame")
 
 Main.Name = "Main"
+
 Main.Size = UDim2.fromOffset(
 	CONFIG.StartSize.X,
 	CONFIG.StartSize.Y
@@ -63,232 +100,558 @@ Main.Position = UDim2.new(
 	-CONFIG.StartSize.Y / 2
 )
 
-Main.BackgroundColor3 = CONFIG.Background
+Main.BackgroundColor3 = COLORS.Background
 Main.BorderSizePixel = 0
 Main.Active = true
 
 Main.Parent = GUI
 
+-- Corner
+
 local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 12)
+
+MainCorner.CornerRadius = UDim.new(0, 16)
+
 MainCorner.Parent = Main
 
---==================================================
+-- Stroke
+
+local MainStroke = Instance.new("UIStroke")
+
+MainStroke.Color = COLORS.Border
+MainStroke.Thickness = 1
+MainStroke.Transparency = 0.25
+
+MainStroke.Parent = Main
+
+--========================================================--
 -- HEADER
---==================================================
+--========================================================--
 
 local Header = Instance.new("Frame")
 
 Header.Name = "Header"
-Header.Size = UDim2.new(1, 0, 0, 45)
 
-Header.BackgroundColor3 = CONFIG.Header
+Header.Size = UDim2.new(
+	1,
+	0,
+	0,
+	65
+)
+
+Header.BackgroundColor3 = COLORS.Surface
+
 Header.BorderSizePixel = 0
 Header.Active = true
 
 Header.Parent = Main
 
 local HeaderCorner = Instance.new("UICorner")
-HeaderCorner.CornerRadius = UDim.new(0, 12)
+
+HeaderCorner.CornerRadius = UDim.new(0, 16)
+
 HeaderCorner.Parent = Header
 
---==================================================
--- TITLE
---==================================================
+--========================================================--
+-- BRAND
+--========================================================--
 
-local Title = Instance.new("TextLabel")
+local Brand = Instance.new("TextLabel")
 
-Title.Name = "Title"
+Brand.BackgroundTransparency = 1
 
-Title.Position = UDim2.fromOffset(15, 0)
-Title.Size = UDim2.new(1, -60, 1, 0)
+Brand.Position = UDim2.fromOffset(
+	18,
+	8
+)
 
-Title.BackgroundTransparency = 1
+Brand.Size = UDim2.new(
+	1,
+	-90,
+	0,
+	25
+)
 
-Title.Text = CONFIG.Title
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Brand.Text = "CH3A5"
 
-Title.TextSize = 18
-Title.Font = Enum.Font.GothamBold
+Brand.TextColor3 = COLORS.Text
 
-Title.TextXAlignment = Enum.TextXAlignment.Left
+Brand.TextSize = 19
 
-Title.Parent = Header
+Brand.Font = Enum.Font.GothamBold
 
---==================================================
+Brand.TextXAlignment = Enum.TextXAlignment.Left
+
+Brand.Parent = Header
+
+--========================================================--
+-- SUBTITLE
+--========================================================--
+
+local Subtitle = Instance.new("TextLabel")
+
+Subtitle.BackgroundTransparency = 1
+
+Subtitle.Position = UDim2.fromOffset(
+	19,
+	34
+)
+
+Subtitle.Size = UDim2.new(
+	1,
+	-100,
+	0,
+	20
+)
+
+Subtitle.Text = CONFIG.Title .. "  •  v" .. CONFIG.Version
+
+Subtitle.TextColor3 = COLORS.SubText
+
+Subtitle.TextSize = 12
+
+Subtitle.Font = Enum.Font.Gotham
+
+Subtitle.TextXAlignment = Enum.TextXAlignment.Left
+
+Subtitle.Parent = Header
+
+--========================================================--
 -- CLOSE BUTTON
---==================================================
+--========================================================--
 
 local Close = Instance.new("TextButton")
 
 Close.Name = "Close"
 
-Close.Size = UDim2.fromOffset(40, 40)
-Close.Position = UDim2.new(1, -42, 0, 2)
+Close.AnchorPoint = Vector2.new(
+	1,
+	0.5
+)
 
-Close.BackgroundTransparency = 1
+Close.Position = UDim2.new(
+	1,
+	-15,
+	0.5,
+	0
+)
+
+Close.Size = UDim2.fromOffset(
+	36,
+	36
+)
+
+Close.BackgroundColor3 = Color3.fromRGB(
+	40,
+	41,
+	48
+)
 
 Close.Text = "×"
-Close.TextColor3 = Color3.fromRGB(255, 255, 255)
 
-Close.TextSize = 26
+Close.TextColor3 = COLORS.Text
+
+Close.TextSize = 22
+
 Close.Font = Enum.Font.GothamBold
+
+Close.AutoButtonColor = false
 
 Close.Parent = Header
 
---==================================================
--- DATA CONTAINER
---==================================================
+local CloseCorner = Instance.new("UICorner")
 
-local DataFrame = Instance.new("Frame")
+CloseCorner.CornerRadius = UDim.new(
+	0,
+	9
+)
 
-DataFrame.Name = "Data"
+CloseCorner.Parent = Close
 
-DataFrame.Position = UDim2.fromOffset(20, 60)
+--========================================================--
+-- STATUS
+--========================================================--
 
-DataFrame.Size = UDim2.new(
+local Status = Instance.new("Frame")
+
+Status.Name = "Status"
+
+Status.Position = UDim2.fromOffset(
+	20,
+	82
+)
+
+Status.Size = UDim2.new(
+	1,
+	-40,
+	0,
+	38
+)
+
+Status.BackgroundColor3 = COLORS.Surface
+
+Status.BorderSizePixel = 0
+
+Status.Parent = Main
+
+local StatusCorner = Instance.new("UICorner")
+
+StatusCorner.CornerRadius = UDim.new(
+	0,
+	10
+)
+
+StatusCorner.Parent = Status
+
+-- Status dot
+
+local StatusDot = Instance.new("Frame")
+
+StatusDot.Size = UDim2.fromOffset(
+	9,
+	9
+)
+
+StatusDot.Position = UDim2.new(
+	0,
+	14,
+	0.5,
+	-4
+)
+
+StatusDot.BackgroundColor3 = COLORS.Success
+
+StatusDot.BorderSizePixel = 0
+
+StatusDot.Parent = Status
+
+local DotCorner = Instance.new("UICorner")
+
+DotCorner.CornerRadius = UDim.new(
+	1,
+	0
+)
+
+DotCorner.Parent = StatusDot
+
+-- Status text
+
+local StatusText = Instance.new("TextLabel")
+
+StatusText.BackgroundTransparency = 1
+
+StatusText.Position = UDim2.fromOffset(
+	32,
+	0
+)
+
+StatusText.Size = UDim2.new(
+	1,
+	-42,
+	1,
+	0
+)
+
+StatusText.Text = "Connected • Ready"
+
+StatusText.TextColor3 = COLORS.SubText
+
+StatusText.TextSize = 12
+
+StatusText.Font = Enum.Font.GothamMedium
+
+StatusText.TextXAlignment = Enum.TextXAlignment.Left
+
+StatusText.Parent = Status
+
+--========================================================--
+-- DATA PANEL
+--========================================================--
+
+local DataPanel = Instance.new("Frame")
+
+DataPanel.Name = "DataPanel"
+
+DataPanel.Position = UDim2.fromOffset(
+	20,
+	132
+)
+
+DataPanel.Size = UDim2.new(
 	1,
 	-40,
 	1,
-	-125
+	-195
 )
 
-DataFrame.BackgroundTransparency = 1
+DataPanel.BackgroundColor3 = COLORS.Surface
 
-DataFrame.Parent = Main
+DataPanel.BorderSizePixel = 0
 
---==================================================
+DataPanel.Parent = Main
+
+local DataCorner = Instance.new("UICorner")
+
+DataCorner.CornerRadius = UDim.new(
+	0,
+	12
+)
+
+DataCorner.Parent = DataPanel
+
+--========================================================--
+-- DATA TITLE
+--========================================================--
+
+local DataTitle = Instance.new("TextLabel")
+
+DataTitle.BackgroundTransparency = 1
+
+DataTitle.Position = UDim2.fromOffset(
+	15,
+	10
+)
+
+DataTitle.Size = UDim2.new(
+	1,
+	-30,
+	0,
+	25
+)
+
+DataTitle.Text = "PLAYER INFORMATION"
+
+DataTitle.TextColor3 = COLORS.Text
+
+DataTitle.TextSize = 12
+
+DataTitle.Font = Enum.Font.GothamBold
+
+DataTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+DataTitle.Parent = DataPanel
+
+--========================================================--
 -- DATA TEXT
---==================================================
+--========================================================--
 
 local DataText = Instance.new("TextLabel")
 
-DataText.Name = "DataText"
-
-DataText.Size = UDim2.new(1, 0, 1, 0)
-
 DataText.BackgroundTransparency = 1
+
+DataText.Position = UDim2.fromOffset(
+	15,
+	40
+)
+
+DataText.Size = UDim2.new(
+	1,
+	-30,
+	1,
+	-50
+)
 
 DataText.Text = "Loading..."
 
-DataText.TextColor3 = Color3.fromRGB(220, 220, 220)
+DataText.TextColor3 = COLORS.SubText
 
-DataText.TextSize = 15
+DataText.TextSize = 14
+
 DataText.Font = Enum.Font.Gotham
 
 DataText.TextXAlignment = Enum.TextXAlignment.Left
+
 DataText.TextYAlignment = Enum.TextYAlignment.Top
 
 DataText.TextWrapped = true
 
-DataText.Parent = DataFrame
+DataText.Parent = DataPanel
 
---==================================================
+--========================================================--
 -- REFRESH BUTTON
---==================================================
+--========================================================--
 
 local Refresh = Instance.new("TextButton")
 
 Refresh.Name = "Refresh"
 
-Refresh.Size = UDim2.fromOffset(120, 40)
-
-Refresh.Position = UDim2.new(
-	0,
+Refresh.Position = UDim2.fromOffset(
 	20,
-	1,
 	-55
 )
 
-Refresh.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+Refresh.Size = UDim2.fromOffset(
+	125,
+	42
+)
 
-Refresh.Text = "Refresh"
+Refresh.BackgroundColor3 = COLORS.Accent
 
-Refresh.TextColor3 = Color3.fromRGB(255, 255, 255)
+Refresh.Text = "↻  Refresh"
 
-Refresh.TextSize = 15
+Refresh.TextColor3 = COLORS.Text
+
+Refresh.TextSize = 14
+
 Refresh.Font = Enum.Font.GothamBold
+
+Refresh.AutoButtonColor = false
 
 Refresh.Parent = Main
 
 local RefreshCorner = Instance.new("UICorner")
-RefreshCorner.CornerRadius = UDim.new(0, 8)
+
+RefreshCorner.CornerRadius = UDim.new(
+	0,
+	10
+)
+
 RefreshCorner.Parent = Refresh
 
---==================================================
+--========================================================--
+-- FOOTER
+--========================================================--
+
+local Footer = Instance.new("TextLabel")
+
+Footer.BackgroundTransparency = 1
+
+Footer.AnchorPoint = Vector2.new(
+	1,
+	0
+)
+
+Footer.Position = UDim2.new(
+	1,
+	-20,
+	1,
+	-53
+)
+
+Footer.Size = UDim2.fromOffset(
+	220,
+	20
+)
+
+Footer.Text = "Created by CH3A5  •  v6.1"
+
+Footer.TextColor3 = COLORS.SubText
+
+Footer.TextSize = 11
+
+Footer.Font = Enum.Font.Gotham
+
+Footer.TextXAlignment = Enum.TextXAlignment.Right
+
+Footer.Parent = Main
+
+--========================================================--
 -- RESIZE HANDLE
---==================================================
+--========================================================--
 
 local Resize = Instance.new("TextButton")
 
-Resize.Name = "Resize"
+Resize.Name = "ResizeHandle"
 
-Resize.Size = UDim2.fromOffset(40, 40)
-
-Resize.AnchorPoint = Vector2.new(1, 1)
+Resize.AnchorPoint = Vector2.new(
+	1,
+	1
+)
 
 Resize.Position = UDim2.new(
 	1,
-	-4,
+	-6,
 	1,
-	-4
+	-6
+)
+
+Resize.Size = UDim2.fromOffset(
+	35,
+	35
 )
 
 Resize.BackgroundTransparency = 1
 
 Resize.Text = "↘"
 
-Resize.TextColor3 = Color3.fromRGB(180, 180, 180)
+Resize.TextColor3 = COLORS.SubText
 
-Resize.TextSize = 22
+Resize.TextSize = 20
+
 Resize.Font = Enum.Font.GothamBold
+
+Resize.AutoButtonColor = false
 
 Resize.Visible = CONFIG.Resizable
 
 Resize.Parent = Main
 
---==================================================
+--========================================================--
 -- OPEN BUTTON
---==================================================
+--========================================================--
 
 local Open = Instance.new("TextButton")
 
 Open.Name = "OpenButton"
 
-Open.Size = UDim2.fromOffset(55, 55)
+Open.Size = UDim2.fromOffset(
+	58,
+	58
+)
 
 Open.Position = UDim2.new(
 	0,
 	20,
 	0.5,
-	-27
+	-29
 )
 
-Open.BackgroundColor3 = CONFIG.Background
+Open.BackgroundColor3 = COLORS.Background
 
-Open.Text = "☰"
+Open.Text = "CH"
 
-Open.TextColor3 = Color3.fromRGB(255, 255, 255)
+Open.TextColor3 = COLORS.Text
 
-Open.TextSize = 22
+Open.TextSize = 16
+
 Open.Font = Enum.Font.GothamBold
 
 Open.Visible = false
 
+Open.AutoButtonColor = false
+
 Open.Parent = GUI
 
 local OpenCorner = Instance.new("UICorner")
-OpenCorner.CornerRadius = UDim.new(1, 0)
+
+OpenCorner.CornerRadius = UDim.new(
+	1,
+	0
+)
+
 OpenCorner.Parent = Open
 
---==================================================
--- DATA
---==================================================
+local OpenStroke = Instance.new("UIStroke")
+
+OpenStroke.Color = COLORS.Accent
+
+OpenStroke.Thickness = 1
+
+OpenStroke.Parent = Open
+
+--========================================================--
+-- DATA UPDATE
+--========================================================--
 
 local function UpdateData()
 
+	StatusText.Text = "Connected • Updating..."
+
+	StatusDot.BackgroundColor3 = COLORS.Accent
+
 	local username = Player.Name
 	local displayName = Player.DisplayName
+
 	local userId = Player.UserId
 
 	local placeId = game.PlaceId
@@ -299,34 +662,86 @@ local function UpdateData()
 		jobId = "Studio"
 	end
 
+	local accountAge = Player.AccountAge
+
 	DataText.Text =
-		"PLAYER INFORMATION\n\n" ..
+		"Username\n" ..
+		username ..
 
-		"Username      : "
-		.. username ..
+		"\n\nDisplay Name\n" ..
+		displayName ..
 
-		"\nDisplay Name  : "
-		.. displayName ..
+		"\n\nUser ID\n" ..
+		tostring(userId) ..
 
-		"\nUser ID       : "
-		.. tostring(userId) ..
+		"\n\nAccount Age\n" ..
+		tostring(accountAge) ..
+		" days" ..
 
-		"\n\nGAME INFORMATION\n\n" ..
+		"\n\nPlace ID\n" ..
+		tostring(placeId) ..
 
-		"Place ID      : "
-		.. tostring(placeId) ..
+		"\n\nServer Job ID\n" ..
+		jobId
 
-		"\nServer Job ID : "
-		.. jobId
+	StatusText.Text = "Connected • Data updated"
+
+	StatusDot.BackgroundColor3 = COLORS.Success
+
 end
 
---==================================================
+--========================================================--
+-- BUTTON ANIMATION
+--========================================================--
+
+local function ButtonHover(Button, Normal, Hover)
+
+	Button.MouseEnter:Connect(function()
+
+		TweenService:Create(
+			Button,
+			TweenInfo.new(0.15),
+			{
+				BackgroundColor3 = Hover
+			}
+		):Play()
+
+	end)
+
+	Button.MouseLeave:Connect(function()
+
+		TweenService:Create(
+			Button,
+			TweenInfo.new(0.15),
+			{
+				BackgroundColor3 = Normal
+			}
+		):Play()
+
+	end)
+
+end
+
+ButtonHover(
+	Refresh,
+	COLORS.Accent,
+	COLORS.Accent2
+)
+
+ButtonHover(
+	Close,
+	Color3.fromRGB(40,41,48),
+	Color3.fromRGB(65,45,50)
+)
+
+--========================================================--
 -- DRAG SYSTEM
---==================================================
+--========================================================--
 
 local Dragging = false
 
 local DragStart
+
 local StartPosition
 
 local DragInput
@@ -347,7 +762,9 @@ if CONFIG.Draggable then
 			Input.Changed:Connect(function()
 
 				if Input.UserInputState == Enum.UserInputState.End then
+
 					Dragging = false
+
 				end
 
 			end)
@@ -395,13 +812,14 @@ if CONFIG.Draggable then
 
 end
 
---==================================================
+--========================================================--
 -- RESIZE SYSTEM
---==================================================
+--========================================================--
 
 local Resizing = false
 
 local ResizeStart
+
 local StartSize
 
 local ResizeInput
@@ -422,7 +840,9 @@ if CONFIG.Resizable then
 			Input.Changed:Connect(function()
 
 				if Input.UserInputState == Enum.UserInputState.End then
+
 					Resizing = false
+
 				end
 
 			end)
@@ -475,41 +895,91 @@ if CONFIG.Resizable then
 		)
 
 		Main.Size = UDim2.fromOffset(
+
 			NewWidth,
 			NewHeight
+
 		)
 
 	end)
 
 end
 
---==================================================
--- CLOSE
---==================================================
+--========================================================--
+-- CLOSE ANIMATION
+--========================================================--
 
 Close.Activated:Connect(function()
 
+	local Tween = TweenService:Create(
+
+		Main,
+
+		TweenInfo.new(
+			CONFIG.AnimationTime,
+			Enum.EasingStyle.Quad,
+			Enum.EasingDirection.In
+		),
+
+		{
+			Size = UDim2.fromOffset(0,0)
+		}
+
+	)
+
+	Tween:Play()
+
+	Tween.Completed:Wait()
+
 	Main.Visible = false
+
+	Main.Size = UDim2.fromOffset(
+
+		CONFIG.StartSize.X,
+		CONFIG.StartSize.Y
+
+	)
 
 	Open.Visible = true
 
 end)
 
---==================================================
--- OPEN
---==================================================
+--========================================================--
+-- OPEN ANIMATION
+--========================================================--
 
 Open.Activated:Connect(function()
 
+	Open.Visible = false
+
 	Main.Visible = true
 
-	Open.Visible = false
+	Main.Size = UDim2.fromOffset(0,0)
+
+	TweenService:Create(
+
+		Main,
+
+		TweenInfo.new(
+			CONFIG.AnimationTime,
+			Enum.EasingStyle.Back,
+			Enum.EasingDirection.Out
+		),
+
+		{
+			Size = UDim2.fromOffset(
+				CONFIG.StartSize.X,
+				CONFIG.StartSize.Y
+			)
+		}
+
+	):Play()
 
 end)
 
---==================================================
+--========================================================--
 -- REFRESH
---==================================================
+--========================================================--
 
 Refresh.Activated:Connect(function()
 
@@ -517,8 +987,14 @@ Refresh.Activated:Connect(function()
 
 end)
 
---==================================================
+--========================================================--
 -- START
---==================================================
+--========================================================--
 
 UpdateData()
+
+print(
+	"[CH3A5] Personal Data UI v"
+	.. CONFIG.Version
+	.. " loaded successfully."
+)
