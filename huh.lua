@@ -1,13 +1,17 @@
 --========================================================--
---              CH3A5 PREMIUM DASHBOARD v10.0             --
+--              CH3A5 PREMIUM INTERFACE v11.0             --
+--                    FULL UI REMAKE                      --
 --========================================================--
--- Single LocalScript
--- Roblox Studio -> StarterGui -> LocalScript
 -- Created by CH3A5
+-- UI ONLY / LocalScript
+-- Khmer + English
+-- Home / Player / Server / Stats / Settings
+-- Drag / Resize / Mobile / PC
+-- FPS / Ping / Session
 --========================================================--
 
 local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
+local UIS = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Stats = game:GetService("Stats")
@@ -16,709 +20,1261 @@ local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
 --========================================================--
--- SETTINGS
+-- CONFIG
 --========================================================--
 
-local VERSION = "10.0"
+local VERSION = "11.0"
 
-local MIN_SIZE = Vector2.new(340, 260)
-local MAX_SIZE = Vector2.new(780, 560)
-local DEFAULT_SIZE = Vector2.new(500, 400)
+local MIN_SIZE = Vector2.new(650, 420)
+local MAX_SIZE = Vector2.new(1100, 700)
+
+local DEFAULT_WIDTH = 820
+local DEFAULT_HEIGHT = 520
 
 local language = "EN"
 local animations = true
-local uiScale = 1
+local scale = 1
 
 local sessionStart = os.clock()
 
 --========================================================--
--- COLORS
+-- THEME
 --========================================================--
 
-local BG = Color3.fromRGB(10, 11, 15)
-local CARD = Color3.fromRGB(18, 20, 27)
-local CARD2 = Color3.fromRGB(24, 26, 34)
+local Theme = {
 
-local TEXT = Color3.fromRGB(245, 246, 250)
-local MUTED = Color3.fromRGB(145, 149, 162)
+	Background = Color3.fromRGB(9, 10, 14),
 
-local ACCENT = Color3.fromRGB(112, 82, 240)
-local ACCENT_DARK = Color3.fromRGB(82, 59, 190)
+	Sidebar = Color3.fromRGB(14, 16, 22),
 
-local GREEN = Color3.fromRGB(75, 210, 125)
+	Card = Color3.fromRGB(18, 20, 27),
+
+	CardHover = Color3.fromRGB(24, 26, 34),
+
+	Border = Color3.fromRGB(45, 48, 60),
+
+	Text = Color3.fromRGB(244, 245, 249),
+
+	Muted = Color3.fromRGB(142, 146, 160),
+
+	Accent = Color3.fromRGB(116, 84, 240),
+
+	AccentDark = Color3.fromRGB(82, 59, 185),
+
+	Success = Color3.fromRGB(74, 210, 125),
+
+	Warning = Color3.fromRGB(240, 185, 70)
+}
 
 --========================================================--
--- TRANSLATION
+-- LANGUAGE
 --========================================================--
 
 local LANG = {
 
 	EN = {
-		title = "Personal Dashboard",
-		subtitle = "Premium Player Interface",
 
-		dashboard = "Dashboard",
+		home = "Home",
+		player = "Player",
+		server = "Server",
+		stats = "Statistics",
 		settings = "Settings",
 
-		player = "PLAYER",
+		welcome = "Welcome back",
+		overview = "Here's your current overview.",
+
+		fps = "FPS",
+		ping = "PING",
+		session = "SESSION",
+
+		playerInfo = "PLAYER INFORMATION",
+		serverInfo = "SERVER INFORMATION",
 		performance = "PERFORMANCE",
-		server = "SERVER",
 
 		username = "Username",
 		display = "Display Name",
 		userid = "User ID",
 		account = "Account Age",
 
-		fps = "FPS",
-		ping = "Ping",
-		session = "Session",
-
 		place = "Place ID",
 		job = "Server Job ID",
 
-		refresh = "Refresh",
-		language = "Language",
-		animations = "Animations",
-		scale = "UI Scale",
-		reset = "Reset UI",
-
 		online = "ONLINE",
-		ready = "System Ready",
+		connected = "Connected",
 
-		created = "Created by CH3A5"
+		language = "Language",
+		animation = "Animations",
+		scale = "Interface Scale",
+		reset = "Reset Interface",
+
+		refresh = "Refresh",
+		close = "Close",
+
+		about = "About",
+		created = "Created by CH3A5",
+
+		ready = "System ready"
 	},
 
 	KH = {
-		title = "ផ្ទាំងព័ត៌មានផ្ទាល់ខ្លួន",
-		subtitle = "Premium Player Interface",
 
-		dashboard = "ផ្ទាំងព័ត៌មាន",
+		home = "ទំព័រដើម",
+		player = "អ្នកលេង",
+		server = "Server",
+		stats = "ស្ថិតិ",
 		settings = "ការកំណត់",
 
-		player = "ព័ត៌មានអ្នកលេង",
+		welcome = "សូមស្វាគមន៍មកវិញ",
+		overview = "នេះជាព័ត៌មានបច្ចុប្បន្នរបស់អ្នក។",
+
+		fps = "FPS",
+		ping = "PING",
+		session = "SESSION",
+
+		playerInfo = "ព័ត៌មានអ្នកលេង",
+		serverInfo = "ព័ត៌មាន Server",
 		performance = "ប្រសិទ្ធភាព",
-		server = "SERVER",
 
 		username = "ឈ្មោះអ្នកប្រើ",
 		display = "ឈ្មោះបង្ហាញ",
 		userid = "User ID",
 		account = "អាយុគណនី",
 
-		fps = "FPS",
-		ping = "Ping",
-		session = "Session",
-
 		place = "Place ID",
 		job = "Server Job ID",
 
-		refresh = "ធ្វើថ្មី",
-		language = "ភាសា",
-		animations = "Animation",
-		scale = "ទំហំ UI",
-		reset = "Reset UI",
-
 		online = "ONLINE",
-		ready = "ប្រព័ន្ធរួចរាល់",
+		connected = "បានភ្ជាប់",
 
-		created = "បង្កើតដោយ CH3A5"
+		language = "ភាសា",
+		animation = "Animation",
+		scale = "ទំហំ Interface",
+		reset = "Reset Interface",
+
+		refresh = "ធ្វើថ្មី",
+		close = "បិទ",
+
+		about = "អំពី",
+		created = "បង្កើតដោយ CH3A5",
+
+		ready = "ប្រព័ន្ធរួចរាល់"
 	}
 }
 
-local function text(key)
+local function tr(key)
+
 	return LANG[language][key] or key
+
 end
 
 --========================================================--
 -- GUI
 --========================================================--
 
-local gui = Instance.new("ScreenGui")
+local GUI = Instance.new("ScreenGui")
 
-gui.Name = "CH3A5_Premium_v10"
-gui.ResetOnSpawn = false
-gui.IgnoreGuiInset = true
-gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+GUI.Name = "CH3A5_v11"
+GUI.ResetOnSpawn = false
+GUI.IgnoreGuiInset = true
+GUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-gui.Parent = playerGui
+GUI.Parent = playerGui
 
 --========================================================--
--- MAIN
+-- MAIN WINDOW
 --========================================================--
 
-local main = Instance.new("Frame")
+local Main = Instance.new("Frame")
 
-main.Size = UDim2.fromOffset(
-	DEFAULT_SIZE.X,
-	DEFAULT_SIZE.Y
+Main.Name = "Window"
+
+Main.Size = UDim2.fromOffset(
+	DEFAULT_WIDTH,
+	DEFAULT_HEIGHT
 )
 
-main.Position = UDim2.new(
+Main.Position = UDim2.new(
 	0.5,
-	-DEFAULT_SIZE.X / 2,
+	-DEFAULT_WIDTH / 2,
 	0.5,
-	-DEFAULT_SIZE.Y / 2
+	-DEFAULT_HEIGHT / 2
 )
 
-main.BackgroundColor3 = BG
-main.BorderSizePixel = 0
-main.Active = true
+Main.BackgroundColor3 = Theme.Background
 
-main.Parent = gui
+Main.BorderSizePixel = 0
 
-local mainCorner = Instance.new("UICorner", main)
-mainCorner.CornerRadius = UDim.new(0, 18)
+Main.Parent = GUI
 
-local stroke = Instance.new("UIStroke", main)
-stroke.Color = Color3.fromRGB(55, 58, 72)
-stroke.Transparency = 0.15
+local MainCorner = Instance.new("UICorner", Main)
 
-local scaleObject = Instance.new("UIScale", main)
-scaleObject.Scale = uiScale
+MainCorner.CornerRadius =
+	UDim.new(0, 18)
+
+local MainStroke = Instance.new("UIStroke", Main)
+
+MainStroke.Color = Theme.Border
+MainStroke.Transparency = 0.15
+
+local UIScale = Instance.new("UIScale", Main)
+
+UIScale.Scale = scale
+
+--========================================================--
+-- SIDEBAR
+--========================================================--
+
+local Sidebar = Instance.new("Frame")
+
+Sidebar.Size =
+	UDim2.new(0, 185, 1, 0)
+
+Sidebar.BackgroundColor3 =
+	Theme.Sidebar
+
+Sidebar.BorderSizePixel = 0
+
+Sidebar.Parent = Main
+
+local SidebarCorner = Instance.new("UICorner", Sidebar)
+
+SidebarCorner.CornerRadius =
+	UDim.new(0, 18)
+
+--========================================================--
+-- BRAND
+--========================================================--
+
+local Logo = Instance.new("Frame")
+
+Logo.Size =
+	UDim2.fromOffset(42,42)
+
+Logo.Position =
+	UDim2.fromOffset(18,17)
+
+Logo.BackgroundColor3 =
+	Theme.Accent
+
+Logo.BorderSizePixel = 0
+
+Logo.Parent = Sidebar
+
+local LogoCorner = Instance.new("UICorner", Logo)
+
+LogoCorner.CornerRadius =
+	UDim.new(0,12)
+
+local LogoText = Instance.new("TextLabel")
+
+LogoText.Size =
+	UDim2.fromScale(1,1)
+
+LogoText.BackgroundTransparency = 1
+
+LogoText.Text = "CH"
+
+LogoText.TextColor3 =
+	Theme.Text
+
+LogoText.Font =
+	Enum.Font.GothamBold
+
+LogoText.TextSize = 13
+
+LogoText.Parent = Logo
+
+local Brand = Instance.new("TextLabel")
+
+Brand.BackgroundTransparency = 1
+
+Brand.Position =
+	UDim2.fromOffset(70,15)
+
+Brand.Size =
+	UDim2.new(1,-80,0,25)
+
+Brand.Text = "CH3A5"
+
+Brand.TextColor3 =
+	Theme.Text
+
+Brand.Font =
+	Enum.Font.GothamBold
+
+Brand.TextSize = 17
+
+Brand.TextXAlignment =
+	Enum.TextXAlignment.Left
+
+Brand.Parent = Sidebar
+
+local BrandSub = Instance.new("TextLabel")
+
+BrandSub.BackgroundTransparency = 1
+
+Brand.Position =
+	UDim2.fromOffset(71,38)
+
+Brand.Size =
+	UDim2.new(1,-80,0,17)
+
+Brand.Text =
+	"PREMIUM v" .. VERSION
+
+Brand.TextColor3 =
+	Theme.Muted
+
+Brand.Font =
+	Enum.Font.Gotham
+
+Brand.TextSize = 8
+
+Brand.TextXAlignment =
+	Enum.TextXAlignment.Left
+
+Brand.Parent = Sidebar
+
+--========================================================--
+-- NAVIGATION
+--========================================================--
+
+local Nav = Instance.new("Frame")
+
+Nav.BackgroundTransparency = 1
+
+Nav.Position =
+	UDim2.fromOffset(10,85)
+
+Nav.Size =
+	UDim2.new(1,-20,1,-145)
+
+Nav.Parent = Sidebar
+
+local NavLayout =
+	Instance.new("UIListLayout", Nav)
+
+NavLayout.Padding =
+	UDim.new(0,7)
+
+NavLayout.SortOrder =
+	Enum.SortOrder.LayoutOrder
+
+local Pages = {}
+
+local NavButtons = {}
+
+local function createNav(name, icon, order)
+
+	local button = Instance.new("TextButton")
+
+	button.Size =
+		UDim2.new(1,0,0,43)
+
+	button.BackgroundColor3 =
+		Theme.Sidebar
+
+	button.BorderSizePixel = 0
+
+	button.AutoButtonColor = false
+
+	button.Text = ""
+
+	button.LayoutOrder = order
+
+	button.Parent = Nav
+
+	local corner =
+		Instance.new("UICorner",button)
+
+	corner.CornerRadius =
+		UDim.new(0,10)
+
+	local iconLabel =
+		Instance.new("TextLabel")
+
+	iconLabel.BackgroundTransparency = 1
+
+	iconLabel.Position =
+		UDim2.fromOffset(12,0)
+
+	iconLabel.Size =
+		UDim2.fromOffset(28,43)
+
+	iconLabel.Text = icon
+
+	iconLabel.TextColor3 =
+		Theme.Muted
+
+	iconLabel.TextSize = 15
+
+	iconLabel.Font =
+		Enum.Font.GothamBold
+
+	iconLabel.Parent = button
+
+	local label =
+		Instance.new("TextLabel")
+
+	label.BackgroundTransparency = 1
+
+	label.Position =
+		UDim2.fromOffset(45,0)
+
+	label.Size =
+		UDim2.new(1,-50,1,0)
+
+	label.Text = name
+
+	label.TextColor3 =
+		Theme.Muted
+
+	label.TextSize = 11
+
+	label.Font =
+		Enum.Font.GothamMedium
+
+	label.TextXAlignment =
+		Enum.TextXAlignment.Left
+
+	label.Parent = button
+
+	NavButtons[name] = {
+		Button = button,
+		Label = label,
+		Icon = iconLabel
+	}
+
+	return button
+
+end
+
+local HomeButton =
+	createNav(tr("home"),"⌂",1)
+
+local PlayerButton =
+	createNav(tr("player"),"◉",2)
+
+local ServerButton =
+	createNav(tr("server"),"◇",3)
+
+local StatsButton =
+	createNav(tr("stats"),"◆",4)
+
+local SettingsButton =
+	createNav(tr("settings"),"⚙",5)
+
+--========================================================--
+-- SIDEBAR FOOTER
+--========================================================--
+
+local SideFooter = Instance.new("TextLabel")
+
+SideFooter.BackgroundTransparency = 1
+
+SideFooter.Position =
+	UDim2.new(0,16,1,-45)
+
+SideFooter.Size =
+	UDim2.new(1,-32,0,30)
+
+SideFooter.Text =
+	tr("created")
+
+SideFooter.TextColor3 =
+	Theme.Muted
+
+SideFooter.TextSize = 8
+
+SideFooter.Font =
+	Enum.Font.Gotham
+
+SideFooter.TextXAlignment =
+	Enum.TextXAlignment.Left
+
+SideFooter.Parent = Sidebar
+
+--========================================================--
+-- CONTENT AREA
+--========================================================--
+
+local Content = Instance.new("Frame")
+
+Content.Position =
+	UDim2.new(0,185,0,0)
+
+Content.Size =
+	UDim2.new(1,-185,1,0)
+
+Content.BackgroundTransparency = 1
+
+Content.Parent = Main
 
 --========================================================--
 -- HEADER
 --========================================================--
 
-local header = Instance.new("Frame")
+local Header = Instance.new("Frame")
 
-header.Size = UDim2.new(1, 0, 0, 70)
-header.BackgroundColor3 = CARD
-header.BorderSizePixel = 0
-header.Active = true
+Header.Size =
+	UDim2.new(1,0,0,64)
 
-header.Parent = main
+Header.BackgroundTransparency = 1
 
-local headerCorner = Instance.new("UICorner", header)
-headerCorner.CornerRadius = UDim.new(0, 18)
+Header.Active = true
 
--- Logo
+Header.Parent = Content
 
-local logo = Instance.new("Frame")
+local PageTitle = Instance.new("TextLabel")
 
-logo.Size = UDim2.fromOffset(42, 42)
-logo.Position = UDim2.fromOffset(16, 14)
-logo.BackgroundColor3 = ACCENT
-logo.BorderSizePixel = 0
+PageTitle.BackgroundTransparency = 1
 
-logo.Parent = header
+PageTitle.Position =
+	UDim2.fromOffset(22,13)
 
-local logoCorner = Instance.new("UICorner", logo)
-logoCorner.CornerRadius = UDim.new(0, 12)
+PageTitle.Size =
+	UDim2.new(1,-120,0,25)
 
-local logoText = Instance.new("TextLabel")
+PageTitle.Text =
+	tr("home")
 
-logoText.Size = UDim2.fromScale(1, 1)
-logoText.BackgroundTransparency = 1
+PageTitle.TextColor3 =
+	Theme.Text
 
-logoText.Text = "CH"
-logoText.TextColor3 = TEXT
-logoText.TextSize = 14
-logoText.Font = Enum.Font.GothamBold
+PageTitle.TextSize = 18
 
-logoText.Parent = logo
+PageTitle.Font =
+	Enum.Font.GothamBold
 
--- Brand
+PageTitle.TextXAlignment =
+	Enum.TextXAlignment.Left
 
-local brand = Instance.new("TextLabel")
+PageTitle.Parent = Header
 
-brand.BackgroundTransparency = 1
+local PageSub = Instance.new("TextLabel")
 
-brand.Position = UDim2.fromOffset(68, 11)
-brand.Size = UDim2.new(1, -160, 0, 25)
+PageSub.BackgroundTransparency = 1
 
-brand.Text = "CH3A5"
+PageSub.Position =
+	UDim2.fromOffset(23,37)
 
-brand.TextColor3 = TEXT
-brand.TextSize = 19
-brand.Font = Enum.Font.GothamBold
+PageSub.Size =
+	UDim2.new(1,-130,0,17)
 
-brand.TextXAlignment = Enum.TextXAlignment.Left
+PageSub.Text =
+	tr("overview")
 
-brand.Parent = header
+PageSub.TextColor3 =
+	Theme.Muted
 
-local subtitle = Instance.new("TextLabel")
+PageSub.TextSize = 9
 
-subtitle.BackgroundTransparency = 1
+PageSub.Font =
+	Enum.Font.Gotham
 
-subtitle.Position = UDim2.fromOffset(69, 37)
-subtitle.Size = UDim2.new(1, -170, 0, 18)
+PageSub.TextXAlignment =
+	Enum.TextXAlignment.Left
 
-subtitle.Text = text("subtitle") .. "  •  v" .. VERSION
+PageSub.Parent = Header
 
-subtitle.TextColor3 = MUTED
-subtitle.TextSize = 10
-subtitle.Font = Enum.Font.Gotham
+-- STATUS
 
-subtitle.TextXAlignment = Enum.TextXAlignment.Left
+local Status = Instance.new("TextLabel")
 
-subtitle.Parent = header
+Status.BackgroundTransparency = 1
 
--- ONLINE
+Status.AnchorPoint =
+	Vector2.new(1,0.5)
 
-local online = Instance.new("TextLabel")
+Status.Position =
+	UDim2.new(1,-48,.5,0)
 
-online.BackgroundTransparency = 1
+Status.Size =
+	UDim2.fromOffset(90,22)
 
-online.AnchorPoint = Vector2.new(1, 0.5)
-online.Position = UDim2.new(1, -55, 0.5, 0)
+Status.Text =
+	"● " .. tr("online")
 
-online.Size = UDim2.fromOffset(65, 20)
+Status.TextColor3 =
+	Theme.Success
 
-online.Text = "● " .. text("online")
+Status.TextSize = 9
 
-online.TextColor3 = GREEN
-online.TextSize = 10
-online.Font = Enum.Font.GothamBold
+Status.Font =
+	Enum.Font.GothamBold
 
-online.Parent = header
+Status.Parent = Header
 
 -- CLOSE
 
-local close = Instance.new("TextButton")
+local Close = Instance.new("TextButton")
 
-close.Size = UDim2.fromOffset(32, 32)
+Close.Size =
+	UDim2.fromOffset(30,30)
 
-close.Position = UDim2.new(1, -42, 0, 19)
+Close.Position =
+	UDim2.new(1,-38,0,17)
 
-close.BackgroundColor3 = CARD2
+Close.BackgroundColor3 =
+	Theme.Card
 
-close.Text = "×"
+Close.Text = "×"
 
-close.TextColor3 = TEXT
-close.TextSize = 20
-close.Font = Enum.Font.GothamBold
+Close.TextColor3 =
+	Theme.Text
 
-close.AutoButtonColor = false
+Close.TextSize = 19
 
-close.Parent = header
+Close.Font =
+	Enum.Font.GothamBold
 
-local closeCorner = Instance.new("UICorner", close)
-closeCorner.CornerRadius = UDim.new(0, 9)
+Close.AutoButtonColor = false
 
---========================================================--
--- STATUS
---========================================================--
+Close.Parent = Header
 
-local status = Instance.new("Frame")
+local CloseCorner =
+	Instance.new("UICorner",Close)
 
-status.Position = UDim2.fromOffset(18, 82)
-
-status.Size = UDim2.new(1, -36, 0, 35)
-
-status.BackgroundColor3 = CARD
-status.BorderSizePixel = 0
-
-status.Parent = main
-
-local statusCorner = Instance.new("UICorner", status)
-statusCorner.CornerRadius = UDim.new(0, 10)
-
-local statusDot = Instance.new("Frame")
-
-statusDot.Size = UDim2.fromOffset(8, 8)
-
-statusDot.Position = UDim2.fromOffset(13, 13)
-
-statusDot.BackgroundColor3 = GREEN
-statusDot.BorderSizePixel = 0
-
-statusDot.Parent = status
-
-local statusDotCorner = Instance.new("UICorner", statusDot)
-statusDotCorner.CornerRadius = UDim.new(1, 0)
-
-local statusText = Instance.new("TextLabel")
-
-statusText.BackgroundTransparency = 1
-
-statusText.Position = UDim2.fromOffset(29, 0)
-
-statusText.Size = UDim2.new(1, -40, 1, 0)
-
-statusText.Text = text("ready")
-
-statusText.TextColor3 = MUTED
-statusText.TextSize = 11
-statusText.Font = Enum.Font.GothamMedium
-
-statusText.TextXAlignment = Enum.TextXAlignment.Left
-
-statusText.Parent = status
+CloseCorner.CornerRadius =
+	UDim.new(0,8)
 
 --========================================================--
--- CONTENT
+-- PAGE SYSTEM
 --========================================================--
 
-local content = Instance.new("Frame")
+local PageContainer = Instance.new("Frame")
 
-content.Position = UDim2.fromOffset(18, 128)
+PageContainer.Position =
+	UDim2.fromOffset(18,70)
 
-content.Size = UDim2.new(
-	1,
-	-36,
-	1,
-	-190
-)
+PageContainer.Size =
+	UDim2.new(1,-36,1,-90)
 
-content.BackgroundTransparency = 1
+PageContainer.BackgroundTransparency = 1
 
-content.Parent = main
+PageContainer.Parent = Content
 
---========================================================--
--- CARD CREATOR
---========================================================--
+local function createPage()
 
-local function createCard(position, size)
+	local page = Instance.new("Frame")
 
-	local card = Instance.new("Frame")
+	page.Size =
+		UDim2.fromScale(1,1)
 
-	card.Position = position
-	card.Size = size
+	page.BackgroundTransparency = 1
 
-	card.BackgroundColor3 = CARD
-	card.BorderSizePixel = 0
+	page.Visible = false
 
-	card.Parent = content
+	page.Parent = PageContainer
 
-	local corner = Instance.new("UICorner", card)
-	corner.CornerRadius = UDim.new(0, 13)
+	table.insert(Pages,page)
 
-	return card
+	return page
+
 end
 
--- PLAYER CARD
-
-local playerCard = createCard(
-	UDim2.fromScale(0, 0),
-	UDim2.new(.49, -5, .48, -5)
-)
-
-local playerTitle = Instance.new("TextLabel")
-
-playerTitle.BackgroundTransparency = 1
-playerTitle.Position = UDim2.fromOffset(14, 10)
-playerTitle.Size = UDim2.new(1, -28, 0, 20)
-
-playerTitle.Text = text("player")
-
-playerTitle.TextColor3 = TEXT
-playerTitle.TextSize = 11
-playerTitle.Font = Enum.Font.GothamBold
-
-playerTitle.TextXAlignment = Enum.TextXAlignment.Left
-
-playerTitle.Parent = playerCard
-
-local playerInfo = Instance.new("TextLabel")
-
-playerInfo.BackgroundTransparency = 1
-
-playerInfo.Position = UDim2.fromOffset(14, 34)
-
-playerInfo.Size = UDim2.new(1, -28, 1, -42)
-
-playerInfo.TextColor3 = MUTED
-
-playerInfo.TextSize = 11
-playerInfo.Font = Enum.Font.Gotham
-
-playerInfo.TextXAlignment = Enum.TextXAlignment.Left
-playerInfo.TextYAlignment = Enum.TextYAlignment.Top
-
-playerInfo.Parent = playerCard
-
--- PERFORMANCE CARD
-
-local performanceCard = createCard(
-	UDim2.new(.51, 5, 0, 0),
-	UDim2.new(.49, -5, .48, -5)
-)
-
-local performanceTitle = Instance.new("TextLabel")
-
-performanceTitle.BackgroundTransparency = 1
-
-performanceTitle.Position = UDim2.fromOffset(14, 10)
-
-performanceTitle.Size = UDim2.new(1, -28, 0, 20)
-
-performanceTitle.Text = text("performance")
-
-performanceTitle.TextColor3 = TEXT
-performanceTitle.TextSize = 11
-performanceTitle.Font = Enum.Font.GothamBold
-
-performanceTitle.TextXAlignment = Enum.TextXAlignment.Left
-
-performanceTitle.Parent = performanceCard
-
-local performanceInfo = Instance.new("TextLabel")
-
-performanceInfo.BackgroundTransparency = 1
-
-performanceInfo.Position = UDim2.fromOffset(14, 34)
-
-performanceInfo.Size = UDim2.new(1, -28, 1, -42)
-
-performanceInfo.TextColor3 = MUTED
-
-performanceInfo.TextSize = 11
-performanceInfo.Font = Enum.Font.Gotham
-
-performanceInfo.TextXAlignment = Enum.TextXAlignment.Left
-performanceInfo.TextYAlignment = Enum.TextYAlignment.Top
-
-performanceInfo.Parent = performanceCard
-
--- SERVER CARD
-
-local serverCard = createCard(
-	UDim2.fromScale(0, .52),
-	UDim2.new(1, 0, .48, -5)
-)
-
-local serverTitle = Instance.new("TextLabel")
-
-serverTitle.BackgroundTransparency = 1
-
-serverTitle.Position = UDim2.fromOffset(14, 10)
-
-serverTitle.Size = UDim2.new(1, -28, 0, 20)
-
-serverTitle.Text = text("server")
-
-serverTitle.TextColor3 = TEXT
-serverTitle.TextSize = 11
-serverTitle.Font = Enum.Font.GothamBold
-
-serverTitle.TextXAlignment = Enum.TextXAlignment.Left
-
-serverTitle.Parent = serverCard
-
-local serverInfo = Instance.new("TextLabel")
-
-serverInfo.BackgroundTransparency = 1
-
-serverInfo.Position = UDim2.fromOffset(14, 34)
-
-serverInfo.Size = UDim2.new(1, -28, 1, -42)
-
-serverInfo.TextColor3 = MUTED
-serverInfo.TextSize = 11
-serverInfo.Font = Enum.Font.Gotham
-
-serverInfo.TextXAlignment = Enum.TextXAlignment.Left
-serverInfo.TextYAlignment = Enum.TextYAlignment.Top
-
-serverInfo.Parent = serverCard
+local HomePage = createPage()
+local PlayerPage = createPage()
+local ServerPage = createPage()
+local StatsPage = createPage()
+local SettingsPage = createPage()
 
 --========================================================--
--- SETTINGS
+-- CARD FUNCTION
 --========================================================--
 
-local settingsPanel = Instance.new("Frame")
+local function card(parent,pos,size)
 
-settingsPanel.Position = UDim2.fromOffset(18, 128)
+	local c = Instance.new("Frame")
 
-settingsPanel.Size = UDim2.new(
-	1,
-	-36,
-	1,
-	-190
-)
+	c.Position = pos
 
-settingsPanel.BackgroundColor3 = CARD
+	c.Size = size
 
-settingsPanel.BorderSizePixel = 0
+	c.BackgroundColor3 =
+		Theme.Card
 
-settingsPanel.Visible = false
+	c.BorderSizePixel = 0
 
-settingsPanel.Parent = main
+	c.Parent = parent
 
-local settingsCorner = Instance.new("UICorner", settingsPanel)
-settingsCorner.CornerRadius = UDim.new(0, 13)
+	local corner =
+		Instance.new("UICorner",c)
 
-local settingsTitle = Instance.new("TextLabel")
+	corner.CornerRadius =
+		UDim.new(0,13)
 
-settingsTitle.BackgroundTransparency = 1
+	local stroke =
+		Instance.new("UIStroke",c)
 
-settingsTitle.Position = UDim2.fromOffset(16, 14)
+	stroke.Color =
+		Theme.Border
 
-settingsTitle.Size = UDim2.new(1, -32, 0, 24)
+	stroke.Transparency = .5
 
-settingsTitle.Text = text("settings")
+	return c
 
-settingsTitle.TextColor3 = TEXT
-settingsTitle.TextSize = 15
-settingsTitle.Font = Enum.Font.GothamBold
+end
 
-settingsTitle.TextXAlignment = Enum.TextXAlignment.Left
+--========================================================--
+-- HOME
+--========================================================--
 
-settingsTitle.Parent = settingsPanel
+local Welcome = Instance.new("TextLabel")
 
-local function settingButton(y)
+Welcome.BackgroundTransparency = 1
 
-	local b = Instance.new("TextButton")
+Welcome.Position =
+	UDim2.fromOffset(5,3)
 
-	b.Position = UDim2.fromOffset(16, y)
+Welcome.Size =
+	UDim2.new(1,-10,0,28)
 
-	b.Size = UDim2.new(1, -32, 0, 42)
+Welcome.Text =
+	tr("welcome") .. ", " .. player.DisplayName
 
-	b.BackgroundColor3 = CARD2
+Welcome.TextColor3 =
+	Theme.Text
 
-	b.TextColor3 = TEXT
+Welcome.TextSize = 16
 
-	b.TextSize = 12
-	b.Font = Enum.Font.GothamMedium
+Welcome.Font =
+	Enum.Font.GothamBold
+
+Welcome.TextXAlignment =
+	Enum.TextXAlignment.Left
+
+Welcome.Parent = HomePage
+
+local Overview = Instance.new("TextLabel")
+
+Overview.BackgroundTransparency = 1
+
+Overview.Position =
+	UDim2.fromOffset(6,29)
+
+Overview.Size =
+	UDim2.new(1,-12,0,20)
+
+Overview.Text =
+	tr("overview")
+
+Overview.TextColor3 =
+	Theme.Muted
+
+Overview.TextSize = 9
+
+Overview.Font =
+	Enum.Font.Gotham
+
+Overview.TextXAlignment =
+	Enum.TextXAlignment.Left
+
+Overview.Parent = HomePage
+
+--========================================================--
+-- STAT CARDS
+--========================================================--
+
+local FPSCard =
+	card(
+		HomePage,
+		UDim2.new(0,0,0,58),
+		UDim2.new(.32,-7,0,82)
+	)
+
+local PingCard =
+	card(
+		HomePage,
+		UDim2.new(.34,5,0,58),
+		UDim2.new(.32,-7,0,82)
+	)
+
+local SessionCard =
+	card(
+		HomePage,
+		UDim2.new(.68,10,0,58),
+		UDim2.new(.32,-10,0,82)
+	)
+
+local function statCard(cardObj,title)
+
+	local titleLabel =
+		Instance.new("TextLabel")
+
+	titleLabel.BackgroundTransparency = 1
+
+	titleLabel.Position =
+		UDim2.fromOffset(14,12)
+
+	titleLabel.Size =
+		UDim2.new(1,-28,0,17)
+
+	titleLabel.Text = title
+
+	titleLabel.TextColor3 =
+		Theme.Muted
+
+	titleLabel.TextSize = 8
+
+	titleLabel.Font =
+		Enum.Font.GothamBold
+
+	titleLabel.TextXAlignment =
+		Enum.TextXAlignment.Left
+
+	titleLabel.Parent = cardObj
+
+	local value =
+		Instance.new("TextLabel")
+
+	value.BackgroundTransparency = 1
+
+	value.Position =
+		UDim2.fromOffset(14,31)
+
+	value.Size =
+		UDim2.new(1,-28,0,35)
+
+	value.Text = "--"
+
+	value.TextColor3 =
+		Theme.Text
+
+	value.TextSize = 21
+
+	value.Font =
+		Enum.Font.GothamBold
+
+	value.TextXAlignment =
+		Enum.TextXAlignment.Left
+
+	value.Parent = cardObj
+
+	return value
+
+end
+
+local FPSValue =
+	statCard(FPSCard,tr("fps"))
+
+local PingValue =
+	statCard(PingCard,tr("ping"))
+
+local SessionValue =
+	statCard(SessionCard,tr("session"))
+
+--========================================================--
+-- HOME PLAYER CARD
+--========================================================--
+
+local HomePlayer =
+	card(
+		HomePage,
+		UDim2.new(0,0,0,153),
+		UDim2.new(.49,-5,1,-153)
+	)
+
+local HomeServer =
+	card(
+		HomePage,
+		UDim2.new(.51,5,0,153),
+		UDim2.new(.49,-5,1,-153)
+	)
+
+local function titleLabel(parent,textValue)
+
+	local l = Instance.new("TextLabel")
+
+	l.BackgroundTransparency = 1
+
+	l.Position =
+		UDim2.fromOffset(14,12)
+
+	l.Size =
+		UDim2.new(1,-28,0,20)
+
+	l.Text =
+		textValue
+
+	l.TextColor3 =
+		Theme.Text
+
+	l.TextSize = 9
+
+	l.Font =
+		Enum.Font.GothamBold
+
+	l.TextXAlignment =
+		Enum.TextXAlignment.Left
+
+	l.Parent = parent
+
+	return l
+
+end
+
+local HomePlayerTitle =
+	titleLabel(HomePlayer,tr("playerInfo"))
+
+local HomeServerTitle =
+	titleLabel(HomeServer,tr("serverInfo"))
+
+local HomePlayerText =
+	Instance.new("TextLabel")
+
+HomePlayerText.BackgroundTransparency = 1
+
+HomePlayerText.Position =
+	UDim2.fromOffset(14,38)
+
+HomePlayerText.Size =
+	UDim2.new(1,-28,1,-45)
+
+HomePlayerText.TextColor3 =
+	Theme.Muted
+
+HomePlayerText.TextSize = 10
+
+HomePlayerText.Font =
+	Enum.Font.Gotham
+
+HomePlayerText.TextXAlignment =
+	Enum.TextXAlignment.Left
+
+HomePlayerText.TextYAlignment =
+	Enum.TextYAlignment.Top
+
+HomePlayerText.Parent =
+	HomePlayer
+
+local HomeServerText =
+	Instance.new("TextLabel")
+
+HomeServerText.BackgroundTransparency = 1
+
+HomeServerText.Position =
+	UDim2.fromOffset(14,38)
+
+HomeServerText.Size =
+	UDim2.new(1,-28,1,-45)
+
+HomeServerText.TextColor3 =
+	Theme.Muted
+
+HomeServerText.TextSize = 10
+
+HomeServerText.Font =
+	Enum.Font.Gotham
+
+HomeServerText.TextXAlignment =
+	Enum.TextXAlignment.Left
+
+HomeServerText.TextYAlignment =
+	Enum.TextYAlignment.Top
+
+HomeServerText.Parent =
+	HomeServer
+
+--========================================================--
+-- PLAYER PAGE
+--========================================================--
+
+local PlayerCard =
+	card(
+		PlayerPage,
+		UDim2.fromOffset(0,0),
+		UDim2.new(1,0,1,0)
+	)
+
+local PlayerTitle =
+	titleLabel(PlayerCard,tr("playerInfo"))
+
+local PlayerText =
+	Instance.new("TextLabel")
+
+PlayerText.BackgroundTransparency = 1
+
+PlayerText.Position =
+	UDim2.fromOffset(18,48)
+
+PlayerText.Size =
+	UDim2.new(1,-36,1,-60)
+
+PlayerText.TextColor3 =
+	Theme.Muted
+
+PlayerText.TextSize = 12
+
+PlayerText.Font =
+	Enum.Font.Gotham
+
+PlayerText.TextXAlignment =
+	Enum.TextXAlignment.Left
+
+PlayerText.TextYAlignment =
+	Enum.TextYAlignment.Top
+
+PlayerText.Parent =
+	PlayerCard
+
+--========================================================--
+-- SERVER PAGE
+--========================================================--
+
+local ServerCard =
+	card(
+		ServerPage,
+		UDim2.fromOffset(0,0),
+		UDim2.new(1,0,1,0)
+	)
+
+local ServerTitle =
+	titleLabel(ServerCard,tr("serverInfo"))
+
+local ServerText =
+	Instance.new("TextLabel")
+
+ServerText.BackgroundTransparency = 1
+
+ServerText.Position =
+	UDim2.fromOffset(18,48)
+
+ServerText.Size =
+	UDim2.new(1,-36,1,-60)
+
+ServerText.TextColor3 =
+	Theme.Muted
+
+ServerText.TextSize = 12
+
+ServerText.Font =
+	Enum.Font.Gotham
+
+ServerText.TextXAlignment =
+	Enum.TextXAlignment.Left
+
+ServerText.TextYAlignment =
+	Enum.TextYAlignment.Top
+
+ServerText.Parent =
+	ServerCard
+
+--========================================================--
+-- STATS PAGE
+--========================================================--
+
+local StatsCard =
+	card(
+		StatsPage,
+		UDim2.fromOffset(0,0),
+		UDim2.new(1,0,1,0)
+	)
+
+local StatsTitle =
+	titleLabel(StatsCard,tr("performance"))
+
+local StatsText =
+	Instance.new("TextLabel")
+
+StatsText.BackgroundTransparency = 1
+
+StatsText.Position =
+	UDim2.fromOffset(18,48)
+
+StatsText.Size =
+	UDim2.new(1,-36,1,-60)
+
+StatsText.TextColor3 =
+	Theme.Muted
+
+StatsText.TextSize = 12
+
+StatsText.Font =
+	Enum.Font.Gotham
+
+StatsText.TextXAlignment =
+	Enum.TextXAlignment.Left
+
+StatsText.TextYAlignment =
+	Enum.TextYAlignment.Top
+
+StatsText.Parent =
+	StatsCard
+
+--========================================================--
+-- SETTINGS PAGE
+--========================================================--
+
+local SettingsCard =
+	card(
+		SettingsPage,
+		UDim2.fromOffset(0,0),
+		UDim2.new(1,0,1,0)
+	)
+
+local SettingsTitle =
+	titleLabel(SettingsCard,tr("settings"))
+
+local function createSettingButton(y)
+
+	local b =
+		Instance.new("TextButton")
+
+	b.Position =
+		UDim2.fromOffset(16,y)
+
+	b.Size =
+		UDim2.new(1,-32,0,43)
+
+	b.BackgroundColor3 =
+		Theme.CardHover
+
+	b.TextColor3 =
+		Theme.Text
+
+	b.TextSize = 11
+
+	b.Font =
+		Enum.Font.GothamMedium
 
 	b.AutoButtonColor = false
 
-	b.Parent = settingsPanel
+	b.Parent =
+		SettingsCard
 
-	local c = Instance.new("UICorner", b)
-	c.CornerRadius = UDim.new(0, 9)
+	local c =
+		Instance.new("UICorner",b)
+
+	c.CornerRadius =
+		UDim.new(0,10)
 
 	return b
+
 end
 
-local languageButton = settingButton(50)
-local animationButton = settingButton(100)
-local scaleButton = settingButton(150)
-local resetButton = settingButton(200)
+local LanguageSetting =
+	createSettingButton(48)
+
+local AnimationSetting =
+	createSettingButton(98)
+
+local ScaleSetting =
+	createSettingButton(148)
+
+local ResetSetting =
+	createSettingButton(198)
 
 --========================================================--
--- BOTTOM
+-- PAGE SWITCH
 --========================================================--
 
-local refresh = Instance.new("TextButton")
+local CurrentPage
 
-refresh.Size = UDim2.fromOffset(115, 40)
+local function switchPage(page,name)
 
-refresh.Position = UDim2.fromOffset(18, -53)
+	for _,p in ipairs(Pages) do
+		p.Visible = false
+	end
 
-refresh.BackgroundColor3 = ACCENT
+	page.Visible = true
 
-refresh.TextColor3 = TEXT
+	PageTitle.Text = name
 
-refresh.Text = "↻  " .. text("refresh")
+	if page == HomePage then
+		PageSub.Text = tr("overview")
+	else
+		PageSub.Text = "CH3A5 Premium Interface"
+	end
 
-refresh.TextSize = 12
-refresh.Font = Enum.Font.GothamBold
+	CurrentPage = page
 
-refresh.AutoButtonColor = false
+	for _,data in pairs(NavButtons) do
 
-refresh.Parent = main
+		data.Button.BackgroundColor3 =
+			Theme.Sidebar
 
-local refreshCorner = Instance.new("UICorner", refresh)
-refreshCorner.CornerRadius = UDim.new(0, 10)
+		data.Label.TextColor3 =
+			Theme.Muted
 
-local settingsButton = Instance.new("TextButton")
+		data.Icon.TextColor3 =
+			Theme.Muted
 
-settingsButton.Size = UDim2.fromOffset(115, 40)
+	end
 
-settingsButton.Position = UDim2.fromOffset(143, -53)
+	local selected = NavButtons[name]
 
-settingsButton.BackgroundColor3 = CARD2
+	if selected then
 
-settingsButton.TextColor3 = TEXT
+		selected.Button.BackgroundColor3 =
+			Theme.AccentDark
 
-settingsButton.Text = "⚙  " .. text("settings")
+		selected.Label.TextColor3 =
+			Theme.Text
 
-settingsButton.TextSize = 12
-settingsButton.Font = Enum.Font.GothamBold
+		selected.Icon.TextColor3 =
+			Theme.Text
 
-settingsButton.AutoButtonColor = false
+	end
 
-settingsButton.Parent = main
-
-local settingsButtonCorner = Instance.new("UICorner", settingsButton)
-settingsButtonCorner.CornerRadius = UDim.new(0, 10)
-
--- FOOTER
-
-local footer = Instance.new("TextLabel")
-
-footer.BackgroundTransparency = 1
-
-footer.AnchorPoint = Vector2.new(1, 0)
-
-footer.Position = UDim2.new(1, -18, 1, -47)
-
-footer.Size = UDim2.fromOffset(210, 18)
-
-footer.Text = text("created") .. "  •  v" .. VERSION
-
-footer.TextColor3 = MUTED
-
-footer.TextSize = 9
-footer.Font = Enum.Font.Gotham
-
-footer.TextXAlignment = Enum.TextXAlignment.Right
-
-footer.Parent = main
+end
 
 --========================================================--
--- RESIZE HANDLE
+-- NAV BUTTON EVENTS
 --========================================================--
 
-local resize = Instance.new("TextButton")
+HomeButton.Activated:Connect(function()
 
-resize.Size = UDim2.fromOffset(38, 38)
+	switchPage(
+		HomePage,
+		tr("home")
+	)
 
-resize.AnchorPoint = Vector2.new(1, 1)
+end)
 
-resize.Position = UDim2.new(1, -4, 1, -4)
+PlayerButton.Activated:Connect(function()
 
-resize.BackgroundTransparency = 1
+	switchPage(
+		PlayerPage,
+		tr("player")
+	)
 
-resize.Text = "↘"
+end)
 
-resize.TextColor3 = MUTED
+ServerButton.Activated:Connect(function()
 
-resize.TextSize = 18
+	switchPage(
+		ServerPage,
+		tr("server")
+	)
 
-resize.Font = Enum.Font.GothamBold
+end)
 
-resize.AutoButtonColor = false
+StatsButton.Activated:Connect(function()
 
-resize.Parent = main
+	switchPage(
+		StatsPage,
+		tr("stats")
+	)
 
---========================================================--
--- OPEN BUTTON
---========================================================--
+end)
 
-local open = Instance.new("TextButton")
+SettingsButton.Activated:Connect(function()
 
-open.Size = UDim2.fromOffset(58, 58)
+	switchPage(
+		SettingsPage,
+		tr("settings")
+	)
 
-open.Position = UDim2.new(0, 18, .5, -29)
-
-open.BackgroundColor3 = BG
-
-open.Text = "CH"
-
-open.TextColor3 = TEXT
-
-open.TextSize = 15
-open.Font = Enum.Font.GothamBold
-
-open.Visible = false
-
-open.Parent = gui
-
-local openCorner = Instance.new("UICorner", open)
-openCorner.CornerRadius = UDim.new(1, 0)
-
-local openStroke = Instance.new("UIStroke", open)
-openStroke.Color = ACCENT
+end)
 
 --========================================================--
--- UPDATE
+-- DATA
 --========================================================--
 
 local FPS = 0
 local frames = 0
-local fpsTime = tick()
+local fpsClock = tick()
 
 local function getPing()
 
@@ -730,86 +1286,133 @@ local function getPing()
 			Stats.Network.ServerStatsItem["Data Ping"]
 
 		result =
-			math.floor(item:GetValue())
-			.. " ms"
+			math.floor(
+				item:GetValue()
+			) .. " ms"
 
 	end)
 
 	return result
+
 end
 
 local function formatTime()
 
-	local total = math.floor(
-		os.clock() - sessionStart
-	)
+	local seconds =
+		math.floor(
+			os.clock() - sessionStart
+		)
 
-	local h = math.floor(total / 3600)
+	local hours =
+		math.floor(seconds / 3600)
 
-	local m = math.floor(
-		(total % 3600) / 60
-	)
+	local minutes =
+		math.floor(
+			(seconds % 3600) / 60
+		)
 
-	local s = total % 60
+	local secs =
+		seconds % 60
 
 	return string.format(
 		"%02d:%02d:%02d",
-		h,m,s
+		hours,
+		minutes,
+		secs
 	)
+
 end
 
-local function update()
+local function updateData()
 
-	playerTitle.Text = text("player")
-	performanceTitle.Text = text("performance")
-	serverTitle.Text = text("server")
+	local ping =
+		getPing()
 
-	playerInfo.Text =
-		text("username") .. "\n" ..
-		Player.Name ..
-
-		"\n\n" ..
-		text("display") .. "\n" ..
-		Player.DisplayName ..
-
-		"\n\n" ..
-		text("userid") .. "\n" ..
-		tostring(Player.UserId) ..
-
-		"\n\n" ..
-		text("account") .. "\n" ..
-		tostring(Player.AccountAge) .. " days"
-
-	performanceInfo.Text =
-		text("fps") ..
-		"\n" ..
-		tostring(FPS) ..
-
-		"\n\n" ..
-		text("ping") ..
-		"\n" ..
-		getPing() ..
-
-		"\n\n" ..
-		text("session") ..
-		"\n" ..
+	local session =
 		formatTime()
 
-	local jobId = game.JobId
+	FPSValue.Text =
+		tostring(FPS)
+
+	PingValue.Text =
+		ping
+
+	SessionValue.Text =
+		session
+
+	local jobId =
+		game.JobId
 
 	if jobId == "" then
 		jobId = "Studio"
 	end
 
-	serverInfo.Text =
-		text("place") ..
-		"\n" ..
-		tostring(game.PlaceId) ..
+	HomePlayerText.Text =
 
-		"\n\n" ..
-		text("job") ..
-		"\n" ..
-		jobId
+		tr("username")
+		.. "     :  "
+		.. player.Name
+
+		.. "\n\n"
+
+		.. tr("display")
+		.. "     :  "
+		.. player.DisplayName
+
+		.. "\n\n"
+
+		.. tr("userid")
+		.. "       :  "
+		.. player.UserId
+
+		.. "\n\n"
+
+		.. tr("account")
+		.. "     :  "
+		.. player.AccountAge
+		.. " days"
+
+	HomeServerText.Text =
+
+		tr("place")
+		.. "        :  "
+		.. game.PlaceId
+
+		.. "\n\n"
+
+		.. tr("job")
+		.. " :  "
+		.. jobId
+
+		.. "\n\n"
+
+		.. tr("ping")
+		.. "          :  "
+		.. ping
+
+	ServerText.Text =
+		HomeServerText.Text
+
+	PlayerText.Text =
+		HomePlayerText.Text
+
+	StatsText.Text =
+
+		tr("fps")
+		.. "           :  "
+		.. FPS
+
+		.. "\n\n"
+
+		.. tr("ping")
+		.. "          :  "
+		.. ping
+
+		.. "\n\n"
+
+		.. tr("session")
+		.. "     :  "
+		.. session
 
 end
 
@@ -817,14 +1420,15 @@ RunService.RenderStepped:Connect(function()
 
 	frames += 1
 
-	if tick() - fpsTime >= 1 then
+	if tick() - fpsClock >= 1 then
 
 		FPS = frames
 
 		frames = 0
-		fpsTime = tick()
 
-		update()
+		fpsClock = tick()
+
+		updateData()
 
 	end
 
@@ -836,54 +1440,86 @@ end)
 
 local function updateLanguage()
 
-	subtitle.Text =
-		text("subtitle")
-		.. "  •  v"
-		.. VERSION
+	HomeButton:FindFirstChildOfClass("TextLabel").Text =
+		tr("home")
 
-	online.Text =
-		"● "
-		.. text("online")
+	PlayerButton:FindFirstChildOfClass("TextLabel").Text =
+		tr("player")
 
-	statusText.Text =
-		text("ready")
+	ServerButton:FindFirstChildOfClass("TextLabel").Text =
+		tr("server")
 
-	refresh.Text =
-		"↻  "
-		.. text("refresh")
+	StatsButton:FindFirstChildOfClass("TextLabel").Text =
+		tr("stats")
 
-	settingsButton.Text =
-		"⚙  "
-		.. text("settings")
+	SettingsButton:FindFirstChildOfClass("TextLabel").Text =
+		tr("settings")
 
-	settingsTitle.Text =
-		text("settings")
+	Welcome.Text =
+		tr("welcome")
+		.. ", "
+		.. player.DisplayName
 
-	languageButton.Text =
-		text("language")
-		.. "  :  "
+	Overview.Text =
+		tr("overview")
+
+	HomePlayerTitle.Text =
+		tr("playerInfo")
+
+	HomeServerTitle.Text =
+		tr("serverInfo")
+
+	PlayerTitle.Text =
+		tr("playerInfo")
+
+	ServerTitle.Text =
+		tr("serverInfo")
+
+	StatsTitle.Text =
+		tr("performance")
+
+	SettingsTitle.Text =
+		tr("settings")
+
+	LanguageSetting.Text =
+		tr("language")
+		.. "    :    "
 		.. language
 
-	animationButton.Text =
-		text("animations")
-		.. "  :  "
+	AnimationSetting.Text =
+		tr("animation")
+		.. "    :    "
 		.. (animations and "ON" or "OFF")
 
-	scaleButton.Text =
-		text("scale")
-		.. "  :  "
-		.. string.format("%.1f", uiScale)
+	ScaleSetting.Text =
+		tr("scale")
+		.. "    :    "
+		.. string.format("%.1f",scale)
 
-	resetButton.Text =
-		"↺  "
-		.. text("reset")
+	ResetSetting.Text =
+		"↺    "
+		.. tr("reset")
 
-	footer.Text =
-		text("created")
-		.. "  •  v"
-		.. VERSION
+	Status.Text =
+		"● "
+		.. tr("online")
 
-	update()
+	SideFooter.Text =
+		tr("created")
+
+	if CurrentPage == HomePage then
+		PageTitle.Text = tr("home")
+	elseif CurrentPage == PlayerPage then
+		PageTitle.Text = tr("player")
+	elseif CurrentPage == ServerPage then
+		PageTitle.Text = tr("server")
+	elseif CurrentPage == StatsPage then
+		PageTitle.Text = tr("stats")
+	elseif CurrentPage == SettingsPage then
+		PageTitle.Text = tr("settings")
+	end
+
+	updateData()
 
 end
 
@@ -891,19 +1527,23 @@ end
 -- SETTINGS
 --========================================================--
 
-languageButton.Activated:Connect(function()
+LanguageSetting.Activated:Connect(function()
 
 	if language == "EN" then
+
 		language = "KH"
+
 	else
+
 		language = "EN"
+
 	end
 
 	updateLanguage()
 
 end)
 
-animationButton.Activated:Connect(function()
+AnimationSetting.Activated:Connect(function()
 
 	animations = not animations
 
@@ -911,95 +1551,41 @@ animationButton.Activated:Connect(function()
 
 end)
 
-scaleButton.Activated:Connect(function()
+ScaleSetting.Activated:Connect(function()
 
-	uiScale += .1
+	scale += .1
 
-	if uiScale > 1.3 then
-		uiScale = .8
+	if scale > 1.3 then
+		scale = .8
 	end
 
-	scaleObject.Scale = uiScale
+	UIScale.Scale = scale
 
 	updateLanguage()
 
 end)
 
-resetButton.Activated:Connect(function()
+ResetSetting.Activated:Connect(function()
 
-	main.Size =
+	Main.Size =
 		UDim2.fromOffset(
-			DEFAULT_SIZE.X,
-			DEFAULT_SIZE.Y
+			DEFAULT_WIDTH,
+			DEFAULT_HEIGHT
 		)
 
-	main.Position =
+	Main.Position =
 		UDim2.new(
 			.5,
-			-DEFAULT_SIZE.X / 2,
+			-DEFAULT_WIDTH / 2,
 			.5,
-			-DEFAULT_SIZE.Y / 2
+			-DEFAULT_HEIGHT / 2
 		)
 
-	uiScale = 1
+	scale = 1
 
-	scaleObject.Scale = 1
+	UIScale.Scale = 1
 
 	updateLanguage()
-
-end)
-
---========================================================--
--- SETTINGS TOGGLE
---========================================================--
-
-settingsButton.Activated:Connect(function()
-
-	if content.Visible then
-
-		content.Visible = false
-		settingsPanel.Visible = true
-
-		refresh.Visible = false
-
-		settingsButton.Text =
-			"←  "
-			.. text("dashboard")
-
-	else
-
-		content.Visible = true
-		settingsPanel.Visible = false
-
-		refresh.Visible = true
-
-		settingsButton.Text =
-			"⚙  "
-			.. text("settings")
-
-	end
-
-end)
-
---========================================================--
--- REFRESH
---========================================================--
-
-refresh.Activated:Connect(function()
-
-	statusText.Text = text("refresh") .. "..."
-
-	statusDot.BackgroundColor3 = ACCENT
-
-	update()
-
-	task.delay(.7, function()
-
-		statusText.Text = text("ready")
-
-		statusDot.BackgroundColor3 = GREEN
-
-	end)
 
 end)
 
@@ -1009,10 +1595,10 @@ end)
 
 local dragging = false
 local dragStart
-local startPosition
+local startPos
 local dragInput
 
-header.InputBegan:Connect(function(input)
+Header.InputBegan:Connect(function(input)
 
 	if input.UserInputType ==
 		Enum.UserInputType.MouseButton1
@@ -1021,9 +1607,11 @@ header.InputBegan:Connect(function(input)
 
 		dragging = true
 
-		dragStart = input.Position
+		dragStart =
+			input.Position
 
-		startPosition = main.Position
+		startPos =
+			Main.Position
 
 		input.Changed:Connect(function()
 
@@ -1040,7 +1628,7 @@ header.InputBegan:Connect(function(input)
 
 end)
 
-header.InputChanged:Connect(function(input)
+Header.InputChanged:Connect(function(input)
 
 	if input.UserInputType ==
 		Enum.UserInputType.MouseMovement
@@ -1066,15 +1654,16 @@ UIS.InputChanged:Connect(function(input)
 	local delta =
 		input.Position - dragStart
 
-	main.Position = UDim2.new(
+	Main.Position =
+		UDim2.new(
 
-		startPosition.X.Scale,
-		startPosition.X.Offset + delta.X,
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
 
-		startPosition.Y.Scale,
-		startPosition.Y.Offset + delta.Y
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
 
-	)
+		)
 
 end)
 
@@ -1082,12 +1671,39 @@ end)
 -- RESIZE
 --========================================================--
 
+local Resize = Instance.new("TextButton")
+
+Resize.Size =
+	UDim2.fromOffset(38,38)
+
+Resize.AnchorPoint =
+	Vector2.new(1,1)
+
+Resize.Position =
+	UDim2.new(1,-4,1,-4)
+
+Resize.BackgroundTransparency = 1
+
+Resize.Text = "↘"
+
+Resize.TextColor3 =
+	Theme.Muted
+
+Resize.TextSize = 18
+
+Resize.Font =
+	Enum.Font.GothamBold
+
+Resize.AutoButtonColor = false
+
+Resize.Parent = Main
+
 local resizing = false
 local resizeStart
-local startSize
+local resizeStartSize
 local resizeInput
 
-resize.InputBegan:Connect(function(input)
+Resize.InputBegan:Connect(function(input)
 
 	if input.UserInputType ==
 		Enum.UserInputType.MouseButton1
@@ -1096,9 +1712,11 @@ resize.InputBegan:Connect(function(input)
 
 		resizing = true
 
-		resizeStart = input.Position
+		resizeStart =
+			input.Position
 
-		startSize = main.AbsoluteSize
+		resizeStartSize =
+			Main.AbsoluteSize
 
 		input.Changed:Connect(function()
 
@@ -1115,7 +1733,7 @@ resize.InputBegan:Connect(function(input)
 
 end)
 
-resize.InputChanged:Connect(function(input)
+Resize.InputChanged:Connect(function(input)
 
 	if input.UserInputType ==
 		Enum.UserInputType.MouseMovement
@@ -1141,19 +1759,21 @@ UIS.InputChanged:Connect(function(input)
 	local delta =
 		input.Position - resizeStart
 
-	local width = math.clamp(
-		startSize.X + delta.X,
-		MIN_SIZE.X,
-		MAX_SIZE.X
-	)
+	local width =
+		math.clamp(
+			resizeStartSize.X + delta.X,
+			MIN_SIZE.X,
+			MAX_SIZE.X
+		)
 
-	local height = math.clamp(
-		startSize.Y + delta.Y,
-		MIN_SIZE.Y,
-		MAX_SIZE.Y
-	)
+	local height =
+		math.clamp(
+			resizeStartSize.Y + delta.Y,
+			MIN_SIZE.Y,
+			MAX_SIZE.Y
+		)
 
-	main.Size =
+	Main.Size =
 		UDim2.fromOffset(
 			width,
 			height
@@ -1162,76 +1782,139 @@ UIS.InputChanged:Connect(function(input)
 end)
 
 --========================================================--
--- CLOSE / OPEN
+-- CLOSE
 --========================================================--
 
-close.Activated:Connect(function()
+local Open = Instance.new("TextButton")
 
-	if animations then
+Open.Size =
+	UDim2.fromOffset(60,60)
 
-		local tween = TweenService:Create(
-			main,
-			TweenInfo.new(.2),
-			{
-				Size = UDim2.fromOffset(0,0)
-			}
-		)
+Open.Position =
+	UDim2.new(0,18,.5,-30)
 
-		tween:Play()
-		tween.Completed:Wait()
+Open.BackgroundColor3 =
+	Theme.Background
 
-	end
+Open.Text = "CH"
 
-	main.Visible = false
-	open.Visible = true
+Open.TextColor3 =
+	Theme.Text
+
+Open.TextSize = 15
+
+Open.Font =
+	Enum.Font.GothamBold
+
+Open.Visible = false
+
+Open.Parent = GUI
+
+local OpenCorner =
+	Instance.new("UICorner",Open)
+
+OpenCorner.CornerRadius =
+	UDim.new(1,0)
+
+local OpenStroke =
+	Instance.new("UIStroke",Open)
+
+OpenStroke.Color =
+	Theme.Accent
+
+Close.Activated:Connect(function()
+
+	Main.Visible = false
+
+	Open.Visible = true
 
 end)
 
-open.Activated:Connect(function()
+Open.Activated:Connect(function()
 
-	open.Visible = false
-	main.Visible = true
+	Open.Visible = false
 
-	if animations then
+	Main.Visible = true
 
-		main.Size =
-			UDim2.fromOffset(0,0)
+end)
+
+--========================================================--
+-- HOVER EFFECTS
+--========================================================--
+
+local function hover(button,normal,hoverColor)
+
+	button.MouseEnter:Connect(function()
 
 		TweenService:Create(
-			main,
-			TweenInfo.new(
-				.25,
-				Enum.EasingStyle.Back,
-				Enum.EasingDirection.Out
-			),
+			button,
+			TweenInfo.new(.12),
 			{
-				Size = UDim2.fromOffset(
-					DEFAULT_SIZE.X,
-					DEFAULT_SIZE.Y
-				)
+				BackgroundColor3 =
+					hoverColor
 			}
 		):Play()
 
-	else
+	end)
 
-		main.Size =
-			UDim2.fromOffset(
-				DEFAULT_SIZE.X,
-				DEFAULT_SIZE.Y
-			)
+	button.MouseLeave:Connect(function()
 
-	end
+		TweenService:Create(
+			button,
+			TweenInfo.new(.12),
+			{
+				BackgroundColor3 =
+					normal
+			}
+		):Play()
 
-end)
+	end)
+
+end
+
+hover(
+	Close,
+	Theme.Card,
+	Color3.fromRGB(70,40,48)
+)
+
+hover(
+	LanguageSetting,
+	Theme.CardHover,
+	Theme.AccentDark
+)
+
+hover(
+	AnimationSetting,
+	Theme.CardHover,
+	Theme.AccentDark
+)
+
+hover(
+	ScaleSetting,
+	Theme.CardHover,
+	Theme.AccentDark
+)
+
+hover(
+	ResetSetting,
+	Theme.CardHover,
+	Theme.AccentDark
+)
 
 --========================================================--
 -- START
 --========================================================--
 
+switchPage(
+	HomePage,
+	tr("home")
+)
+
 updateLanguage()
 
 print(
-	"[CH3A5] Premium Dashboard v"
+	"[CH3A5] Premium Interface v"
 	.. VERSION
-	.. " loaded."
+	.. " loaded successfully."
 )
