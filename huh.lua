@@ -1,515 +1,724 @@
 --========================================================--
---                 CH3A5 PREMIUM UI v10.0                 --
+--              CH3A5 PREMIUM DASHBOARD v10.0             --
 --========================================================--
+-- Single LocalScript
+-- Roblox Studio -> StarterGui -> LocalScript
 -- Created by CH3A5
--- Premium Dashboard / KH + EN / Mobile / PC
--- Drag / Resize / FPS / Ping / Session / Settings
--- UI ONLY
 --========================================================--
 
 local Players = game:GetService("Players")
-local UIS = game:GetService("UserInputService")
+local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Stats = game:GetService("Stats")
-local GuiService = game:GetService("GuiService")
 
-local Player = Players.LocalPlayer
-local PlayerGui = Player:WaitForChild("PlayerGui")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 
 --========================================================--
--- CONFIG
+-- SETTINGS
 --========================================================--
 
 local VERSION = "10.0"
-local CREATOR = "CH3A5"
 
-local MIN_SIZE = Vector2.new(320, 260)
-local MAX_SIZE = Vector2.new(760, 600)
-local START_SIZE = Vector2.new(460, 380)
+local MIN_SIZE = Vector2.new(340, 260)
+local MAX_SIZE = Vector2.new(780, 560)
+local DEFAULT_SIZE = Vector2.new(500, 400)
 
-local DEFAULT_SCALE = 1
-local DEFAULT_TRANSPARENCY = 0
+local language = "EN"
+local animations = true
+local uiScale = 1
 
-local Language = "EN"
-local Animations = true
-local UIScaleValue = DEFAULT_SCALE
-local Transparency = DEFAULT_TRANSPARENCY
-
-local SessionStart = tick()
+local sessionStart = os.clock()
 
 --========================================================--
 -- COLORS
 --========================================================--
 
-local C = {
-	Background = Color3.fromRGB(12, 13, 17),
-	Surface = Color3.fromRGB(19, 21, 27),
-	Surface2 = Color3.fromRGB(25, 27, 34),
+local BG = Color3.fromRGB(10, 11, 15)
+local CARD = Color3.fromRGB(18, 20, 27)
+local CARD2 = Color3.fromRGB(24, 26, 34)
 
-	Accent = Color3.fromRGB(111, 82, 235),
-	AccentDark = Color3.fromRGB(84, 60, 190),
+local TEXT = Color3.fromRGB(245, 246, 250)
+local MUTED = Color3.fromRGB(145, 149, 162)
 
-	Text = Color3.fromRGB(245, 245, 248),
-	SubText = Color3.fromRGB(155, 159, 171),
+local ACCENT = Color3.fromRGB(112, 82, 240)
+local ACCENT_DARK = Color3.fromRGB(82, 59, 190)
 
-	Success = Color3.fromRGB(80, 210, 130),
-	Warning = Color3.fromRGB(245, 190, 75),
-	Danger = Color3.fromRGB(235, 80, 95),
-
-	Border = Color3.fromRGB(60, 63, 75)
-}
+local GREEN = Color3.fromRGB(75, 210, 125)
 
 --========================================================--
--- TRANSLATIONS
+-- TRANSLATION
 --========================================================--
 
-local T = {
+local LANG = {
+
 	EN = {
 		title = "Personal Dashboard",
 		subtitle = "Premium Player Interface",
-		dashboard = "DASHBOARD",
+
+		dashboard = "Dashboard",
+		settings = "Settings",
+
 		player = "PLAYER",
 		performance = "PERFORMANCE",
-		session = "SESSION",
+		server = "SERVER",
+
 		username = "Username",
 		display = "Display Name",
 		userid = "User ID",
 		account = "Account Age",
-		ping = "Ping",
+
 		fps = "FPS",
+		ping = "Ping",
+		session = "Session",
+
 		place = "Place ID",
 		job = "Server Job ID",
-		time = "Session Time",
+
 		refresh = "Refresh",
-		settings = "Settings",
 		language = "Language",
-		animation = "Animations",
+		animations = "Animations",
 		scale = "UI Scale",
-		transparency = "Transparency",
 		reset = "Reset UI",
-		copy = "Copy User ID",
-		close = "Close",
-		back = "Back",
-		enabled = "ON",
-		disabled = "OFF",
+
+		online = "ONLINE",
 		ready = "System Ready",
-		updated = "Data Updated",
-		copied = "User ID copied",
-		resetDone = "UI reset",
-		created = "Created by CH3A5",
+
+		created = "Created by CH3A5"
 	},
 
 	KH = {
 		title = "ផ្ទាំងព័ត៌មានផ្ទាល់ខ្លួន",
 		subtitle = "Premium Player Interface",
+
 		dashboard = "ផ្ទាំងព័ត៌មាន",
+		settings = "ការកំណត់",
+
 		player = "ព័ត៌មានអ្នកលេង",
 		performance = "ប្រសិទ្ធភាព",
-		session = "Session",
+		server = "SERVER",
+
 		username = "ឈ្មោះអ្នកប្រើ",
 		display = "ឈ្មោះបង្ហាញ",
 		userid = "User ID",
 		account = "អាយុគណនី",
-		ping = "Ping",
+
 		fps = "FPS",
+		ping = "Ping",
+		session = "Session",
+
 		place = "Place ID",
 		job = "Server Job ID",
-		time = "ពេលវេលា Session",
-		refresh = "ធ្វើឱ្យថ្មី",
-		settings = "ការកំណត់",
+
+		refresh = "ធ្វើថ្មី",
 		language = "ភាសា",
-		animation = "Animation",
+		animations = "Animation",
 		scale = "ទំហំ UI",
-		transparency = "ភាពថ្លា",
-		reset = "កំណត់ UI ឡើងវិញ",
-		copy = "ចម្លង User ID",
-		close = "បិទ",
-		back = "ត្រឡប់",
-		enabled = "បើក",
-		disabled = "បិទ",
+		reset = "Reset UI",
+
+		online = "ONLINE",
 		ready = "ប្រព័ន្ធរួចរាល់",
-		updated = "ទិន្នន័យបានធ្វើថ្មី",
-		copied = "បានចម្លង User ID",
-		resetDone = "បាន Reset UI",
-		created = "បង្កើតដោយ CH3A5",
+
+		created = "បង្កើតដោយ CH3A5"
 	}
 }
 
-local function tr(key)
-	return T[Language][key] or key
+local function text(key)
+	return LANG[language][key] or key
 end
 
 --========================================================--
 -- GUI
 --========================================================--
 
-local GUI = Instance.new("ScreenGui")
-GUI.Name = "CH3A5_Premium_v10"
-GUI.ResetOnSpawn = false
-GUI.IgnoreGuiInset = true
-GUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-GUI.Parent = PlayerGui
+local gui = Instance.new("ScreenGui")
+
+gui.Name = "CH3A5_Premium_v10"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+gui.Parent = playerGui
 
 --========================================================--
 -- MAIN
 --========================================================--
 
-local Main = Instance.new("Frame")
-Main.Name = "Main"
-Main.Size = UDim2.fromOffset(START_SIZE.X, START_SIZE.Y)
-Main.Position = UDim2.new(.5, -START_SIZE.X/2, .5, -START_SIZE.Y/2)
-Main.BackgroundColor3 = C.Background
-Main.BorderSizePixel = 0
-Main.Active = true
-Main.Parent = GUI
+local main = Instance.new("Frame")
 
-local MainCorner = Instance.new("UICorner", Main)
-MainCorner.CornerRadius = UDim.new(0, 17)
+main.Size = UDim2.fromOffset(
+	DEFAULT_SIZE.X,
+	DEFAULT_SIZE.Y
+)
 
-local MainStroke = Instance.new("UIStroke", Main)
-MainStroke.Color = C.Border
-MainStroke.Thickness = 1
-MainStroke.Transparency = .2
+main.Position = UDim2.new(
+	0.5,
+	-DEFAULT_SIZE.X / 2,
+	0.5,
+	-DEFAULT_SIZE.Y / 2
+)
 
-local UIScale = Instance.new("UIScale")
-UIScale.Scale = UIScaleValue
-UIScale.Parent = Main
+main.BackgroundColor3 = BG
+main.BorderSizePixel = 0
+main.Active = true
+
+main.Parent = gui
+
+local mainCorner = Instance.new("UICorner", main)
+mainCorner.CornerRadius = UDim.new(0, 18)
+
+local stroke = Instance.new("UIStroke", main)
+stroke.Color = Color3.fromRGB(55, 58, 72)
+stroke.Transparency = 0.15
+
+local scaleObject = Instance.new("UIScale", main)
+scaleObject.Scale = uiScale
 
 --========================================================--
 -- HEADER
 --========================================================--
 
-local Header = Instance.new("Frame")
-Header.Size = UDim2.new(1,0,0,66)
-Header.BackgroundColor3 = C.Surface
-Header.BorderSizePixel = 0
-Header.Active = true
-Header.Parent = Main
+local header = Instance.new("Frame")
 
-local HeaderCorner = Instance.new("UICorner", Header)
-HeaderCorner.CornerRadius = UDim.new(0,17)
+header.Size = UDim2.new(1, 0, 0, 70)
+header.BackgroundColor3 = CARD
+header.BorderSizePixel = 0
+header.Active = true
 
-local Brand = Instance.new("TextLabel")
-Brand.BackgroundTransparency = 1
-Brand.Position = UDim2.fromOffset(18,8)
-Brand.Size = UDim2.new(1,-110,0,25)
-Brand.Text = "CH3A5"
-Brand.TextColor3 = C.Text
-Brand.TextSize = 20
-Brand.Font = Enum.Font.GothamBold
-Brand.TextXAlignment = Enum.TextXAlignment.Left
-Brand.Parent = Header
+header.Parent = main
 
-local Subtitle = Instance.new("TextLabel")
-Subtitle.BackgroundTransparency = 1
-Subtitle.Position = UDim2.fromOffset(19,36)
-Subtitle.Size = UDim2.new(1,-110,0,20)
-Subtitle.Text = tr("subtitle") .. "  •  v" .. VERSION
-Subtitle.TextColor3 = C.SubText
-Subtitle.TextSize = 11
-Subtitle.Font = Enum.Font.Gotham
-Subtitle.TextXAlignment = Enum.TextXAlignment.Left
-Subtitle.Parent = Header
+local headerCorner = Instance.new("UICorner", header)
+headerCorner.CornerRadius = UDim.new(0, 18)
 
---========================================================--
+-- Logo
+
+local logo = Instance.new("Frame")
+
+logo.Size = UDim2.fromOffset(42, 42)
+logo.Position = UDim2.fromOffset(16, 14)
+logo.BackgroundColor3 = ACCENT
+logo.BorderSizePixel = 0
+
+logo.Parent = header
+
+local logoCorner = Instance.new("UICorner", logo)
+logoCorner.CornerRadius = UDim.new(0, 12)
+
+local logoText = Instance.new("TextLabel")
+
+logoText.Size = UDim2.fromScale(1, 1)
+logoText.BackgroundTransparency = 1
+
+logoText.Text = "CH"
+logoText.TextColor3 = TEXT
+logoText.TextSize = 14
+logoText.Font = Enum.Font.GothamBold
+
+logoText.Parent = logo
+
+-- Brand
+
+local brand = Instance.new("TextLabel")
+
+brand.BackgroundTransparency = 1
+
+brand.Position = UDim2.fromOffset(68, 11)
+brand.Size = UDim2.new(1, -160, 0, 25)
+
+brand.Text = "CH3A5"
+
+brand.TextColor3 = TEXT
+brand.TextSize = 19
+brand.Font = Enum.Font.GothamBold
+
+brand.TextXAlignment = Enum.TextXAlignment.Left
+
+brand.Parent = header
+
+local subtitle = Instance.new("TextLabel")
+
+subtitle.BackgroundTransparency = 1
+
+subtitle.Position = UDim2.fromOffset(69, 37)
+subtitle.Size = UDim2.new(1, -170, 0, 18)
+
+subtitle.Text = text("subtitle") .. "  •  v" .. VERSION
+
+subtitle.TextColor3 = MUTED
+subtitle.TextSize = 10
+subtitle.Font = Enum.Font.Gotham
+
+subtitle.TextXAlignment = Enum.TextXAlignment.Left
+
+subtitle.Parent = header
+
+-- ONLINE
+
+local online = Instance.new("TextLabel")
+
+online.BackgroundTransparency = 1
+
+online.AnchorPoint = Vector2.new(1, 0.5)
+online.Position = UDim2.new(1, -55, 0.5, 0)
+
+online.Size = UDim2.fromOffset(65, 20)
+
+online.Text = "● " .. text("online")
+
+online.TextColor3 = GREEN
+online.TextSize = 10
+online.Font = Enum.Font.GothamBold
+
+online.Parent = header
+
 -- CLOSE
---========================================================--
 
-local Close = Instance.new("TextButton")
-Close.Size = UDim2.fromOffset(36,36)
-Close.Position = UDim2.new(1,-48,.5,-18)
-Close.BackgroundColor3 = C.Surface2
-Close.Text = "×"
-Close.TextColor3 = C.Text
-Close.TextSize = 22
-Close.Font = Enum.Font.GothamBold
-Close.AutoButtonColor = false
-Close.Parent = Header
+local close = Instance.new("TextButton")
 
-local CloseCorner = Instance.new("UICorner", Close)
-CloseCorner.CornerRadius = UDim.new(0,9)
+close.Size = UDim2.fromOffset(32, 32)
+
+close.Position = UDim2.new(1, -42, 0, 19)
+
+close.BackgroundColor3 = CARD2
+
+close.Text = "×"
+
+close.TextColor3 = TEXT
+close.TextSize = 20
+close.Font = Enum.Font.GothamBold
+
+close.AutoButtonColor = false
+
+close.Parent = header
+
+local closeCorner = Instance.new("UICorner", close)
+closeCorner.CornerRadius = UDim.new(0, 9)
 
 --========================================================--
 -- STATUS
 --========================================================--
 
-local Status = Instance.new("Frame")
-Status.Position = UDim2.fromOffset(20,80)
-Status.Size = UDim2.new(1,-40,0,38)
-Status.BackgroundColor3 = C.Surface
-Status.BorderSizePixel = 0
-Status.Parent = Main
+local status = Instance.new("Frame")
 
-local StatusCorner = Instance.new("UICorner", Status)
-StatusCorner.CornerRadius = UDim.new(0,10)
+status.Position = UDim2.fromOffset(18, 82)
 
-local StatusDot = Instance.new("Frame")
-StatusDot.Size = UDim2.fromOffset(9,9)
-StatusDot.Position = UDim2.new(0,14,.5,-4)
-StatusDot.BackgroundColor3 = C.Success
-StatusDot.BorderSizePixel = 0
-StatusDot.Parent = Status
+status.Size = UDim2.new(1, -36, 0, 35)
 
-local DotCorner = Instance.new("UICorner", StatusDot)
-DotCorner.CornerRadius = UDim.new(1,0)
+status.BackgroundColor3 = CARD
+status.BorderSizePixel = 0
 
-local StatusText = Instance.new("TextLabel")
-StatusText.BackgroundTransparency = 1
-StatusText.Position = UDim2.fromOffset(32,0)
-StatusText.Size = UDim2.new(1,-42,1,0)
-StatusText.Text = "●  " .. tr("ready")
-StatusText.TextColor3 = C.SubText
-StatusText.TextSize = 12
-StatusText.Font = Enum.Font.GothamMedium
-StatusText.TextXAlignment = Enum.TextXAlignment.Left
-StatusText.Parent = Status
+status.Parent = main
+
+local statusCorner = Instance.new("UICorner", status)
+statusCorner.CornerRadius = UDim.new(0, 10)
+
+local statusDot = Instance.new("Frame")
+
+statusDot.Size = UDim2.fromOffset(8, 8)
+
+statusDot.Position = UDim2.fromOffset(13, 13)
+
+statusDot.BackgroundColor3 = GREEN
+statusDot.BorderSizePixel = 0
+
+statusDot.Parent = status
+
+local statusDotCorner = Instance.new("UICorner", statusDot)
+statusDotCorner.CornerRadius = UDim.new(1, 0)
+
+local statusText = Instance.new("TextLabel")
+
+statusText.BackgroundTransparency = 1
+
+statusText.Position = UDim2.fromOffset(29, 0)
+
+statusText.Size = UDim2.new(1, -40, 1, 0)
+
+statusText.Text = text("ready")
+
+statusText.TextColor3 = MUTED
+statusText.TextSize = 11
+statusText.Font = Enum.Font.GothamMedium
+
+statusText.TextXAlignment = Enum.TextXAlignment.Left
+
+statusText.Parent = status
 
 --========================================================--
 -- CONTENT
 --========================================================--
 
-local Content = Instance.new("Frame")
-Content.Position = UDim2.fromOffset(20,130)
-Content.Size = UDim2.new(1,-40,1,-195)
-Content.BackgroundTransparency = 1
-Content.Parent = Main
+local content = Instance.new("Frame")
+
+content.Position = UDim2.fromOffset(18, 128)
+
+content.Size = UDim2.new(
+	1,
+	-36,
+	1,
+	-190
+)
+
+content.BackgroundTransparency = 1
+
+content.Parent = main
 
 --========================================================--
--- DASHBOARD PANEL
+-- CARD CREATOR
 --========================================================--
 
-local Dashboard = Instance.new("Frame")
-Dashboard.Size = UDim2.fromScale(1,1)
-Dashboard.BackgroundColor3 = C.Surface
-Dashboard.BorderSizePixel = 0
-Dashboard.Parent = Content
+local function createCard(position, size)
 
-local DashboardCorner = Instance.new("UICorner", Dashboard)
-DashboardCorner.CornerRadius = UDim.new(0,13)
+	local card = Instance.new("Frame")
 
-local DataTitle = Instance.new("TextLabel")
-DataTitle.BackgroundTransparency = 1
-DataTitle.Position = UDim2.fromOffset(16,10)
-DataTitle.Size = UDim2.new(1,-32,0,24)
-DataTitle.Text = tr("dashboard")
-DataTitle.TextColor3 = C.Text
-DataTitle.TextSize = 12
-DataTitle.Font = Enum.Font.GothamBold
-DataTitle.TextXAlignment = Enum.TextXAlignment.Left
-DataTitle.Parent = Dashboard
+	card.Position = position
+	card.Size = size
 
-local DataText = Instance.new("TextLabel")
-DataText.BackgroundTransparency = 1
-DataText.Position = UDim2.fromOffset(16,39)
-DataText.Size = UDim2.new(1,-32,1,-48)
-DataText.TextColor3 = C.SubText
-DataText.TextSize = 13
-DataText.Font = Enum.Font.Gotham
-DataText.TextXAlignment = Enum.TextXAlignment.Left
-DataText.TextYAlignment = Enum.TextYAlignment.Top
-DataText.TextWrapped = true
-DataText.Parent = Dashboard
+	card.BackgroundColor3 = CARD
+	card.BorderSizePixel = 0
 
---========================================================--
--- SETTINGS PANEL
---========================================================--
+	card.Parent = content
 
-local Settings = Instance.new("Frame")
-Settings.Size = UDim2.fromScale(1,1)
-Settings.BackgroundColor3 = C.Surface
-Settings.BorderSizePixel = 0
-Settings.Visible = false
-Settings.Parent = Content
+	local corner = Instance.new("UICorner", card)
+	corner.CornerRadius = UDim.new(0, 13)
 
-local SettingsCorner = Instance.new("UICorner", Settings)
-SettingsCorner.CornerRadius = UDim.new(0,13)
-
-local SettingsTitle = Instance.new("TextLabel")
-SettingsTitle.BackgroundTransparency = 1
-SettingsTitle.Position = UDim2.fromOffset(16,10)
-SettingsTitle.Size = UDim2.new(1,-32,0,24)
-SettingsTitle.Text = tr("settings")
-SettingsTitle.TextColor3 = C.Text
-SettingsTitle.TextSize = 15
-SettingsTitle.Font = Enum.Font.GothamBold
-SettingsTitle.TextXAlignment = Enum.TextXAlignment.Left
-SettingsTitle.Parent = Settings
-
---========================================================--
--- SETTINGS BUTTON HELPER
---========================================================--
-
-local function createSettingButton(name, y)
-
-	local button = Instance.new("TextButton")
-
-	button.Size = UDim2.new(1,-32,0,42)
-	button.Position = UDim2.fromOffset(16,y)
-
-	button.BackgroundColor3 = C.Surface2
-	button.TextColor3 = C.Text
-
-	button.TextSize = 13
-	button.Font = Enum.Font.GothamMedium
-
-	button.AutoButtonColor = false
-
-	button.Parent = Settings
-
-	local corner = Instance.new("UICorner",button)
-	corner.CornerRadius = UDim.new(0,9)
-
-	return button
+	return card
 end
 
-local LanguageButton = createSettingButton("Language",48)
-local AnimationButton = createSettingButton("Animation",98)
-local ScaleButton = createSettingButton("Scale",148)
-local TransparencyButton = createSettingButton("Transparency",198)
-local ResetButton = createSettingButton("Reset",248)
+-- PLAYER CARD
+
+local playerCard = createCard(
+	UDim2.fromScale(0, 0),
+	UDim2.new(.49, -5, .48, -5)
+)
+
+local playerTitle = Instance.new("TextLabel")
+
+playerTitle.BackgroundTransparency = 1
+playerTitle.Position = UDim2.fromOffset(14, 10)
+playerTitle.Size = UDim2.new(1, -28, 0, 20)
+
+playerTitle.Text = text("player")
+
+playerTitle.TextColor3 = TEXT
+playerTitle.TextSize = 11
+playerTitle.Font = Enum.Font.GothamBold
+
+playerTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+playerTitle.Parent = playerCard
+
+local playerInfo = Instance.new("TextLabel")
+
+playerInfo.BackgroundTransparency = 1
+
+playerInfo.Position = UDim2.fromOffset(14, 34)
+
+playerInfo.Size = UDim2.new(1, -28, 1, -42)
+
+playerInfo.TextColor3 = MUTED
+
+playerInfo.TextSize = 11
+playerInfo.Font = Enum.Font.Gotham
+
+playerInfo.TextXAlignment = Enum.TextXAlignment.Left
+playerInfo.TextYAlignment = Enum.TextYAlignment.Top
+
+playerInfo.Parent = playerCard
+
+-- PERFORMANCE CARD
+
+local performanceCard = createCard(
+	UDim2.new(.51, 5, 0, 0),
+	UDim2.new(.49, -5, .48, -5)
+)
+
+local performanceTitle = Instance.new("TextLabel")
+
+performanceTitle.BackgroundTransparency = 1
+
+performanceTitle.Position = UDim2.fromOffset(14, 10)
+
+performanceTitle.Size = UDim2.new(1, -28, 0, 20)
+
+performanceTitle.Text = text("performance")
+
+performanceTitle.TextColor3 = TEXT
+performanceTitle.TextSize = 11
+performanceTitle.Font = Enum.Font.GothamBold
+
+performanceTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+performanceTitle.Parent = performanceCard
+
+local performanceInfo = Instance.new("TextLabel")
+
+performanceInfo.BackgroundTransparency = 1
+
+performanceInfo.Position = UDim2.fromOffset(14, 34)
+
+performanceInfo.Size = UDim2.new(1, -28, 1, -42)
+
+performanceInfo.TextColor3 = MUTED
+
+performanceInfo.TextSize = 11
+performanceInfo.Font = Enum.Font.Gotham
+
+performanceInfo.TextXAlignment = Enum.TextXAlignment.Left
+performanceInfo.TextYAlignment = Enum.TextYAlignment.Top
+
+performanceInfo.Parent = performanceCard
+
+-- SERVER CARD
+
+local serverCard = createCard(
+	UDim2.fromScale(0, .52),
+	UDim2.new(1, 0, .48, -5)
+)
+
+local serverTitle = Instance.new("TextLabel")
+
+serverTitle.BackgroundTransparency = 1
+
+serverTitle.Position = UDim2.fromOffset(14, 10)
+
+serverTitle.Size = UDim2.new(1, -28, 0, 20)
+
+serverTitle.Text = text("server")
+
+serverTitle.TextColor3 = TEXT
+serverTitle.TextSize = 11
+serverTitle.Font = Enum.Font.GothamBold
+
+serverTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+serverTitle.Parent = serverCard
+
+local serverInfo = Instance.new("TextLabel")
+
+serverInfo.BackgroundTransparency = 1
+
+serverInfo.Position = UDim2.fromOffset(14, 34)
+
+serverInfo.Size = UDim2.new(1, -28, 1, -42)
+
+serverInfo.TextColor3 = MUTED
+serverInfo.TextSize = 11
+serverInfo.Font = Enum.Font.Gotham
+
+serverInfo.TextXAlignment = Enum.TextXAlignment.Left
+serverInfo.TextYAlignment = Enum.TextYAlignment.Top
+
+serverInfo.Parent = serverCard
 
 --========================================================--
--- BOTTOM BUTTONS
+-- SETTINGS
 --========================================================--
 
-local Refresh = Instance.new("TextButton")
-Refresh.Size = UDim2.fromOffset(115,40)
-Refresh.Position = UDim2.fromOffset(20,-55)
-Refresh.BackgroundColor3 = C.Accent
-Refresh.TextColor3 = C.Text
-Refresh.TextSize = 13
-Refresh.Font = Enum.Font.GothamBold
-Refresh.AutoButtonColor = false
-Refresh.Parent = Main
+local settingsPanel = Instance.new("Frame")
 
-local RefreshCorner = Instance.new("UICorner",Refresh)
-RefreshCorner.CornerRadius = UDim.new(0,10)
+settingsPanel.Position = UDim2.fromOffset(18, 128)
 
-local SettingsButton = Instance.new("TextButton")
-SettingsButton.Size = UDim2.fromOffset(115,40)
-SettingsButton.Position = UDim2.new(0,145,1,15)
-SettingsButton.BackgroundColor3 = C.Surface2
-SettingsButton.TextColor3 = C.Text
-SettingsButton.TextSize = 13
-SettingsButton.Font = Enum.Font.GothamBold
-SettingsButton.AutoButtonColor = false
-SettingsButton.Parent = Main
+settingsPanel.Size = UDim2.new(
+	1,
+	-36,
+	1,
+	-190
+)
 
-local SettingsCorner2 = Instance.new("UICorner",SettingsButton)
-SettingsCorner2.CornerRadius = UDim.new(0,10)
+settingsPanel.BackgroundColor3 = CARD
+
+settingsPanel.BorderSizePixel = 0
+
+settingsPanel.Visible = false
+
+settingsPanel.Parent = main
+
+local settingsCorner = Instance.new("UICorner", settingsPanel)
+settingsCorner.CornerRadius = UDim.new(0, 13)
+
+local settingsTitle = Instance.new("TextLabel")
+
+settingsTitle.BackgroundTransparency = 1
+
+settingsTitle.Position = UDim2.fromOffset(16, 14)
+
+settingsTitle.Size = UDim2.new(1, -32, 0, 24)
+
+settingsTitle.Text = text("settings")
+
+settingsTitle.TextColor3 = TEXT
+settingsTitle.TextSize = 15
+settingsTitle.Font = Enum.Font.GothamBold
+
+settingsTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+settingsTitle.Parent = settingsPanel
+
+local function settingButton(y)
+
+	local b = Instance.new("TextButton")
+
+	b.Position = UDim2.fromOffset(16, y)
+
+	b.Size = UDim2.new(1, -32, 0, 42)
+
+	b.BackgroundColor3 = CARD2
+
+	b.TextColor3 = TEXT
+
+	b.TextSize = 12
+	b.Font = Enum.Font.GothamMedium
+
+	b.AutoButtonColor = false
+
+	b.Parent = settingsPanel
+
+	local c = Instance.new("UICorner", b)
+	c.CornerRadius = UDim.new(0, 9)
+
+	return b
+end
+
+local languageButton = settingButton(50)
+local animationButton = settingButton(100)
+local scaleButton = settingButton(150)
+local resetButton = settingButton(200)
 
 --========================================================--
+-- BOTTOM
+--========================================================--
+
+local refresh = Instance.new("TextButton")
+
+refresh.Size = UDim2.fromOffset(115, 40)
+
+refresh.Position = UDim2.fromOffset(18, -53)
+
+refresh.BackgroundColor3 = ACCENT
+
+refresh.TextColor3 = TEXT
+
+refresh.Text = "↻  " .. text("refresh")
+
+refresh.TextSize = 12
+refresh.Font = Enum.Font.GothamBold
+
+refresh.AutoButtonColor = false
+
+refresh.Parent = main
+
+local refreshCorner = Instance.new("UICorner", refresh)
+refreshCorner.CornerRadius = UDim.new(0, 10)
+
+local settingsButton = Instance.new("TextButton")
+
+settingsButton.Size = UDim2.fromOffset(115, 40)
+
+settingsButton.Position = UDim2.fromOffset(143, -53)
+
+settingsButton.BackgroundColor3 = CARD2
+
+settingsButton.TextColor3 = TEXT
+
+settingsButton.Text = "⚙  " .. text("settings")
+
+settingsButton.TextSize = 12
+settingsButton.Font = Enum.Font.GothamBold
+
+settingsButton.AutoButtonColor = false
+
+settingsButton.Parent = main
+
+local settingsButtonCorner = Instance.new("UICorner", settingsButton)
+settingsButtonCorner.CornerRadius = UDim.new(0, 10)
+
 -- FOOTER
+
+local footer = Instance.new("TextLabel")
+
+footer.BackgroundTransparency = 1
+
+footer.AnchorPoint = Vector2.new(1, 0)
+
+footer.Position = UDim2.new(1, -18, 1, -47)
+
+footer.Size = UDim2.fromOffset(210, 18)
+
+footer.Text = text("created") .. "  •  v" .. VERSION
+
+footer.TextColor3 = MUTED
+
+footer.TextSize = 9
+footer.Font = Enum.Font.Gotham
+
+footer.TextXAlignment = Enum.TextXAlignment.Right
+
+footer.Parent = main
+
+--========================================================--
+-- RESIZE HANDLE
 --========================================================--
 
-local Footer = Instance.new("TextLabel")
-Footer.BackgroundTransparency = 1
-Footer.AnchorPoint = Vector2.new(1,0)
-Footer.Position = UDim2.new(1,-20,1,-52)
-Footer.Size = UDim2.fromOffset(220,20)
-Footer.Text = tr("created") .. "  •  v" .. VERSION
-Footer.TextColor3 = C.SubText
-Footer.TextSize = 10
-Footer.Font = Enum.Font.Gotham
-Footer.TextXAlignment = Enum.TextXAlignment.Right
-Footer.Parent = Main
+local resize = Instance.new("TextButton")
 
---========================================================--
--- RESIZE
---========================================================--
+resize.Size = UDim2.fromOffset(38, 38)
 
-local Resize = Instance.new("TextButton")
-Resize.Size = UDim2.fromOffset(38,38)
-Resize.AnchorPoint = Vector2.new(1,1)
-Resize.Position = UDim2.new(1,-5,1,-5)
-Resize.BackgroundTransparency = 1
-Resize.Text = "↘"
-Resize.TextColor3 = C.SubText
-Resize.TextSize = 20
-Resize.Font = Enum.Font.GothamBold
-Resize.AutoButtonColor = false
-Resize.Parent = Main
+resize.AnchorPoint = Vector2.new(1, 1)
+
+resize.Position = UDim2.new(1, -4, 1, -4)
+
+resize.BackgroundTransparency = 1
+
+resize.Text = "↘"
+
+resize.TextColor3 = MUTED
+
+resize.TextSize = 18
+
+resize.Font = Enum.Font.GothamBold
+
+resize.AutoButtonColor = false
+
+resize.Parent = main
 
 --========================================================--
 -- OPEN BUTTON
 --========================================================--
 
-local Open = Instance.new("TextButton")
-Open.Size = UDim2.fromOffset(58,58)
-Open.Position = UDim2.new(0,20,.5,-29)
-Open.BackgroundColor3 = C.Background
-Open.Text = "CH"
-Open.TextColor3 = C.Text
-Open.TextSize = 16
-Open.Font = Enum.Font.GothamBold
-Open.Visible = false
-Open.Parent = GUI
+local open = Instance.new("TextButton")
 
-local OpenCorner = Instance.new("UICorner",Open)
-OpenCorner.CornerRadius = UDim.new(1,0)
+open.Size = UDim2.fromOffset(58, 58)
 
-local OpenStroke = Instance.new("UIStroke",Open)
-OpenStroke.Color = C.Accent
-OpenStroke.Thickness = 1
+open.Position = UDim2.new(0, 18, .5, -29)
 
---========================================================--
--- TOAST
---========================================================--
+open.BackgroundColor3 = BG
 
-local Toast = Instance.new("TextLabel")
-Toast.AnchorPoint = Vector2.new(.5,1)
-Toast.Position = UDim2.new(.5,0,1,-25)
-Toast.Size = UDim2.fromOffset(280,42)
-Toast.BackgroundColor3 = C.Surface2
-Toast.TextColor3 = C.Text
-Toast.TextSize = 12
-Toast.Font = Enum.Font.GothamMedium
-Toast.Visible = false
-Toast.Parent = GUI
+open.Text = "CH"
 
-local ToastCorner = Instance.new("UICorner",Toast)
-ToastCorner.CornerRadius = UDim.new(0,10)
+open.TextColor3 = TEXT
 
-local ToastStroke = Instance.new("UIStroke",Toast)
-ToastStroke.Color = C.Border
+open.TextSize = 15
+open.Font = Enum.Font.GothamBold
 
-local function toast(message)
+open.Visible = false
 
-	Toast.Text = message
-	Toast.Visible = true
-	Toast.TextTransparency = 0
+open.Parent = gui
 
-	task.delay(1.8,function()
+local openCorner = Instance.new("UICorner", open)
+openCorner.CornerRadius = UDim.new(1, 0)
 
-		if Toast then
-
-			local tween = TweenService:Create(
-				Toast,
-				TweenInfo.new(.2),
-				{TextTransparency = 1}
-			)
-
-			tween:Play()
-
-			tween.Completed:Wait()
-
-			Toast.Visible = false
-			Toast.TextTransparency = 0
-
-		end
-
-	end)
-
-end
+local openStroke = Instance.new("UIStroke", open)
+openStroke.Color = ACCENT
 
 --========================================================--
--- DATA
+-- UPDATE
 --========================================================--
 
 local FPS = 0
-local Frames = 0
-local LastFPS = tick()
+local frames = 0
+local fpsTime = tick()
 
 local function getPing()
 
@@ -521,7 +730,7 @@ local function getPing()
 			Stats.Network.ServerStatsItem["Data Ping"]
 
 		result =
-			tostring(math.floor(item:GetValue()))
+			math.floor(item:GetValue())
 			.. " ms"
 
 	end)
@@ -529,26 +738,62 @@ local function getPing()
 	return result
 end
 
-local function formatTime(seconds)
+local function formatTime()
 
-	seconds = math.floor(seconds)
-
-	local h = math.floor(seconds / 3600)
-
-	local m = math.floor(
-		(seconds % 3600) / 60
+	local total = math.floor(
+		os.clock() - sessionStart
 	)
 
-	local s = seconds % 60
+	local h = math.floor(total / 3600)
+
+	local m = math.floor(
+		(total % 3600) / 60
+	)
+
+	local s = total % 60
 
 	return string.format(
 		"%02d:%02d:%02d",
 		h,m,s
 	)
-
 end
 
-local function updateData()
+local function update()
+
+	playerTitle.Text = text("player")
+	performanceTitle.Text = text("performance")
+	serverTitle.Text = text("server")
+
+	playerInfo.Text =
+		text("username") .. "\n" ..
+		Player.Name ..
+
+		"\n\n" ..
+		text("display") .. "\n" ..
+		Player.DisplayName ..
+
+		"\n\n" ..
+		text("userid") .. "\n" ..
+		tostring(Player.UserId) ..
+
+		"\n\n" ..
+		text("account") .. "\n" ..
+		tostring(Player.AccountAge) .. " days"
+
+	performanceInfo.Text =
+		text("fps") ..
+		"\n" ..
+		tostring(FPS) ..
+
+		"\n\n" ..
+		text("ping") ..
+		"\n" ..
+		getPing() ..
+
+		"\n\n" ..
+		text("session") ..
+		"\n" ..
+		formatTime()
 
 	local jobId = game.JobId
 
@@ -556,278 +801,151 @@ local function updateData()
 		jobId = "Studio"
 	end
 
-	DataText.Text =
-
-		tr("player") ..
-
-		"\n\n" ..
-		tr("username") ..
-		"     :  " ..
-		Player.Name ..
-
+	serverInfo.Text =
+		text("place") ..
 		"\n" ..
-		tr("display") ..
-		"     :  " ..
-		Player.DisplayName ..
-
-		"\n" ..
-		tr("userid") ..
-		"       :  " ..
-		tostring(Player.UserId) ..
-
-		"\n" ..
-		tr("account") ..
-		"     :  " ..
-		tostring(Player.AccountAge) ..
-		" days" ..
-
-		"\n\n" ..
-
-		tr("performance") ..
-
-		"\n\n" ..
-		tr("ping") ..
-		"          :  " ..
-		getPing() ..
-
-		"\n" ..
-		tr("fps") ..
-		"           :  " ..
-		tostring(FPS) ..
-
-		"\n\n" ..
-
-		tr("session") ..
-
-		"\n\n" ..
-		tr("place") ..
-		"        :  " ..
 		tostring(game.PlaceId) ..
 
+		"\n\n" ..
+		text("job") ..
 		"\n" ..
-		tr("job") ..
-		" :  " ..
-		jobId ..
-
-		"\n" ..
-		tr("time") ..
-		"    :  " ..
-		formatTime(tick() - SessionStart)
+		jobId
 
 end
 
---========================================================--
--- FPS LOOP
---========================================================--
-
 RunService.RenderStepped:Connect(function()
 
-	Frames += 1
+	frames += 1
 
-	local now = tick()
+	if tick() - fpsTime >= 1 then
 
-	if now - LastFPS >= 1 then
+		FPS = frames
 
-		FPS = Frames
+		frames = 0
+		fpsTime = tick()
 
-		Frames = 0
-
-		LastFPS = now
-
-		if Dashboard.Visible then
-			updateData()
-		end
+		update()
 
 	end
 
 end)
 
 --========================================================--
--- UPDATE LANGUAGE
+-- LANGUAGE UPDATE
 --========================================================--
 
 local function updateLanguage()
 
-	Subtitle.Text =
-		tr("subtitle")
+	subtitle.Text =
+		text("subtitle")
 		.. "  •  v"
 		.. VERSION
 
-	StatusText.Text =
-		"●  "
-		.. tr("ready")
+	online.Text =
+		"● "
+		.. text("online")
 
-	Refresh.Text =
+	statusText.Text =
+		text("ready")
+
+	refresh.Text =
 		"↻  "
-		.. tr("refresh")
+		.. text("refresh")
 
-	SettingsButton.Text =
+	settingsButton.Text =
 		"⚙  "
-		.. tr("settings")
+		.. text("settings")
 
-	SettingsTitle.Text =
-		tr("settings")
+	settingsTitle.Text =
+		text("settings")
 
-	LanguageButton.Text =
-		tr("language")
-		.. "     :  "
-		.. Language
+	languageButton.Text =
+		text("language")
+		.. "  :  "
+		.. language
 
-	AnimationButton.Text =
-		tr("animation")
-		.. "     :  "
-		.. (Animations and tr("enabled") or tr("disabled"))
+	animationButton.Text =
+		text("animations")
+		.. "  :  "
+		.. (animations and "ON" or "OFF")
 
-	ScaleButton.Text =
-		tr("scale")
-		.. "          :  "
-		.. tostring(UIScaleValue)
+	scaleButton.Text =
+		text("scale")
+		.. "  :  "
+		.. string.format("%.1f", uiScale)
 
-	TransparencyButton.Text =
-		tr("transparency")
-		.. " :  "
-		.. tostring(math.floor(Transparency * 100))
-		.. "%"
-
-	ResetButton.Text =
+	resetButton.Text =
 		"↺  "
-		.. tr("reset")
+		.. text("reset")
 
-	Footer.Text =
-		tr("created")
+	footer.Text =
+		text("created")
 		.. "  •  v"
 		.. VERSION
 
-	updateData()
+	update()
 
 end
 
 --========================================================--
--- LANGUAGE BUTTON
+-- SETTINGS
 --========================================================--
 
-LanguageButton.Activated:Connect(function()
+languageButton.Activated:Connect(function()
 
-	if Language == "EN" then
-		Language = "KH"
+	if language == "EN" then
+		language = "KH"
 	else
-		Language = "EN"
+		language = "EN"
 	end
 
 	updateLanguage()
 
-	toast(
-		Language == "KH"
-		and "ភាសា: ខ្មែរ"
-		or "Language: English"
-	)
-
 end)
 
---========================================================--
--- ANIMATION BUTTON
---========================================================--
+animationButton.Activated:Connect(function()
 
-AnimationButton.Activated:Connect(function()
-
-	Animations = not Animations
+	animations = not animations
 
 	updateLanguage()
 
 end)
 
---========================================================--
--- SCALE BUTTON
---========================================================--
+scaleButton.Activated:Connect(function()
 
-ScaleButton.Activated:Connect(function()
+	uiScale += .1
 
-	UIScaleValue += .1
-
-	if UIScaleValue > 1.3 then
-		UIScaleValue = .8
+	if uiScale > 1.3 then
+		uiScale = .8
 	end
 
-	UIScale.Scale = UIScaleValue
+	scaleObject.Scale = uiScale
 
 	updateLanguage()
 
 end)
 
---========================================================--
--- TRANSPARENCY BUTTON
---========================================================--
+resetButton.Activated:Connect(function()
 
-TransparencyButton.Activated:Connect(function()
+	main.Size =
+		UDim2.fromOffset(
+			DEFAULT_SIZE.X,
+			DEFAULT_SIZE.Y
+		)
 
-	Transparency += .1
+	main.Position =
+		UDim2.new(
+			.5,
+			-DEFAULT_SIZE.X / 2,
+			.5,
+			-DEFAULT_SIZE.Y / 2
+		)
 
-	if Transparency > .4 then
-		Transparency = 0
-	end
+	uiScale = 1
 
-	Main.BackgroundTransparency = Transparency
-
-	updateLanguage()
-
-end)
-
---========================================================--
--- RESET
---========================================================--
-
-local function resetUI()
-
-	Main.Size = UDim2.fromOffset(
-		START_SIZE.X,
-		START_SIZE.Y
-	)
-
-	Main.Position = UDim2.new(
-		.5,
-		-START_SIZE.X/2,
-		.5,
-		-START_SIZE.Y/2
-	)
-
-	UIScaleValue = DEFAULT_SCALE
-	Transparency = DEFAULT_TRANSPARENCY
-
-	UIScale.Scale = DEFAULT_SCALE
-	Main.BackgroundTransparency = 0
+	scaleObject.Scale = 1
 
 	updateLanguage()
-
-	toast(tr("resetDone"))
-
-end
-
-ResetButton.Activated:Connect(resetUI)
-
---========================================================--
--- REFRESH
---========================================================--
-
-Refresh.Activated:Connect(function()
-
-	StatusText.Text =
-		"●  "
-		.. tr("updated")
-
-	StatusDot.BackgroundColor3 = C.Accent
-
-	updateData()
-
-	task.delay(.8,function()
-
-		StatusText.Text =
-			"●  "
-			.. tr("ready")
-
-		StatusDot.BackgroundColor3 =
-			C.Success
-
-	end)
 
 end)
 
@@ -835,38 +953,53 @@ end)
 -- SETTINGS TOGGLE
 --========================================================--
 
-local function showSettings()
+settingsButton.Activated:Connect(function()
 
-	Dashboard.Visible = false
-	Settings.Visible = true
+	if content.Visible then
 
-	Refresh.Visible = false
-	SettingsButton.Text =
-		"←  "
-		.. tr("back")
+		content.Visible = false
+		settingsPanel.Visible = true
 
-end
+		refresh.Visible = false
 
-local function showDashboard()
+		settingsButton.Text =
+			"←  "
+			.. text("dashboard")
 
-	Settings.Visible = false
-	Dashboard.Visible = true
-
-	Refresh.Visible = true
-
-	SettingsButton.Text =
-		"⚙  "
-		.. tr("settings")
-
-end
-
-SettingsButton.Activated:Connect(function()
-
-	if Dashboard.Visible then
-		showSettings()
 	else
-		showDashboard()
+
+		content.Visible = true
+		settingsPanel.Visible = false
+
+		refresh.Visible = true
+
+		settingsButton.Text =
+			"⚙  "
+			.. text("settings")
+
 	end
+
+end)
+
+--========================================================--
+-- REFRESH
+--========================================================--
+
+refresh.Activated:Connect(function()
+
+	statusText.Text = text("refresh") .. "..."
+
+	statusDot.BackgroundColor3 = ACCENT
+
+	update()
+
+	task.delay(.7, function()
+
+		statusText.Text = text("ready")
+
+		statusDot.BackgroundColor3 = GREEN
+
+	end)
 
 end)
 
@@ -879,7 +1012,7 @@ local dragStart
 local startPosition
 local dragInput
 
-Header.InputBegan:Connect(function(input)
+header.InputBegan:Connect(function(input)
 
 	if input.UserInputType ==
 		Enum.UserInputType.MouseButton1
@@ -889,7 +1022,8 @@ Header.InputBegan:Connect(function(input)
 		dragging = true
 
 		dragStart = input.Position
-		startPosition = Main.Position
+
+		startPosition = main.Position
 
 		input.Changed:Connect(function()
 
@@ -906,7 +1040,7 @@ Header.InputBegan:Connect(function(input)
 
 end)
 
-Header.InputChanged:Connect(function(input)
+header.InputChanged:Connect(function(input)
 
 	if input.UserInputType ==
 		Enum.UserInputType.MouseMovement
@@ -932,7 +1066,7 @@ UIS.InputChanged:Connect(function(input)
 	local delta =
 		input.Position - dragStart
 
-	Main.Position = UDim2.new(
+	main.Position = UDim2.new(
 
 		startPosition.X.Scale,
 		startPosition.X.Offset + delta.X,
@@ -953,7 +1087,7 @@ local resizeStart
 local startSize
 local resizeInput
 
-Resize.InputBegan:Connect(function(input)
+resize.InputBegan:Connect(function(input)
 
 	if input.UserInputType ==
 		Enum.UserInputType.MouseButton1
@@ -963,7 +1097,8 @@ Resize.InputBegan:Connect(function(input)
 		resizing = true
 
 		resizeStart = input.Position
-		startSize = Main.AbsoluteSize
+
+		startSize = main.AbsoluteSize
 
 		input.Changed:Connect(function()
 
@@ -980,7 +1115,7 @@ Resize.InputBegan:Connect(function(input)
 
 end)
 
-Resize.InputChanged:Connect(function(input)
+resize.InputChanged:Connect(function(input)
 
 	if input.UserInputType ==
 		Enum.UserInputType.MouseMovement
@@ -1018,7 +1153,7 @@ UIS.InputChanged:Connect(function(input)
 		MAX_SIZE.Y
 	)
 
-	Main.Size =
+	main.Size =
 		UDim2.fromOffset(
 			width,
 			height
@@ -1027,27 +1162,19 @@ UIS.InputChanged:Connect(function(input)
 end)
 
 --========================================================--
--- CLOSE
+-- CLOSE / OPEN
 --========================================================--
 
-Close.Activated:Connect(function()
+close.Activated:Connect(function()
 
-	if Animations then
+	if animations then
 
 		local tween = TweenService:Create(
-
-			Main,
-
-			TweenInfo.new(
-				.2,
-				Enum.EasingStyle.Quad,
-				Enum.EasingDirection.In
-			),
-
+			main,
+			TweenInfo.new(.2),
 			{
 				Size = UDim2.fromOffset(0,0)
 			}
-
 		)
 
 		tween:Play()
@@ -1055,50 +1182,42 @@ Close.Activated:Connect(function()
 
 	end
 
-	Main.Visible = false
-	Open.Visible = true
+	main.Visible = false
+	open.Visible = true
 
 end)
 
---========================================================--
--- OPEN
---========================================================--
+open.Activated:Connect(function()
 
-Open.Activated:Connect(function()
+	open.Visible = false
+	main.Visible = true
 
-	Open.Visible = false
-	Main.Visible = true
+	if animations then
 
-	if Animations then
-
-		Main.Size =
+		main.Size =
 			UDim2.fromOffset(0,0)
 
 		TweenService:Create(
-
-			Main,
-
+			main,
 			TweenInfo.new(
 				.25,
 				Enum.EasingStyle.Back,
 				Enum.EasingDirection.Out
 			),
-
 			{
 				Size = UDim2.fromOffset(
-					START_SIZE.X,
-					START_SIZE.Y
+					DEFAULT_SIZE.X,
+					DEFAULT_SIZE.Y
 				)
 			}
-
 		):Play()
 
 	else
 
-		Main.Size =
+		main.Size =
 			UDim2.fromOffset(
-				START_SIZE.X,
-				START_SIZE.Y
+				DEFAULT_SIZE.X,
+				DEFAULT_SIZE.Y
 			)
 
 	end
@@ -1106,94 +1225,13 @@ Open.Activated:Connect(function()
 end)
 
 --========================================================--
--- BUTTON EFFECT
---========================================================--
-
-local function hover(button, normal, active)
-
-	button.MouseEnter:Connect(function()
-
-		TweenService:Create(
-			button,
-			TweenInfo.new(.12),
-			{
-				BackgroundColor3 = active
-			}
-		):Play()
-
-	end)
-
-	button.MouseLeave:Connect(function()
-
-		TweenService:Create(
-			button,
-			TweenInfo.new(.12),
-			{
-				BackgroundColor3 = normal
-			}
-		):Play()
-
-	end)
-
-end
-
-hover(
-	Refresh,
-	C.Accent,
-	C.AccentDark
-)
-
-hover(
-	SettingsButton,
-	C.Surface2,
-	C.Border
-)
-
-hover(
-	Close,
-	C.Surface2,
-	Color3.fromRGB(65,45,50)
-)
-
-hover(
-	LanguageButton,
-	C.Surface2,
-	C.Border
-)
-
-hover(
-	AnimationButton,
-	C.Surface2,
-	C.Border
-)
-
-hover(
-	ScaleButton,
-	C.Surface2,
-	C.Border
-)
-
-hover(
-	TransparencyButton,
-	C.Surface2,
-	C.Border
-)
-
-hover(
-	ResetButton,
-	C.Surface2,
-	C.Border
-)
-
---========================================================--
 -- START
 --========================================================--
 
 updateLanguage()
-updateData()
 
 print(
-	"[CH3A5] Premium UI v"
+	"[CH3A5] Premium Dashboard v"
 	.. VERSION
 	.. " loaded."
 )
