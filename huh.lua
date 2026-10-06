@@ -1,7 +1,6 @@
 --==================================================
 -- CH3A5 HUB V3
--- Adaptive Premium UI
--- GUI / UI ARCHITECTURE ONLY
+-- GUI-ONLY EXECUTOR-COMPATIBLE VERSION
 --==================================================
 
 --==================================================
@@ -13,18 +12,13 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local GuiService = game:GetService("GuiService")
 
-local Player = Players.LocalPlayer
-local PlayerGui = Player:WaitForChild("PlayerGui")
+local LocalPlayer = Players.LocalPlayer
 
---==================================================
--- DUPLICATE GUI PROTECTION
---==================================================
-
-local OldGui = PlayerGui:FindFirstChild("CH3A5_HUB_V3")
-
-if OldGui then
-    OldGui:Destroy()
+if not LocalPlayer then
+    return
 end
+
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 --==================================================
 -- CONFIG
@@ -33,210 +27,69 @@ end
 local CONFIG = {
     Name = "CH3A5_HUB_V3",
 
-    DesktopSize = Vector2.new(820, 520),
-    TabletSize = Vector2.new(720, 480),
-    MobileSize = Vector2.new(350, 500),
+    Width = 820,
+    Height = 520,
 
     MinWidth = 320,
-    MinHeight = 360,
+    MinHeight = 380,
 
     MaxWidth = 920,
     MaxHeight = 650,
 
     SidebarWidth = 190,
-    SidebarCollapsedWidth = 68,
+    MobileSidebarWidth = 250,
 
-    TopbarHeight = 68,
+    TopbarHeight = 64,
 
-    Corner = 18,
+    Corner = 16,
 
-    AnimationTime = 0.22,
+    Animation = 0.20,
 
     MobileBreakpoint = 650,
-    TabletBreakpoint = 900,
 }
 
 --==================================================
--- THEMES
+-- DUPLICATE PROTECTION
 --==================================================
 
-local Themes = {
+local Existing = PlayerGui:FindFirstChild(CONFIG.Name)
 
-    Midnight = {
-        Background = Color3.fromRGB(9, 11, 17),
-        Surface = Color3.fromRGB(15, 18, 27),
-        Surface2 = Color3.fromRGB(20, 24, 35),
-        Accent = Color3.fromRGB(112, 91, 255),
-        AccentDark = Color3.fromRGB(73, 59, 180),
-        Border = Color3.fromRGB(42, 47, 64),
-        Text = Color3.fromRGB(245, 247, 255),
-        Muted = Color3.fromRGB(150, 157, 175),
-    },
-
-    Discord = {
-        Background = Color3.fromRGB(20, 21, 25),
-        Surface = Color3.fromRGB(30, 31, 34),
-        Surface2 = Color3.fromRGB(43, 45, 49),
-        Accent = Color3.fromRGB(88, 101, 242),
-        AccentDark = Color3.fromRGB(65, 75, 190),
-        Border = Color3.fromRGB(65, 68, 75),
-        Text = Color3.fromRGB(242, 243, 245),
-        Muted = Color3.fromRGB(148, 155, 164),
-    },
-
-    GitHub = {
-        Background = Color3.fromRGB(13, 17, 23),
-        Surface = Color3.fromRGB(22, 27, 34),
-        Surface2 = Color3.fromRGB(33, 38, 45),
-        Accent = Color3.fromRGB(46, 164, 79),
-        AccentDark = Color3.fromRGB(31, 120, 58),
-        Border = Color3.fromRGB(48, 54, 61),
-        Text = Color3.fromRGB(240, 246, 252),
-        Muted = Color3.fromRGB(139, 148, 158),
-    },
-
-    Spotify = {
-        Background = Color3.fromRGB(12, 12, 12),
-        Surface = Color3.fromRGB(24, 24, 24),
-        Surface2 = Color3.fromRGB(35, 35, 35),
-        Accent = Color3.fromRGB(30, 215, 96),
-        AccentDark = Color3.fromRGB(20, 145, 65),
-        Border = Color3.fromRGB(55, 55, 55),
-        Text = Color3.fromRGB(255, 255, 255),
-        Muted = Color3.fromRGB(165, 165, 165),
-    },
-
-    YouTube = {
-        Background = Color3.fromRGB(15, 15, 15),
-        Surface = Color3.fromRGB(25, 25, 25),
-        Surface2 = Color3.fromRGB(40, 40, 40),
-        Accent = Color3.fromRGB(255, 0, 0),
-        AccentDark = Color3.fromRGB(175, 0, 0),
-        Border = Color3.fromRGB(55, 55, 55),
-        Text = Color3.fromRGB(255, 255, 255),
-        Muted = Color3.fromRGB(170, 170, 170),
-    },
-
-    Telegram = {
-        Background = Color3.fromRGB(11, 22, 31),
-        Surface = Color3.fromRGB(18, 36, 50),
-        Surface2 = Color3.fromRGB(25, 49, 67),
-        Accent = Color3.fromRGB(42, 171, 238),
-        AccentDark = Color3.fromRGB(28, 120, 175),
-        Border = Color3.fromRGB(40, 70, 88),
-        Text = Color3.fromRGB(245, 250, 255),
-        Muted = Color3.fromRGB(150, 175, 190),
-    },
-
-    Twitter = {
-        Background = Color3.fromRGB(10, 15, 20),
-        Surface = Color3.fromRGB(20, 28, 36),
-        Surface2 = Color3.fromRGB(30, 40, 50),
-        Accent = Color3.fromRGB(29, 155, 240),
-        AccentDark = Color3.fromRGB(20, 105, 170),
-        Border = Color3.fromRGB(48, 62, 75),
-        Text = Color3.fromRGB(240, 246, 252),
-        Muted = Color3.fromRGB(145, 160, 175),
-    },
-
-    Twitch = {
-        Background = Color3.fromRGB(14, 12, 20),
-        Surface = Color3.fromRGB(24, 20, 34),
-        Surface2 = Color3.fromRGB(37, 30, 51),
-        Accent = Color3.fromRGB(145, 70, 255),
-        AccentDark = Color3.fromRGB(95, 45, 175),
-        Border = Color3.fromRGB(55, 44, 75),
-        Text = Color3.fromRGB(245, 242, 255),
-        Muted = Color3.fromRGB(160, 150, 175),
-    },
-
-    Dracula = {
-        Background = Color3.fromRGB(40, 42, 54),
-        Surface = Color3.fromRGB(48, 50, 65),
-        Surface2 = Color3.fromRGB(68, 70, 85),
-        Accent = Color3.fromRGB(189, 147, 249),
-        AccentDark = Color3.fromRGB(135, 100, 190),
-        Border = Color3.fromRGB(75, 77, 94),
-        Text = Color3.fromRGB(248, 248, 242),
-        Muted = Color3.fromRGB(170, 170, 180),
-    },
-
-    Ocean = {
-        Background = Color3.fromRGB(5, 18, 27),
-        Surface = Color3.fromRGB(8, 30, 43),
-        Surface2 = Color3.fromRGB(12, 43, 58),
-        Accent = Color3.fromRGB(0, 200, 255),
-        AccentDark = Color3.fromRGB(0, 125, 170),
-        Border = Color3.fromRGB(25, 65, 80),
-        Text = Color3.fromRGB(235, 250, 255),
-        Muted = Color3.fromRGB(135, 170, 185),
-    },
-
-    Crimson = {
-        Background = Color3.fromRGB(18, 8, 12),
-        Surface = Color3.fromRGB(31, 12, 18),
-        Surface2 = Color3.fromRGB(47, 17, 25),
-        Accent = Color3.fromRGB(235, 55, 75),
-        AccentDark = Color3.fromRGB(155, 30, 48),
-        Border = Color3.fromRGB(70, 28, 38),
-        Text = Color3.fromRGB(255, 242, 245),
-        Muted = Color3.fromRGB(180, 145, 153),
-    },
-
-    Emerald = {
-        Background = Color3.fromRGB(7, 18, 14),
-        Surface = Color3.fromRGB(11, 30, 23),
-        Surface2 = Color3.fromRGB(17, 45, 34),
-        Accent = Color3.fromRGB(46, 220, 140),
-        AccentDark = Color3.fromRGB(30, 145, 92),
-        Border = Color3.fromRGB(28, 70, 55),
-        Text = Color3.fromRGB(237, 255, 247),
-        Muted = Color3.fromRGB(140, 175, 160),
-    },
-
-    Angkor = {
-        Background = Color3.fromRGB(15, 11, 7),
-        Surface = Color3.fromRGB(29, 21, 13),
-        Surface2 = Color3.fromRGB(45, 31, 17),
-        Accent = Color3.fromRGB(214, 163, 74),
-        AccentDark = Color3.fromRGB(145, 104, 38),
-        Border = Color3.fromRGB(83, 61, 30),
-        Text = Color3.fromRGB(255, 244, 220),
-        Muted = Color3.fromRGB(180, 157, 120),
-    },
-}
-
-local CurrentTheme = Themes.Midnight
+if Existing then
+    Existing:Destroy()
+end
 
 --==================================================
 -- STATE
 --==================================================
 
 local State = {
-    CurrentPage = "Home",
+    Page = "Home",
+    Theme = "Midnight",
+
     Minimized = false,
     SidebarOpen = true,
-    IsMobile = false,
-    IsTablet = false,
-    IsDragging = false,
-    IsClosing = false,
-    WindowSize = nil,
-    WindowPosition = nil,
+
+    Mobile = false,
+    Tablet = false,
+
+    Closed = false,
 }
 
 --==================================================
--- CONNECTION MANAGER
+-- CONNECTIONS
 --==================================================
 
 local Connections = {}
 
 local function Connect(signal, callback)
     local connection = signal:Connect(callback)
+
     table.insert(Connections, connection)
+
     return connection
 end
 
-local function CleanupConnections()
+local function Cleanup()
     for _, connection in ipairs(Connections) do
         pcall(function()
             connection:Disconnect()
@@ -247,183 +100,335 @@ local function CleanupConnections()
 end
 
 --==================================================
--- GUI ROOT
+-- THEMES
 --==================================================
 
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = CONFIG.Name
-ScreenGui.ResetOnSpawn = false
-ScreenGui.DisplayOrder = 999
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+local Themes = {
 
-pcall(function()
-    ScreenGui.ScreenInsets = Enum.ScreenInsets.CoreUISafeInsets
-end)
+    Midnight = {
+        Background = Color3.fromRGB(9, 11, 17),
+        Surface = Color3.fromRGB(15, 18, 27),
+        Surface2 = Color3.fromRGB(23, 27, 39),
+        Accent = Color3.fromRGB(115, 95, 255),
+        Border = Color3.fromRGB(48, 53, 72),
+        Text = Color3.fromRGB(245, 247, 255),
+        Muted = Color3.fromRGB(145, 153, 174),
+    },
 
-ScreenGui.Parent = PlayerGui
+    Discord = {
+        Background = Color3.fromRGB(20, 21, 25),
+        Surface = Color3.fromRGB(30, 31, 34),
+        Surface2 = Color3.fromRGB(43, 45, 49),
+        Accent = Color3.fromRGB(88, 101, 242),
+        Border = Color3.fromRGB(65, 68, 75),
+        Text = Color3.fromRGB(242, 243, 245),
+        Muted = Color3.fromRGB(148, 155, 164),
+    },
+
+    GitHub = {
+        Background = Color3.fromRGB(13, 17, 23),
+        Surface = Color3.fromRGB(22, 27, 34),
+        Surface2 = Color3.fromRGB(33, 38, 45),
+        Accent = Color3.fromRGB(46, 164, 79),
+        Border = Color3.fromRGB(48, 54, 61),
+        Text = Color3.fromRGB(240, 246, 252),
+        Muted = Color3.fromRGB(139, 148, 158),
+    },
+
+    Spotify = {
+        Background = Color3.fromRGB(12, 12, 12),
+        Surface = Color3.fromRGB(24, 24, 24),
+        Surface2 = Color3.fromRGB(35, 35, 35),
+        Accent = Color3.fromRGB(30, 215, 96),
+        Border = Color3.fromRGB(55, 55, 55),
+        Text = Color3.fromRGB(255, 255, 255),
+        Muted = Color3.fromRGB(165, 165, 165),
+    },
+
+    YouTube = {
+        Background = Color3.fromRGB(15, 15, 15),
+        Surface = Color3.fromRGB(25, 25, 25),
+        Surface2 = Color3.fromRGB(40, 40, 40),
+        Accent = Color3.fromRGB(255, 0, 0),
+        Border = Color3.fromRGB(55, 55, 55),
+        Text = Color3.fromRGB(255, 255, 255),
+        Muted = Color3.fromRGB(170, 170, 170),
+    },
+
+    Telegram = {
+        Background = Color3.fromRGB(11, 22, 31),
+        Surface = Color3.fromRGB(18, 36, 50),
+        Surface2 = Color3.fromRGB(25, 49, 67),
+        Accent = Color3.fromRGB(42, 171, 238),
+        Border = Color3.fromRGB(40, 70, 88),
+        Text = Color3.fromRGB(245, 250, 255),
+        Muted = Color3.fromRGB(150, 175, 190),
+    },
+
+    Twitter = {
+        Background = Color3.fromRGB(10, 15, 20),
+        Surface = Color3.fromRGB(20, 28, 36),
+        Surface2 = Color3.fromRGB(30, 40, 50),
+        Accent = Color3.fromRGB(29, 155, 240),
+        Border = Color3.fromRGB(48, 62, 75),
+        Text = Color3.fromRGB(240, 246, 252),
+        Muted = Color3.fromRGB(145, 160, 175),
+    },
+
+    Twitch = {
+        Background = Color3.fromRGB(14, 12, 20),
+        Surface = Color3.fromRGB(24, 20, 34),
+        Surface2 = Color3.fromRGB(37, 30, 51),
+        Accent = Color3.fromRGB(145, 70, 255),
+        Border = Color3.fromRGB(55, 44, 75),
+        Text = Color3.fromRGB(245, 242, 255),
+        Muted = Color3.fromRGB(160, 150, 175),
+    },
+
+    Dracula = {
+        Background = Color3.fromRGB(40, 42, 54),
+        Surface = Color3.fromRGB(48, 50, 65),
+        Surface2 = Color3.fromRGB(68, 70, 85),
+        Accent = Color3.fromRGB(189, 147, 249),
+        Border = Color3.fromRGB(75, 77, 94),
+        Text = Color3.fromRGB(248, 248, 242),
+        Muted = Color3.fromRGB(170, 170, 180),
+    },
+
+    Ocean = {
+        Background = Color3.fromRGB(5, 18, 27),
+        Surface = Color3.fromRGB(8, 30, 43),
+        Surface2 = Color3.fromRGB(12, 43, 58),
+        Accent = Color3.fromRGB(0, 200, 255),
+        Border = Color3.fromRGB(25, 65, 80),
+        Text = Color3.fromRGB(235, 250, 255),
+        Muted = Color3.fromRGB(135, 170, 185),
+    },
+
+    Crimson = {
+        Background = Color3.fromRGB(18, 8, 12),
+        Surface = Color3.fromRGB(31, 12, 18),
+        Surface2 = Color3.fromRGB(47, 17, 25),
+        Accent = Color3.fromRGB(235, 55, 75),
+        Border = Color3.fromRGB(70, 28, 38),
+        Text = Color3.fromRGB(255, 242, 245),
+        Muted = Color3.fromRGB(180, 145, 153),
+    },
+
+    Emerald = {
+        Background = Color3.fromRGB(7, 18, 14),
+        Surface = Color3.fromRGB(11, 30, 23),
+        Surface2 = Color3.fromRGB(17, 45, 34),
+        Accent = Color3.fromRGB(46, 220, 140),
+        Border = Color3.fromRGB(28, 70, 55),
+        Text = Color3.fromRGB(237, 255, 247),
+        Muted = Color3.fromRGB(140, 175, 160),
+    },
+
+    Angkor = {
+        Background = Color3.fromRGB(15, 11, 7),
+        Surface = Color3.fromRGB(29, 21, 13),
+        Surface2 = Color3.fromRGB(45, 31, 17),
+        Accent = Color3.fromRGB(214, 163, 74),
+        Border = Color3.fromRGB(83, 61, 30),
+        Text = Color3.fromRGB(255, 244, 220),
+        Muted = Color3.fromRGB(180, 157, 120),
+    },
+
+    Cyber = {
+        Background = Color3.fromRGB(5, 8, 14),
+        Surface = Color3.fromRGB(10, 16, 25),
+        Surface2 = Color3.fromRGB(17, 27, 40),
+        Accent = Color3.fromRGB(0, 220, 255),
+        Border = Color3.fromRGB(25, 75, 90),
+        Text = Color3.fromRGB(235, 250, 255),
+        Muted = Color3.fromRGB(120, 160, 175),
+    },
+
+    Rose = {
+        Background = Color3.fromRGB(20, 10, 16),
+        Surface = Color3.fromRGB(32, 16, 25),
+        Surface2 = Color3.fromRGB(48, 23, 37),
+        Accent = Color3.fromRGB(255, 105, 170),
+        Border = Color3.fromRGB(78, 35, 58),
+        Text = Color3.fromRGB(255, 240, 248),
+        Muted = Color3.fromRGB(185, 145, 165),
+    },
+
+    Solar = {
+        Background = Color3.fromRGB(20, 15, 6),
+        Surface = Color3.fromRGB(34, 25, 9),
+        Surface2 = Color3.fromRGB(52, 38, 12),
+        Accent = Color3.fromRGB(255, 190, 55),
+        Border = Color3.fromRGB(88, 65, 24),
+        Text = Color3.fromRGB(255, 248, 225),
+        Muted = Color3.fromRGB(190, 165, 115),
+    },
+
+    Ice = {
+        Background = Color3.fromRGB(7, 15, 23),
+        Surface = Color3.fromRGB(13, 27, 40),
+        Surface2 = Color3.fromRGB(20, 42, 59),
+        Accent = Color3.fromRGB(110, 220, 255),
+        Border = Color3.fromRGB(42, 80, 100),
+        Text = Color3.fromRGB(235, 250, 255),
+        Muted = Color3.fromRGB(145, 175, 190),
+    },
+
+    Violet = {
+        Background = Color3.fromRGB(13, 8, 20),
+        Surface = Color3.fromRGB(23, 14, 34),
+        Surface2 = Color3.fromRGB(38, 22, 55),
+        Accent = Color3.fromRGB(180, 90, 255),
+        Border = Color3.fromRGB(65, 40, 90),
+        Text = Color3.fromRGB(248, 240, 255),
+        Muted = Color3.fromRGB(165, 145, 185),
+    },
+
+    Mono = {
+        Background = Color3.fromRGB(10, 10, 10),
+        Surface = Color3.fromRGB(22, 22, 22),
+        Surface2 = Color3.fromRGB(35, 35, 35),
+        Accent = Color3.fromRGB(220, 220, 220),
+        Border = Color3.fromRGB(65, 65, 65),
+        Text = Color3.fromRGB(250, 250, 250),
+        Muted = Color3.fromRGB(155, 155, 155),
+    },
+
+    Neon = {
+        Background = Color3.fromRGB(5, 5, 12),
+        Surface = Color3.fromRGB(12, 10, 24),
+        Surface2 = Color3.fromRGB(23, 18, 42),
+        Accent = Color3.fromRGB(255, 45, 210),
+        Border = Color3.fromRGB(85, 35, 100),
+        Text = Color3.fromRGB(255, 245, 255),
+        Muted = Color3.fromRGB(180, 145, 180),
+    },
+
+    Forest = {
+        Background = Color3.fromRGB(7, 15, 9),
+        Surface = Color3.fromRGB(13, 27, 16),
+        Surface2 = Color3.fromRGB(20, 42, 24),
+        Accent = Color3.fromRGB(85, 205, 100),
+        Border = Color3.fromRGB(40, 80, 45),
+        Text = Color3.fromRGB(238, 255, 240),
+        Muted = Color3.fromRGB(145, 175, 150),
+    },
+}
+
+local CurrentTheme = Themes[State.Theme]
 
 --==================================================
 -- HELPERS
 --==================================================
 
-local function New(className, properties, parent)
-    local object = Instance.new(className)
+local function New(class, properties, parent)
+    local object = Instance.new(class)
 
     for property, value in pairs(properties or {}) do
         object[property] = value
     end
 
-    if parent then
-        object.Parent = parent
-    end
+    object.Parent = parent
 
     return object
 end
 
-local function Corner(object, radius)
+local function AddCorner(object, radius)
     return New("UICorner", {
         CornerRadius = UDim.new(0, radius or CONFIG.Corner),
     }, object)
 end
 
-local function Stroke(object, color, transparency, thickness)
+local function AddStroke(object, color, transparency)
     return New("UIStroke", {
-        Color = color or CurrentTheme.Border,
+        Color = color,
         Transparency = transparency or 0,
-        Thickness = thickness or 1,
+        Thickness = 1,
     }, object)
 end
 
-local function Padding(object, left, right, top, bottom)
+local function AddPadding(object, amount)
     return New("UIPadding", {
-        PaddingLeft = UDim.new(0, left or 0),
-        PaddingRight = UDim.new(0, right or 0),
-        PaddingTop = UDim.new(0, top or 0),
-        PaddingBottom = UDim.new(0, bottom or 0),
+        PaddingLeft = UDim.new(0, amount),
+        PaddingRight = UDim.new(0, amount),
+        PaddingTop = UDim.new(0, amount),
+        PaddingBottom = UDim.new(0, amount),
     }, object)
 end
 
-local function Gradient(object, color1, color2, rotation)
-    return New("UIGradient", {
-        Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, color1),
-            ColorSequenceKeypoint.new(1, color2),
-        }),
-        Rotation = rotation or 0,
-    }, object)
-end
-
---==================================================
--- MOTION
---==================================================
-
-local function TweenTime(defaultTime)
+local function Animate(object, properties, duration)
     if GuiService.ReducedMotionEnabled then
-        return 0
-    end
+        for property, value in pairs(properties) do
+            object[property] = value
+        end
 
-    return defaultTime or CONFIG.AnimationTime
-end
-
-local function Tween(object, properties, duration)
-    local info = TweenInfo.new(
-        TweenTime(duration),
-        Enum.EasingStyle.Quint,
-        Enum.EasingDirection.Out
-    )
-
-    local tween = TweenService:Create(object, info, properties)
-    tween:Play()
-
-    return tween
-end
-
---==================================================
--- THEME REGISTRY
---==================================================
-
-local ThemeRegistry = {
-    Backgrounds = {},
-    Surfaces = {},
-    Borders = {},
-    Texts = {},
-    MutedTexts = {},
-    Accents = {},
-}
-
-local function RegisterTheme(object, property, category)
-    if not object then
         return
     end
 
-    if not ThemeRegistry[category] then
-        ThemeRegistry[category] = {}
-    end
-
-    table.insert(ThemeRegistry[category], {
-        Object = object,
-        Property = property,
-    })
-end
-
-local function ApplyTheme(theme)
-    CurrentTheme = theme
-
-    local maps = {
-        Backgrounds = theme.Background,
-        Surfaces = theme.Surface,
-        Borders = theme.Border,
-        Texts = theme.Text,
-        MutedTexts = theme.Muted,
-        Accents = theme.Accent,
-    }
-
-    for category, color in pairs(maps) do
-        for _, item in ipairs(ThemeRegistry[category] or {}) do
-            if item.Object and item.Object.Parent then
-                pcall(function()
-                    item.Object[item.Property] = color
-                end)
-            end
-        end
-    end
+    TweenService:Create(
+        object,
+        TweenInfo.new(
+            duration or CONFIG.Animation,
+            Enum.EasingStyle.Quint,
+            Enum.EasingDirection.Out
+        ),
+        properties
+    ):Play()
 end
 
 --==================================================
--- MAIN WINDOW
+-- SCREEN GUI
+--==================================================
+
+local ScreenGui = New("ScreenGui", {
+    Name = CONFIG.Name,
+    ResetOnSpawn = false,
+    DisplayOrder = 999,
+    ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+}, PlayerGui)
+
+pcall(function()
+    ScreenGui.ScreenInsets = Enum.ScreenInsets.CoreUISafeInsets
+end)
+
+--==================================================
+-- MAIN
 --==================================================
 
 local Main = New("Frame", {
     Name = "Main",
     AnchorPoint = Vector2.new(0.5, 0.5),
     Position = UDim2.fromScale(0.5, 0.5),
-    Size = UDim2.fromOffset(CONFIG.DesktopSize.X, CONFIG.DesktopSize.Y),
+    Size = UDim2.fromOffset(CONFIG.Width, CONFIG.Height),
     BackgroundColor3 = CurrentTheme.Background,
     BorderSizePixel = 0,
     ClipsDescendants = true,
 }, ScreenGui)
 
-Corner(Main, CONFIG.Corner)
+AddCorner(Main, CONFIG.Corner)
 
-local MainStroke = Stroke(Main, CurrentTheme.Border, 0.15, 1.2)
-RegisterTheme(Main, "BackgroundColor3", "Backgrounds")
-RegisterTheme(MainStroke, "Color", "Borders")
-
-local MainScale = New("UIScale", {
-    Scale = 1,
-}, Main)
+local MainStroke = AddStroke(
+    Main,
+    CurrentTheme.Border,
+    0.15
+)
 
 New("UISizeConstraint", {
-    MinSize = Vector2.new(CONFIG.MinWidth, CONFIG.MinHeight),
-    MaxSize = Vector2.new(CONFIG.MaxWidth, CONFIG.MaxHeight),
+    MinSize = Vector2.new(
+        CONFIG.MinWidth,
+        CONFIG.MinHeight
+    ),
+
+    MaxSize = Vector2.new(
+        CONFIG.MaxWidth,
+        CONFIG.MaxHeight
+    ),
 }, Main)
 
-Gradient(
-    Main,
-    CurrentTheme.Background,
-    CurrentTheme.Surface,
-    135
-)
+local UIScale = New("UIScale", {
+    Scale = 1,
+}, Main)
 
 --==================================================
 -- TOPBAR
@@ -436,137 +441,95 @@ local Topbar = New("Frame", {
     BorderSizePixel = 0,
 }, Main)
 
-RegisterTheme(Topbar, "BackgroundColor3", "Surfaces")
-
-local TopbarLine = New("Frame", {
-    Name = "BottomLine",
-    AnchorPoint = Vector2.new(0, 1),
-    Position = UDim2.new(0, 0, 1, 0),
-    Size = UDim2.new(1, 0, 0, 1),
-    BackgroundColor3 = CurrentTheme.Border,
-    BorderSizePixel = 0,
-}, Topbar)
-
-RegisterTheme(TopbarLine, "BackgroundColor3", "Borders")
+local TopbarStroke = AddStroke(
+    Topbar,
+    CurrentTheme.Border,
+    0.35
+)
 
 --==================================================
 -- LOGO
 --==================================================
 
-local Logo = New("Frame", {
-    Name = "Logo",
-    Position = UDim2.fromOffset(16, 14),
+local Logo = New("TextLabel", {
+    Position = UDim2.fromOffset(14, 12),
     Size = UDim2.fromOffset(40, 40),
     BackgroundColor3 = CurrentTheme.Accent,
     BorderSizePixel = 0,
+    Font = Enum.Font.GothamBlack,
+    Text = "C",
+    TextSize = 20,
+    TextColor3 = Color3.new(1, 1, 1),
 }, Topbar)
 
-Corner(Logo, 12)
-RegisterTheme(Logo, "BackgroundColor3", "Accents")
-
-local LogoText = New("TextLabel", {
-    BackgroundTransparency = 1,
-    Size = UDim2.fromScale(1, 1),
-    Font = Enum.Font.GothamBold,
-    Text = "C",
-    TextSize = 22,
-    TextColor3 = Color3.new(1, 1, 1),
-}, Logo)
+AddCorner(Logo, 11)
 
 --==================================================
 -- TITLE
 --==================================================
 
 local Title = New("TextLabel", {
-    Name = "Title",
-    Position = UDim2.fromOffset(68, 11),
+    Position = UDim2.fromOffset(65, 9),
     Size = UDim2.new(0, 300, 0, 25),
     BackgroundTransparency = 1,
     Font = Enum.Font.GothamBold,
     Text = "CH3A5 HUB",
-    TextSize = 19,
+    TextSize = 18,
     TextXAlignment = Enum.TextXAlignment.Left,
     TextColor3 = CurrentTheme.Text,
 }, Topbar)
 
-RegisterTheme(Title, "TextColor3", "Texts")
-
 local Subtitle = New("TextLabel", {
-    Position = UDim2.fromOffset(69, 37),
-    Size = UDim2.new(0, 330, 0, 18),
+    Position = UDim2.fromOffset(66, 35),
+    Size = UDim2.new(0, 300, 0, 17),
     BackgroundTransparency = 1,
     Font = Enum.Font.Gotham,
-    Text = "Adaptive Premium Interface",
-    TextSize = 11,
+    Text = "Premium Adaptive Interface",
+    TextSize = 10,
     TextXAlignment = Enum.TextXAlignment.Left,
     TextColor3 = CurrentTheme.Muted,
 }, Topbar)
 
-RegisterTheme(Subtitle, "TextColor3", "MutedTexts")
-
 --==================================================
--- ONLINE STATUS
+-- STATUS
 --==================================================
 
-local Status = New("Frame", {
+local Status = New("TextLabel", {
     AnchorPoint = Vector2.new(1, 0.5),
-    Position = UDim2.new(1, -130, 0.5, 0),
-    Size = UDim2.fromOffset(82, 30),
+    Position = UDim2.new(1, -112, 0.5, 0),
+    Size = UDim2.fromOffset(70, 26),
     BackgroundColor3 = CurrentTheme.Surface2,
     BorderSizePixel = 0,
+    Font = Enum.Font.GothamBold,
+    Text = "● ONLINE",
+    TextSize = 9,
+    TextColor3 = CurrentTheme.Accent,
 }, Topbar)
 
-Corner(Status, 15)
-RegisterTheme(Status, "BackgroundColor3", "Surfaces")
-
-local StatusDot = New("Frame", {
-    Position = UDim2.fromOffset(10, 11),
-    Size = UDim2.fromOffset(8, 8),
-    BackgroundColor3 = Color3.fromRGB(65, 220, 125),
-    BorderSizePixel = 0,
-}, Status)
-
-Corner(StatusDot, 8)
-
-local StatusText = New("TextLabel", {
-    Position = UDim2.fromOffset(23, 0),
-    Size = UDim2.new(1, -28, 1, 0),
-    BackgroundTransparency = 1,
-    Font = Enum.Font.GothamMedium,
-    Text = "ONLINE",
-    TextSize = 10,
-    TextXAlignment = Enum.TextXAlignment.Left,
-    TextColor3 = CurrentTheme.Text,
-}, Status)
-
-RegisterTheme(StatusText, "TextColor3", "Texts")
+AddCorner(Status, 13)
 
 --==================================================
--- WINDOW BUTTONS
+-- WINDOW CONTROLS
 --==================================================
 
-local MinimizeButton = New("TextButton", {
-    Name = "Minimize",
+local Minimize = New("TextButton", {
     AnchorPoint = Vector2.new(1, 0.5),
-    Position = UDim2.new(1, -75, 0.5, 0),
+    Position = UDim2.new(1, -73, 0.5, 0),
     Size = UDim2.fromOffset(30, 30),
     BackgroundColor3 = CurrentTheme.Surface2,
     BorderSizePixel = 0,
     AutoButtonColor = false,
     Text = "—",
     Font = Enum.Font.GothamBold,
-    TextSize = 15,
+    TextSize = 14,
     TextColor3 = CurrentTheme.Text,
 }, Topbar)
 
-Corner(MinimizeButton, 9)
-RegisterTheme(MinimizeButton, "BackgroundColor3", "Surfaces")
-RegisterTheme(MinimizeButton, "TextColor3", "Texts")
+AddCorner(Minimize, 9)
 
-local CloseButton = New("TextButton", {
-    Name = "Close",
+local Close = New("TextButton", {
     AnchorPoint = Vector2.new(1, 0.5),
-    Position = UDim2.new(1, -37, 0.5, 0),
+    Position = UDim2.new(1, -35, 0.5, 0),
     Size = UDim2.fromOffset(30, 30),
     BackgroundColor3 = CurrentTheme.Surface2,
     BorderSizePixel = 0,
@@ -577,16 +540,13 @@ local CloseButton = New("TextButton", {
     TextColor3 = CurrentTheme.Text,
 }, Topbar)
 
-Corner(CloseButton, 9)
-RegisterTheme(CloseButton, "BackgroundColor3", "Surfaces")
-RegisterTheme(CloseButton, "TextColor3", "Texts")
+AddCorner(Close, 9)
 
 --==================================================
 -- BODY
 --==================================================
 
 local Body = New("Frame", {
-    Name = "Body",
     Position = UDim2.fromOffset(0, CONFIG.TopbarHeight),
     Size = UDim2.new(1, 0, 1, -CONFIG.TopbarHeight),
     BackgroundTransparency = 1,
@@ -597,19 +557,16 @@ local Body = New("Frame", {
 --==================================================
 
 local Sidebar = New("Frame", {
-    Name = "Sidebar",
     Size = UDim2.new(0, CONFIG.SidebarWidth, 1, 0),
     BackgroundColor3 = CurrentTheme.Surface,
     BorderSizePixel = 0,
     ClipsDescendants = true,
 }, Body)
 
-RegisterTheme(Sidebar, "BackgroundColor3", "Surfaces")
+AddPadding(Sidebar, 11)
 
-Padding(Sidebar, 12, 12, 14, 14)
-
-local NavTitle = New("TextLabel", {
-    Size = UDim2.new(1, 0, 0, 20),
+local Navigation = New("TextLabel", {
+    Size = UDim2.new(1, 0, 0, 25),
     BackgroundTransparency = 1,
     Font = Enum.Font.GothamBold,
     Text = "NAVIGATION",
@@ -618,61 +575,68 @@ local NavTitle = New("TextLabel", {
     TextColor3 = CurrentTheme.Muted,
 }, Sidebar)
 
-RegisterTheme(NavTitle, "TextColor3", "MutedTexts")
-
---==================================================
--- SIDEBAR BUTTON HOLDER
---==================================================
-
-local SidebarList = New("Frame", {
+local TabContainer = New("Frame", {
     Position = UDim2.fromOffset(0, 32),
     Size = UDim2.new(1, 0, 1, -32),
     BackgroundTransparency = 1,
 }, Sidebar)
 
 New("UIListLayout", {
-    Padding = UDim.new(0, 7),
+    Padding = UDim.new(0, 6),
     SortOrder = Enum.SortOrder.LayoutOrder,
-}, SidebarList)
+}, TabContainer)
 
 --==================================================
 -- CONTENT
 --==================================================
 
 local Content = New("Frame", {
-    Name = "Content",
-    Position = UDim2.new(0, CONFIG.SidebarWidth, 0, 0),
-    Size = UDim2.new(1, -CONFIG.SidebarWidth, 1, 0),
+    Position = UDim2.new(
+        0,
+        CONFIG.SidebarWidth,
+        0,
+        0
+    ),
+
+    Size = UDim2.new(
+        1,
+        -CONFIG.SidebarWidth,
+        1,
+        0
+    ),
+
     BackgroundColor3 = CurrentTheme.Background,
     BorderSizePixel = 0,
     ClipsDescendants = true,
 }, Body)
 
-RegisterTheme(Content, "BackgroundColor3", "Backgrounds")
-
 --==================================================
--- PAGE CONTAINER
+-- PAGES
 --==================================================
 
 local Pages = {}
 
 local function CreatePage(name)
+
     local Page = New("ScrollingFrame", {
         Name = name,
         Size = UDim2.fromScale(1, 1),
         BackgroundTransparency = 1,
         BorderSizePixel = 0,
+
         ScrollBarThickness = 3,
         ScrollBarImageColor3 = CurrentTheme.Accent,
-        CanvasSize = UDim2.new(),
+
         AutomaticCanvasSize = Enum.AutomaticSize.Y,
+        CanvasSize = UDim2.new(),
+
         Visible = false,
     }, Content)
 
-    Padding(Page, 22, 22, 22, 22)
+    AddPadding(Page, 20)
 
     New("UIListLayout", {
-        Padding = UDim.new(0, 14),
+        Padding = UDim.new(0, 12),
         SortOrder = Enum.SortOrder.LayoutOrder,
     }, Page)
 
@@ -682,251 +646,102 @@ local function CreatePage(name)
 end
 
 local HomePage = CreatePage("Home")
-local KeylessPage = CreatePage("Keyless")
-local KeyPage = CreatePage("Key")
+local ScriptsPage = CreatePage("Scripts")
 local ThemesPage = CreatePage("Themes")
 local SettingsPage = CreatePage("Settings")
 
 --==================================================
--- TEXT HELPERS
+-- PAGE HELPERS
 --==================================================
 
-local function AddHeader(Page, title, description)
-    local Header = New("Frame", {
-        Size = UDim2.new(1, 0, 0, 58),
+local function Header(Page, title, description)
+
+    local Container = New("Frame", {
+        Size = UDim2.new(1, 0, 0, 60),
         BackgroundTransparency = 1,
     }, Page)
 
-    local TitleLabel = New("TextLabel", {
+    New("TextLabel", {
         Size = UDim2.new(1, 0, 0, 28),
         BackgroundTransparency = 1,
         Font = Enum.Font.GothamBold,
         Text = title,
-        TextSize = 22,
+        TextSize = 21,
         TextXAlignment = Enum.TextXAlignment.Left,
         TextColor3 = CurrentTheme.Text,
-    }, Header)
+    }, Container)
 
-    RegisterTheme(TitleLabel, "TextColor3", "Texts")
-
-    local DescriptionLabel = New("TextLabel", {
+    New("TextLabel", {
         Position = UDim2.fromOffset(0, 31),
-        Size = UDim2.new(1, 0, 0, 22),
+        Size = UDim2.new(1, 0, 0, 20),
         BackgroundTransparency = 1,
         Font = Enum.Font.Gotham,
-        Text = description or "",
+        Text = description,
         TextSize = 11,
         TextXAlignment = Enum.TextXAlignment.Left,
         TextColor3 = CurrentTheme.Muted,
-    }, Header)
-
-    RegisterTheme(DescriptionLabel, "TextColor3", "MutedTexts")
-
-    return Header
+    }, Container)
 end
 
-local function AddSection(Page, text)
-    local Label = New("TextLabel", {
-        Size = UDim2.new(1, 0, 0, 22),
+local function Section(Page, text)
+
+    New("TextLabel", {
+        Size = UDim2.new(1, 0, 0, 20),
         BackgroundTransparency = 1,
         Font = Enum.Font.GothamBold,
         Text = text,
-        TextSize = 11,
+        TextSize = 10,
         TextXAlignment = Enum.TextXAlignment.Left,
         TextColor3 = CurrentTheme.Muted,
     }, Page)
-
-    RegisterTheme(Label, "TextColor3", "MutedTexts")
-
-    return Label
 end
 
-local function AddInfo(Page, text)
-    local Info = New("Frame", {
-        Size = UDim2.new(1, 0, 0, 52),
+local function Info(Page, text)
+
+    local Box = New("Frame", {
+        Size = UDim2.new(1, 0, 0, 55),
         BackgroundColor3 = CurrentTheme.Surface,
         BorderSizePixel = 0,
     }, Page)
 
-    Corner(Info, 12)
-    Stroke(Info, CurrentTheme.Border, 0.35, 1)
+    AddCorner(Box, 12)
+    AddStroke(Box, CurrentTheme.Border, 0.35)
 
-    RegisterTheme(Info, "BackgroundColor3", "Surfaces")
-
-    local Label = New("TextLabel", {
+    New("TextLabel", {
         Position = UDim2.fromOffset(15, 0),
         Size = UDim2.new(1, -30, 1, 0),
         BackgroundTransparency = 1,
         Font = Enum.Font.Gotham,
         Text = text,
-        TextSize = 12,
+        TextSize = 11,
         TextWrapped = true,
         TextXAlignment = Enum.TextXAlignment.Left,
         TextColor3 = CurrentTheme.Muted,
-    }, Info)
+    }, Box)
 
-    RegisterTheme(Label, "TextColor3", "MutedTexts")
-
-    return Info
-end
-
---==================================================
--- SCRIPT CARD
---==================================================
-
-local function AddScriptButton(Page, title, description, callback, badge)
-    local Card = New("TextButton", {
-        Size = UDim2.new(1, 0, 0, 76),
-        BackgroundColor3 = CurrentTheme.Surface,
-        BorderSizePixel = 0,
-        AutoButtonColor = false,
-        Text = "",
-    }, Page)
-
-    Corner(Card, 14)
-
-    local CardStroke = Stroke(Card, CurrentTheme.Border, 0.35, 1)
-
-    RegisterTheme(Card, "BackgroundColor3", "Surfaces")
-    RegisterTheme(CardStroke, "Color", "Borders")
-
-    local AccentBar = New("Frame", {
-        Position = UDim2.fromOffset(0, 13),
-        Size = UDim2.fromOffset(3, 50),
-        BackgroundColor3 = CurrentTheme.Accent,
-        BorderSizePixel = 0,
-    }, Card)
-
-    Corner(AccentBar, 3)
-    RegisterTheme(AccentBar, "BackgroundColor3", "Accents")
-
-    local NameLabel = New("TextLabel", {
-        Position = UDim2.fromOffset(17, 11),
-        Size = UDim2.new(1, -145, 0, 24),
-        BackgroundTransparency = 1,
-        Font = Enum.Font.GothamBold,
-        Text = title,
-        TextSize = 14,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        TextColor3 = CurrentTheme.Text,
-    }, Card)
-
-    RegisterTheme(NameLabel, "TextColor3", "Texts")
-
-    local DescriptionLabel = New("TextLabel", {
-        Position = UDim2.fromOffset(17, 37),
-        Size = UDim2.new(1, -145, 0, 22),
-        BackgroundTransparency = 1,
-        Font = Enum.Font.Gotham,
-        Text = description or "Ready",
-        TextSize = 10,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        TextColor3 = CurrentTheme.Muted,
-    }, Card)
-
-    RegisterTheme(DescriptionLabel, "TextColor3", "MutedTexts")
-
-    if badge then
-        local Badge = New("TextLabel", {
-            AnchorPoint = Vector2.new(1, 0.5),
-            Position = UDim2.new(1, -42, 0.5, 0),
-            Size = UDim2.fromOffset(72, 24),
-            BackgroundColor3 = CurrentTheme.Surface2,
-            BorderSizePixel = 0,
-            Font = Enum.Font.GothamBold,
-            Text = badge,
-            TextSize = 9,
-            TextColor3 = CurrentTheme.Accent,
-        }, Card)
-
-        Corner(Badge, 12)
-        RegisterTheme(Badge, "BackgroundColor3", "Surfaces")
-        RegisterTheme(Badge, "TextColor3", "Accents")
-    end
-
-    local Arrow = New("TextLabel", {
-        AnchorPoint = Vector2.new(1, 0.5),
-        Position = UDim2.new(1, -14, 0.5, 0),
-        Size = UDim2.fromOffset(20, 25),
-        BackgroundTransparency = 1,
-        Font = Enum.Font.GothamBold,
-        Text = "›",
-        TextSize = 20,
-        TextColor3 = CurrentTheme.Muted,
-    }, Card)
-
-    RegisterTheme(Arrow, "TextColor3", "MutedTexts")
-
-    Connect(Card.MouseEnter, function()
-        Tween(Card, {
-            BackgroundColor3 = CurrentTheme.Surface2,
-        }, 0.14)
-
-        Tween(Arrow, {
-            TextColor3 = CurrentTheme.Accent,
-        }, 0.14)
-    end)
-
-    Connect(Card.MouseLeave, function()
-        Tween(Card, {
-            BackgroundColor3 = CurrentTheme.Surface,
-        }, 0.14)
-
-        Tween(Arrow, {
-            TextColor3 = CurrentTheme.Muted,
-        }, 0.14)
-    end)
-
-    Connect(Card.Activated, function()
-        if callback then
-            callback()
-        end
-    end)
-
-    return Card
-end
-
-local function AddComingSoon(Page, title, description)
-    return AddScriptButton(
-        Page,
-        title,
-        description or "This section is under development.",
-        nil,
-        "SOON"
-    )
+    return Box
 end
 
 --==================================================
 -- HOME
 --==================================================
 
-AddHeader(
+Header(
     HomePage,
     "Welcome to CH3A5 HUB",
-    "Premium adaptive interface • V3"
+    "GUI-only executor-compatible interface"
 )
 
 local Hero = New("Frame", {
-    Size = UDim2.new(1, 0, 0, 135),
+    Size = UDim2.new(1, 0, 0, 145),
     BackgroundColor3 = CurrentTheme.Surface,
     BorderSizePixel = 0,
 }, HomePage)
 
-Corner(Hero, 16)
+AddCorner(Hero, 15)
+AddStroke(Hero, CurrentTheme.Border, 0.25)
 
-local HeroStroke = Stroke(Hero, CurrentTheme.Border, 0.25, 1)
-
-RegisterTheme(Hero, "BackgroundColor3", "Surfaces")
-RegisterTheme(HeroStroke, "Color", "Borders")
-
-Gradient(
-    Hero,
-    CurrentTheme.Surface,
-    CurrentTheme.Surface2,
-    20
-)
-
-local HeroTitle = New("TextLabel", {
+New("TextLabel", {
     Position = UDim2.fromOffset(18, 17),
     Size = UDim2.new(1, -36, 0, 30),
     BackgroundTransparency = 1,
@@ -937,25 +752,21 @@ local HeroTitle = New("TextLabel", {
     TextColor3 = CurrentTheme.Text,
 }, Hero)
 
-RegisterTheme(HeroTitle, "TextColor3", "Texts")
-
-local HeroDescription = New("TextLabel", {
-    Position = UDim2.fromOffset(19, 52),
-    Size = UDim2.new(1, -38, 0, 38),
+New("TextLabel", {
+    Position = UDim2.fromOffset(19, 53),
+    Size = UDim2.new(1, -38, 0, 40),
     BackgroundTransparency = 1,
     Font = Enum.Font.Gotham,
-    Text = "Adaptive • Responsive • Premium • Clean",
-    TextSize = 12,
+    Text = "Premium dark interface designed for desktop and mobile testing.",
+    TextSize = 11,
     TextWrapped = true,
     TextXAlignment = Enum.TextXAlignment.Left,
     TextColor3 = CurrentTheme.Muted,
 }, Hero)
 
-RegisterTheme(HeroDescription, "TextColor3", "MutedTexts")
-
-local VersionBadge = New("TextLabel", {
-    Position = UDim2.fromOffset(19, 98),
-    Size = UDim2.fromOffset(72, 22),
+local Version = New("TextLabel", {
+    Position = UDim2.fromOffset(19, 103),
+    Size = UDim2.fromOffset(60, 22),
     BackgroundColor3 = CurrentTheme.Accent,
     BorderSizePixel = 0,
     Font = Enum.Font.GothamBold,
@@ -964,179 +775,293 @@ local VersionBadge = New("TextLabel", {
     TextColor3 = Color3.new(1, 1, 1),
 }, Hero)
 
-Corner(VersionBadge, 11)
-RegisterTheme(VersionBadge, "BackgroundColor3", "Accents")
+AddCorner(Version, 11)
 
-AddSection(HomePage, "QUICK ACCESS")
+Section(HomePage, "SYSTEM")
 
-AddScriptButton(
+Info(
     HomePage,
-    "Keyless Scripts",
-    "Browse available keyless sections.",
-    function()
-        -- Sidebar navigation handles the page
-    end,
-    "OPEN"
+    "Responsive layout • Theme engine • Drag system • Mobile sidebar • UI state"
 )
 
-AddScriptButton(
+Info(
     HomePage,
-    "Key Scripts",
-    "Browse key-required sections.",
-    function()
-    end,
-    "OPEN"
+    "This build intentionally contains GUI functionality only."
 )
 
 --==================================================
--- KEYLESS
+-- SCRIPTS PAGE
 --==================================================
 
-AddHeader(
-    KeylessPage,
-    "Keyless Scripts",
-    "Available script sections"
+Header(
+    ScriptsPage,
+    "Scripts",
+    "UI demonstration cards"
 )
 
-AddSection(KeylessPage, "AVAILABLE")
+Section(ScriptsPage, "DEMO CARDS")
 
--- Keep your existing URLs here.
-AddScriptButton(
-    KeylessPage,
-    "Sources Hub",
-    "Keyless",
-    nil,
-    "KEYLESS"
+local function DemoCard(Page, title, description, badge)
+
+    local Button = New("TextButton", {
+        Size = UDim2.new(1, 0, 0, 72),
+        BackgroundColor3 = CurrentTheme.Surface,
+        BorderSizePixel = 0,
+        AutoButtonColor = false,
+        Text = "",
+    }, Page)
+
+    AddCorner(Button, 13)
+    AddStroke(Button, CurrentTheme.Border, 0.35)
+
+    local Accent = New("Frame", {
+        Position = UDim2.fromOffset(0, 12),
+        Size = UDim2.fromOffset(3, 48),
+        BackgroundColor3 = CurrentTheme.Accent,
+        BorderSizePixel = 0,
+    }, Button)
+
+    AddCorner(Accent, 3)
+
+    New("TextLabel", {
+        Position = UDim2.fromOffset(17, 10),
+        Size = UDim2.new(1, -130, 0, 25),
+        BackgroundTransparency = 1,
+        Font = Enum.Font.GothamBold,
+        Text = title,
+        TextSize = 13,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextColor3 = CurrentTheme.Text,
+    }, Button)
+
+    New("TextLabel", {
+        Position = UDim2.fromOffset(17, 37),
+        Size = UDim2.new(1, -130, 0, 20),
+        BackgroundTransparency = 1,
+        Font = Enum.Font.Gotham,
+        Text = description,
+        TextSize = 10,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextColor3 = CurrentTheme.Muted,
+    }, Button)
+
+    local Badge = New("TextLabel", {
+        AnchorPoint = Vector2.new(1, 0.5),
+        Position = UDim2.new(1, -15, 0.5, 0),
+        Size = UDim2.fromOffset(70, 24),
+        BackgroundColor3 = CurrentTheme.Surface2,
+        BorderSizePixel = 0,
+        Font = Enum.Font.GothamBold,
+        Text = badge,
+        TextSize = 8,
+        TextColor3 = CurrentTheme.Accent,
+    }, Button)
+
+    AddCorner(Badge, 12)
+
+    Connect(Button.MouseEnter, function()
+        Animate(Button, {
+            BackgroundColor3 = CurrentTheme.Surface2,
+        }, 0.12)
+    end)
+
+    Connect(Button.MouseLeave, function()
+        Animate(Button, {
+            BackgroundColor3 = CurrentTheme.Surface,
+        }, 0.12)
+    end)
+
+    return Button
+end
+
+DemoCard(
+    ScriptsPage,
+    "GUI Demo Card",
+    "Interface testing",
+    "DEMO"
 )
 
-AddScriptButton(
-    KeylessPage,
-    "Limbo Hub",
-    "Keyless",
-    nil,
-    "KEYLESS"
+DemoCard(
+    ScriptsPage,
+    "Responsive Test",
+    "Desktop / tablet / mobile",
+    "TEST"
 )
 
-AddScriptButton(
-    KeylessPage,
-    "Virexx",
-    "Keyless",
-    nil,
-    "KEYLESS"
-)
-
---==================================================
--- KEY
---==================================================
-
-AddHeader(
-    KeyPage,
-    "Key Scripts",
-    "Scripts using a key system"
-)
-
-AddSection(KeyPage, "AVAILABLE")
-
-AddScriptButton(
-    KeyPage,
-    "Wzeus Hub",
-    "Key System",
-    nil,
-    "KEY"
-)
-
-AddScriptButton(
-    KeyPage,
-    "Pulse Hub",
-    "Key System",
-    nil,
-    "KEY"
+DemoCard(
+    ScriptsPage,
+    "Theme Preview",
+    "Theme engine demonstration",
+    "UI"
 )
 
 --==================================================
 -- THEMES
 --==================================================
 
-AddHeader(
+Header(
     ThemesPage,
     "Themes",
-    "Choose a visual style for CH3A5 HUB."
+    "Select a visual style"
 )
 
-local ThemeGrid = New("Frame", {
-    Size = UDim2.new(1, 0, 0, 400),
+local ThemeContainer = New("Frame", {
+    Size = UDim2.new(1, 0, 0, 500),
     BackgroundTransparency = 1,
 }, ThemesPage)
 
 New("UIGridLayout", {
-    CellSize = UDim2.fromOffset(160, 70),
-    CellPadding = UDim2.fromOffset(10, 10),
+    CellSize = UDim2.fromOffset(155, 68),
+    CellPadding = UDim2.fromOffset(9, 9),
     SortOrder = Enum.SortOrder.LayoutOrder,
-}, ThemeGrid)
+}, ThemeContainer)
+
+--==================================================
+-- THEME REGISTRY
+--==================================================
+
+local ThemeObjects = {}
+
+local function RegisterThemeObject(object, property, key)
+
+    ThemeObjects[key] = ThemeObjects[key] or {}
+
+    table.insert(
+        ThemeObjects[key],
+        {
+            Object = object,
+            Property = property,
+        }
+    )
+end
+
+local function ApplyTheme(name)
+
+    local theme = Themes[name]
+
+    if not theme then
+        return
+    end
+
+    State.Theme = name
+    CurrentTheme = theme
+
+    local Values = {
+        Background = theme.Background,
+        Surface = theme.Surface,
+        Surface2 = theme.Surface2,
+        Accent = theme.Accent,
+        Border = theme.Border,
+        Text = theme.Text,
+        Muted = theme.Muted,
+    }
+
+    for key, value in pairs(Values) do
+
+        for _, item in ipairs(
+            ThemeObjects[key] or {}
+        ) do
+
+            if item.Object and item.Object.Parent then
+                pcall(function()
+                    item.Object[item.Property] = value
+                end)
+            end
+        end
+    end
+
+    -- Main
+    Main.BackgroundColor3 = theme.Background
+    MainStroke.Color = theme.Border
+
+    -- Topbar
+    Topbar.BackgroundColor3 = theme.Surface
+    TopbarStroke.Color = theme.Border
+
+    -- Sidebar
+    Sidebar.BackgroundColor3 = theme.Surface
+
+    -- Content
+    Content.BackgroundColor3 = theme.Background
+
+    -- Main controls
+    Logo.BackgroundColor3 = theme.Accent
+
+    Title.TextColor3 = theme.Text
+    Subtitle.TextColor3 = theme.Muted
+
+    Status.BackgroundColor3 = theme.Surface2
+    Status.TextColor3 = theme.Accent
+
+    Minimize.BackgroundColor3 = theme.Surface2
+    Minimize.TextColor3 = theme.Text
+
+    Close.BackgroundColor3 = theme.Surface2
+    Close.TextColor3 = theme.Text
+
+    Navigation.TextColor3 = theme.Muted
+end
 
 for ThemeName, ThemeData in pairs(Themes) do
 
-    local ThemeButton = New("TextButton", {
+    local Button = New("TextButton", {
         BackgroundColor3 = ThemeData.Surface,
         BorderSizePixel = 0,
         AutoButtonColor = false,
         Text = "",
-    }, ThemeGrid)
+    }, ThemeContainer)
 
-    Corner(ThemeButton, 13)
+    AddCorner(Button, 12)
 
-    local ThemeStroke = Stroke(
-        ThemeButton,
+    AddStroke(
+        Button,
         ThemeData.Border,
-        0.15,
-        1
+        0.2
     )
 
-    local ThemeAccent = New("Frame", {
-        Position = UDim2.fromOffset(10, 10),
-        Size = UDim2.fromOffset(8, 50),
+    New("Frame", {
+        Position = UDim2.fromOffset(9, 9),
+        Size = UDim2.fromOffset(7, 50),
         BackgroundColor3 = ThemeData.Accent,
         BorderSizePixel = 0,
-    }, ThemeButton)
+    }, Button)
 
-    Corner(ThemeAccent, 4)
-
-    local ThemeLabel = New("TextLabel", {
-        Position = UDim2.fromOffset(29, 10),
-        Size = UDim2.new(1, -38, 0, 25),
+    New("TextLabel", {
+        Position = UDim2.fromOffset(27, 10),
+        Size = UDim2.new(1, -35, 0, 23),
         BackgroundTransparency = 1,
         Font = Enum.Font.GothamBold,
         Text = ThemeName,
-        TextSize = 12,
+        TextSize = 11,
         TextXAlignment = Enum.TextXAlignment.Left,
         TextColor3 = ThemeData.Text,
-    }, ThemeButton)
+    }, Button)
 
-    local ThemeSub = New("TextLabel", {
-        Position = UDim2.fromOffset(29, 35),
-        Size = UDim2.new(1, -38, 0, 18),
+    New("TextLabel", {
+        Position = UDim2.fromOffset(27, 34),
+        Size = UDim2.new(1, -35, 0, 18),
         BackgroundTransparency = 1,
         Font = Enum.Font.Gotham,
         Text = "Theme",
-        TextSize = 9,
+        TextSize = 8,
         TextXAlignment = Enum.TextXAlignment.Left,
         TextColor3 = ThemeData.Muted,
-    }, ThemeButton)
+    }, Button)
 
-    Connect(ThemeButton.MouseEnter, function()
-        Tween(ThemeButton, {
+    Connect(Button.MouseEnter, function()
+        Animate(Button, {
             BackgroundColor3 = ThemeData.Surface2,
-        }, 0.14)
+        }, 0.12)
     end)
 
-    Connect(ThemeButton.MouseLeave, function()
-        Tween(ThemeButton, {
+    Connect(Button.MouseLeave, function()
+        Animate(Button, {
             BackgroundColor3 = ThemeData.Surface,
-        }, 0.14)
+        }, 0.12)
     end)
 
-    Connect(ThemeButton.Activated, function()
-        ApplyTheme(ThemeData)
+    Connect(Button.Activated, function()
+        ApplyTheme(ThemeName)
     end)
 end
 
@@ -1144,43 +1069,63 @@ end
 -- SETTINGS
 --==================================================
 
-AddHeader(
+Header(
     SettingsPage,
     "Settings",
     "Interface preferences"
 )
 
-AddSection(SettingsPage, "INTERFACE")
+Section(SettingsPage, "UI")
 
-AddInfo(
+Info(
     SettingsPage,
-    "CH3A5 HUB V3 automatically adapts its layout based on the available viewport."
+    "The interface automatically adapts to different viewport sizes."
 )
 
-AddInfo(
+Info(
     SettingsPage,
-    "Reduced Motion is supported through Roblox's accessibility preference."
+    "Drag the topbar to move the window."
 )
 
-AddInfo(
+Info(
     SettingsPage,
-    "Drag the topbar to move the window. The window is clamped to the safe viewport."
+    "Use the minimize button to hide the main content."
 )
 
 --==================================================
--- SIDEBAR BUTTONS
+-- NAVIGATION
 --==================================================
 
-local SidebarButtons = {}
+local Tabs = {}
 
-local function SetActiveTab(name)
-    for pageName, button in pairs(SidebarButtons) do
+local TabInfo = {
+    {"Home", "⌂"},
+    {"Scripts", "◇"},
+    {"Themes", "◈"},
+    {"Settings", "⚙"},
+}
+
+local function SelectPage(name)
+
+    if not Pages[name] then
+        return
+    end
+
+    State.Page = name
+
+    for pageName, page in pairs(Pages) do
+        page.Visible = pageName == name
+    end
+
+    for pageName, button in pairs(Tabs) do
+
+        local selected = pageName == name
 
         local indicator = button:FindFirstChild("Indicator")
         local icon = button:FindFirstChild("Icon")
         local label = button:FindFirstChild("Label")
 
-        if pageName == name then
+        if selected then
 
             if indicator then
                 indicator.Visible = true
@@ -1194,9 +1139,9 @@ local function SetActiveTab(name)
                 label.TextColor3 = CurrentTheme.Text
             end
 
-            Tween(button, {
+            Animate(button, {
                 BackgroundColor3 = CurrentTheme.Surface2,
-            }, 0.14)
+            }, 0.12)
 
         else
 
@@ -1212,100 +1157,55 @@ local function SetActiveTab(name)
                 label.TextColor3 = CurrentTheme.Muted
             end
 
-            Tween(button, {
+            Animate(button, {
                 BackgroundColor3 = CurrentTheme.Surface,
-            }, 0.14)
+            }, 0.12)
         end
     end
 end
 
-local function OpenPage(name)
-    if not Pages[name] then
-        return
-    end
+for index, info in ipairs(TabInfo) do
 
-    State.CurrentPage = name
-
-    for pageName, page in pairs(Pages) do
-        page.Visible = pageName == name
-
-        if pageName == name then
-            page.CanvasPosition = Vector2.new(0, 0)
-        end
-    end
-
-    SetActiveTab(name)
-
-    if State.IsMobile then
-        State.SidebarOpen = false
-
-        Tween(Sidebar, {
-            Size = UDim2.new(0, 0, 1, 0),
-        }, 0.18)
-
-        Tween(Content, {
-            Position = UDim2.new(0, 0, 0, 0),
-            Size = UDim2.new(1, 0, 1, 0),
-        }, 0.18)
-    end
-end
-
-local TabData = {
-    {"Home", "⌂"},
-    {"Keyless", "◇"},
-    {"Key", "◆"},
-    {"Themes", "◈"},
-    {"Settings", "⚙"},
-}
-
-for index, data in ipairs(TabData) do
-
-    local name = data[1]
-    local iconText = data[2]
+    local name = info[1]
+    local iconText = info[2]
 
     local Button = New("TextButton", {
-        Name = name,
         LayoutOrder = index,
-        Size = UDim2.new(1, 0, 0, 42),
+        Size = UDim2.new(1, 0, 0, 41),
         BackgroundColor3 = CurrentTheme.Surface,
         BorderSizePixel = 0,
         AutoButtonColor = false,
         Text = "",
-    }, SidebarList)
+    }, TabContainer)
 
-    Corner(Button, 10)
-
-    RegisterTheme(Button, "BackgroundColor3", "Surfaces")
+    AddCorner(Button, 10)
 
     local Indicator = New("Frame", {
         Name = "Indicator",
         Position = UDim2.fromOffset(0, 8),
-        Size = UDim2.fromOffset(3, 26),
+        Size = UDim2.fromOffset(3, 25),
         BackgroundColor3 = CurrentTheme.Accent,
         BorderSizePixel = 0,
         Visible = false,
     }, Button)
 
-    Corner(Indicator, 3)
-    RegisterTheme(Indicator, "BackgroundColor3", "Accents")
+    AddCorner(Indicator, 3)
 
     local Icon = New("TextLabel", {
         Name = "Icon",
-        Position = UDim2.fromOffset(12, 0),
-        Size = UDim2.fromOffset(25, 42),
+        Position = UDim2.fromOffset(11, 0),
+        Size = UDim2.fromOffset(25, 41),
         BackgroundTransparency = 1,
         Font = Enum.Font.GothamBold,
         Text = iconText,
-        TextSize = 16,
+        TextSize = 15,
         TextColor3 = CurrentTheme.Muted,
     }, Button)
 
-    RegisterTheme(Icon, "TextColor3", "MutedTexts")
-
     local Label = New("TextLabel", {
         Name = "Label",
-        Position = UDim2.fromOffset(43, 0),
-        Size = UDim2.new(1, -50, 1, 0),
+        Position = UDim2.fromOffset(42, 0),
+        Size = UDim2.new(1, -48, 1, 0),
         BackgroundTransparency = 1,
         Font = Enum.Font.GothamMedium,
         Text = name,
@@ -1314,57 +1214,53 @@ for index, data in ipairs(TabData) do
         TextColor3 = CurrentTheme.Muted,
     }, Button)
 
-    RegisterTheme(Label, "TextColor3", "MutedTexts")
-
-    SidebarButtons[name] = Button
+    Tabs[name] = Button
 
     Connect(Button.MouseEnter, function()
-        if State.CurrentPage ~= name then
-            Tween(Button, {
+
+        if State.Page ~= name then
+            Animate(Button, {
                 BackgroundColor3 = CurrentTheme.Surface2,
-            }, 0.12)
+            }, 0.1)
         end
     end)
 
     Connect(Button.MouseLeave, function()
-        if State.CurrentPage ~= name then
-            Tween(Button, {
+
+        if State.Page ~= name then
+            Animate(Button, {
                 BackgroundColor3 = CurrentTheme.Surface,
-            }, 0.12)
+            }, 0.1)
         end
     end)
 
     Connect(Button.Activated, function()
-        OpenPage(name)
+        SelectPage(name)
     end)
 end
 
 --==================================================
--- MOBILE MENU BUTTON
+-- MOBILE MENU
 --==================================================
 
-local MenuButton = New("TextButton", {
-    Name = "MobileMenu",
-    AnchorPoint = Vector2.new(0, 0.5),
-    Position = UDim2.fromOffset(7, CONFIG.TopbarHeight / 2),
-    Size = UDim2.fromOffset(40, 40),
+local Menu = New("TextButton", {
+    Position = UDim2.fromOffset(8, 12),
+    Size = UDim2.fromOffset(38, 38),
     BackgroundColor3 = CurrentTheme.Surface2,
     BorderSizePixel = 0,
     AutoButtonColor = false,
     Text = "☰",
     Font = Enum.Font.GothamBold,
-    TextSize = 17,
+    TextSize = 16,
     TextColor3 = CurrentTheme.Text,
     Visible = false,
 }, Topbar)
 
-Corner(MenuButton, 10)
-RegisterTheme(MenuButton, "BackgroundColor3", "Surfaces")
-RegisterTheme(MenuButton, "TextColor3", "Texts")
+AddCorner(Menu, 10)
 
-Connect(MenuButton.Activated, function()
+Connect(Menu.Activated, function()
 
-    if not State.IsMobile then
+    if not State.Mobile then
         return
     end
 
@@ -1372,51 +1268,67 @@ Connect(MenuButton.Activated, function()
 
     if State.SidebarOpen then
 
-        Tween(Sidebar, {
-            Size = UDim2.new(0, CONFIG.SidebarWidth, 1, 0),
-        }, 0.18)
+        Animate(Sidebar, {
+            Size = UDim2.new(
+                0,
+                CONFIG.MobileSidebarWidth,
+                1,
+                0
+            ),
+        })
 
-        Tween(Content, {
-            Position = UDim2.new(0, CONFIG.SidebarWidth, 0, 0),
-            Size = UDim2.new(1, -CONFIG.SidebarWidth, 1, 0),
-        }, 0.18)
+        Animate(Content, {
+            Position = UDim2.new(
+                0,
+                CONFIG.MobileSidebarWidth,
+                0,
+                0
+            ),
+
+            Size = UDim2.new(
+                1,
+                -CONFIG.MobileSidebarWidth,
+                1,
+                0
+            ),
+        })
 
     else
 
-        Tween(Sidebar, {
+        Animate(Sidebar, {
             Size = UDim2.new(0, 0, 1, 0),
-        }, 0.18)
+        })
 
-        Tween(Content, {
+        Animate(Content, {
             Position = UDim2.new(0, 0, 0, 0),
             Size = UDim2.new(1, 0, 1, 0),
-        }, 0.18)
+        })
     end
 end)
 
 --==================================================
--- RESPONSIVE ENGINE
+-- DRAG SYSTEM
 --==================================================
 
-local function GetViewport()
+local Dragging = false
+local DragStart = nil
+local StartPosition = nil
+
+local function ClampWindow()
+
     local Camera = workspace.CurrentCamera
 
     if not Camera then
-        return Vector2.new(1280, 720)
+        return
     end
 
-    return Camera.ViewportSize
-end
+    local viewport = Camera.ViewportSize
+    local size = Main.AbsoluteSize
 
-local function ClampWindow()
-    local viewport = GetViewport()
-
-    local absoluteSize = Main.AbsoluteSize
+    local halfX = size.X / 2
+    local halfY = size.Y / 2
 
     local margin = 8
-
-    local halfX = absoluteSize.X / 2
-    local halfY = absoluteSize.Y / 2
 
     local minX = halfX + margin
     local maxX = viewport.X - halfX - margin
@@ -1424,168 +1336,20 @@ local function ClampWindow()
     local minY = halfY + margin
     local maxY = viewport.Y - halfY - margin
 
-    local current = Main.Position
-
     local x = math.clamp(
-        current.X.Offset,
+        Main.Position.X.Offset,
         minX,
         math.max(minX, maxX)
     )
 
     local y = math.clamp(
-        current.Y.Offset,
+        Main.Position.Y.Offset,
         minY,
         math.max(minY, maxY)
     )
 
     Main.Position = UDim2.fromOffset(x, y)
 end
-
-local function SetWindowSize(size)
-    size = Vector2.new(
-        math.clamp(size.X, CONFIG.MinWidth, CONFIG.MaxWidth),
-        math.clamp(size.Y, CONFIG.MinHeight, CONFIG.MaxHeight)
-    )
-
-    State.WindowSize = size
-
-    Tween(Main, {
-        Size = UDim2.fromOffset(size.X, size.Y),
-    }, 0.2)
-end
-
-local function UpdateResponsive()
-
-    local viewport = GetViewport()
-    local width = viewport.X
-    local height = viewport.Y
-
-    local displaySize = GuiService.ViewportDisplaySize
-
-    State.IsMobile =
-        width <= CONFIG.MobileBreakpoint
-        or displaySize == Enum.DisplaySize.Small
-
-    State.IsTablet =
-        not State.IsMobile
-        and width <= CONFIG.TabletBreakpoint
-
-    if State.IsMobile then
-
-        local targetWidth = math.min(
-            width - 16,
-            CONFIG.MobileSize.X
-        )
-
-        local targetHeight = math.min(
-            height - 16,
-            CONFIG.MobileSize.Y
-        )
-
-        SetWindowSize(Vector2.new(
-            math.max(targetWidth, CONFIG.MinWidth),
-            math.max(targetHeight, CONFIG.MinHeight)
-        ))
-
-        MainScale.Scale = 1
-
-        MenuButton.Visible = true
-
-        Sidebar.Size = UDim2.new(0, 0, 1, 0)
-
-        Content.Position = UDim2.new(0, 0, 0, 0)
-        Content.Size = UDim2.new(1, 0, 1, 0)
-
-        State.SidebarOpen = false
-
-        Title.Position = UDim2.fromOffset(56, 11)
-        Subtitle.Position = UDim2.fromOffset(57, 37)
-
-        Logo.Visible = false
-
-    elseif State.IsTablet then
-
-        SetWindowSize(Vector2.new(
-            math.min(width - 40, CONFIG.TabletSize.X),
-            math.min(height - 40, CONFIG.TabletSize.Y)
-        ))
-
-        MainScale.Scale = 0.96
-
-        MenuButton.Visible = false
-        Logo.Visible = true
-
-        Sidebar.Size = UDim2.new(
-            0,
-            CONFIG.SidebarWidth,
-            1,
-            0
-        )
-
-        Content.Position = UDim2.new(
-            0,
-            CONFIG.SidebarWidth,
-            0,
-            0
-        )
-
-        Content.Size = UDim2.new(
-            1,
-            -CONFIG.SidebarWidth,
-            1,
-            0
-        )
-
-        Title.Position = UDim2.fromOffset(68, 11)
-        Subtitle.Position = UDim2.fromOffset(69, 37)
-
-    else
-
-        SetWindowSize(Vector2.new(
-            math.min(width - 60, CONFIG.DesktopSize.X),
-            math.min(height - 60, CONFIG.DesktopSize.Y)
-        ))
-
-        MainScale.Scale = 1
-
-        MenuButton.Visible = false
-        Logo.Visible = true
-
-        Sidebar.Size = UDim2.new(
-            0,
-            CONFIG.SidebarWidth,
-            1,
-            0
-        )
-
-        Content.Position = UDim2.new(
-            0,
-            CONFIG.SidebarWidth,
-            0,
-            0
-        )
-
-        Content.Size = UDim2.new(
-            1,
-            -CONFIG.SidebarWidth,
-            1,
-            0
-        )
-
-        Title.Position = UDim2.fromOffset(68, 11)
-        Subtitle.Position = UDim2.fromOffset(69, 37)
-    end
-
-    task.defer(ClampWindow)
-end
-
---==================================================
--- DRAG SYSTEM
---==================================================
-
-local Dragging = false
-local DragStart
-local StartPosition
 
 Connect(Topbar.InputBegan, function(input)
 
@@ -1594,14 +1358,14 @@ Connect(Topbar.InputBegan, function(input)
         return
     end
 
-    if input.Target == MinimizeButton
-        or input.Target == CloseButton
-        or input.Target == MenuButton then
+    -- Don't drag from window controls.
+    if input.Target == Minimize
+        or input.Target == Close
+        or input.Target == Menu then
         return
     end
 
     Dragging = true
-    State.IsDragging = true
 
     DragStart = input.Position
     StartPosition = Main.Position
@@ -1618,11 +1382,11 @@ Connect(UserInputService.InputChanged, function(input)
         return
     end
 
-    local delta = input.Position - DragStart
+    local Delta = input.Position - DragStart
 
     Main.Position = UDim2.fromOffset(
-        StartPosition.X.Offset + delta.X,
-        StartPosition.Y.Offset + delta.Y
+        StartPosition.X.Offset + Delta.X,
+        StartPosition.Y.Offset + Delta.Y
     )
 
     ClampWindow()
@@ -1634,20 +1398,152 @@ Connect(UserInputService.InputEnded, function(input)
         or input.UserInputType == Enum.UserInputType.Touch then
 
         Dragging = false
-        State.IsDragging = false
-
-        State.WindowPosition = Main.Position
     end
 end)
+
+--==================================================
+-- RESPONSIVE
+--==================================================
+
+local function UpdateResponsive()
+
+    local Camera = workspace.CurrentCamera
+
+    if not Camera then
+        return
+    end
+
+    local viewport = Camera.ViewportSize
+    local width = viewport.X
+    local height = viewport.Y
+
+    State.Mobile = width <= CONFIG.MobileBreakpoint
+    State.Tablet = width > CONFIG.MobileBreakpoint and width <= 950
+
+    if State.Mobile then
+
+        UIScale.Scale = 1
+
+        local targetWidth = math.clamp(
+            width - 16,
+            CONFIG.MinWidth,
+            430
+        )
+
+        local targetHeight = math.clamp(
+            height - 16,
+            CONFIG.MinHeight,
+            600
+        )
+
+        Main.Size = UDim2.fromOffset(
+            targetWidth,
+            targetHeight
+        )
+
+        Menu.Visible = true
+        Logo.Visible = false
+
+        Title.Position = UDim2.fromOffset(55, 9)
+        Subtitle.Position = UDim2.fromOffset(56, 35)
+
+        Sidebar.Size = UDim2.new(0, 0, 1, 0)
+
+        Content.Position = UDim2.new(0, 0, 0, 0)
+        Content.Size = UDim2.new(1, 0, 1, 0)
+
+        State.SidebarOpen = false
+
+    elseif State.Tablet then
+
+        UIScale.Scale = 0.96
+
+        Main.Size = UDim2.fromOffset(
+            math.min(width - 40, 740),
+            math.min(height - 40, 500)
+        )
+
+        Menu.Visible = false
+        Logo.Visible = true
+
+        Title.Position = UDim2.fromOffset(65, 9)
+        Subtitle.Position = UDim2.fromOffset(66, 35)
+
+        Sidebar.Size = UDim2.new(
+            0,
+            CONFIG.SidebarWidth,
+            1,
+            0
+        )
+
+        Content.Position = UDim2.new(
+            0,
+            CONFIG.SidebarWidth,
+            0,
+            0
+        )
+
+        Content.Size = UDim2.new(
+            1,
+            -CONFIG.SidebarWidth,
+            1,
+            0
+        )
+
+        State.SidebarOpen = true
+
+    else
+
+        UIScale.Scale = 1
+
+        Main.Size = UDim2.fromOffset(
+            math.min(width - 60, CONFIG.Width),
+            math.min(height - 60, CONFIG.Height)
+        )
+
+        Menu.Visible = false
+        Logo.Visible = true
+
+        Title.Position = UDim2.fromOffset(65, 9)
+        Subtitle.Position = UDim2.fromOffset(66, 35)
+
+        Sidebar.Size = UDim2.new(
+            0,
+            CONFIG.SidebarWidth,
+            1,
+            0
+        )
+
+        Content.Position = UDim2.new(
+            0,
+            CONFIG.SidebarWidth,
+            0,
+            0
+        )
+
+        Content.Size = UDim2.new(
+            1,
+            -CONFIG.SidebarWidth,
+            1,
+            0
+        )
+
+        State.SidebarOpen = true
+    end
+
+    task.defer(ClampWindow)
+end
 
 --==================================================
 -- MINIMIZE
 --==================================================
 
-local RestoreButton = New("TextButton", {
-    Name = "Restore",
+local SavedSize = nil
+local SavedPosition = nil
+
+local Restore = New("TextButton", {
     AnchorPoint = Vector2.new(1, 1),
-    Position = UDim2.new(1, -15, 1, -15),
+    Position = UDim2.new(1, -14, 1, -14),
     Size = UDim2.fromOffset(52, 52),
     BackgroundColor3 = CurrentTheme.Surface,
     BorderSizePixel = 0,
@@ -1659,13 +1555,10 @@ local RestoreButton = New("TextButton", {
     Visible = false,
 }, ScreenGui)
 
-Corner(RestoreButton, 16)
-Stroke(RestoreButton, CurrentTheme.Border, 0.15, 1)
+AddCorner(Restore, 15)
+AddStroke(Restore, CurrentTheme.Border, 0.15)
 
-RegisterTheme(RestoreButton, "BackgroundColor3", "Surfaces")
-RegisterTheme(RestoreButton, "TextColor3", "Texts")
-
-Connect(MinimizeButton.Activated, function()
+Connect(Minimize.Activated, function()
 
     if State.Minimized then
         return
@@ -1673,49 +1566,49 @@ Connect(MinimizeButton.Activated, function()
 
     State.Minimized = true
 
-    State.WindowSize = Main.AbsoluteSize
-    State.WindowPosition = Main.Position
+    SavedSize = Main.AbsoluteSize
+    SavedPosition = Main.Position
 
     Body.Visible = false
 
-    Tween(Main, {
+    Animate(Main, {
         Size = UDim2.fromOffset(
-            math.min(State.WindowSize.X, 360),
+            math.min(SavedSize.X, 360),
             CONFIG.TopbarHeight
         ),
-    }, 0.2)
+    })
 
-    task.delay(TweenTime(0.2), function()
-        RestoreButton.Visible = true
+    task.delay(CONFIG.Animation, function()
+
+        if not State.Closed then
+            Restore.Visible = true
+        end
     end)
 end)
 
-Connect(RestoreButton.Activated, function()
+Connect(Restore.Activated, function()
 
     if not State.Minimized then
         return
     end
 
     State.Minimized = false
-    RestoreButton.Visible = false
+
+    Restore.Visible = false
 
     Body.Visible = true
 
-    local restoreSize = State.WindowSize
-
-    if not restoreSize then
-        restoreSize = CONFIG.DesktopSize
+    if SavedSize then
+        Animate(Main, {
+            Size = UDim2.fromOffset(
+                SavedSize.X,
+                SavedSize.Y
+            ),
+        })
     end
 
-    Tween(Main, {
-        Size = UDim2.fromOffset(
-            restoreSize.X,
-            restoreSize.Y
-        ),
-    }, 0.2)
-
-    if State.WindowPosition then
-        Main.Position = State.WindowPosition
+    if SavedPosition then
+        Main.Position = SavedPosition
     end
 
     task.defer(ClampWindow)
@@ -1725,21 +1618,24 @@ end)
 -- CLOSE
 --==================================================
 
-Connect(CloseButton.Activated, function()
+Connect(Close.Activated, function()
 
-    if State.IsClosing then
+    if State.Closed then
         return
     end
 
-    State.IsClosing = true
+    State.Closed = true
 
-    Tween(Main, {
+    Restore.Visible = false
+    Body.Visible = false
+
+    Animate(Main, {
         Size = UDim2.fromOffset(0, 0),
-    }, 0.22)
+    }, 0.18)
 
-    task.delay(TweenTime(0.22), function()
+    task.delay(0.2, function()
 
-        CleanupConnections()
+        Cleanup()
 
         if ScreenGui then
             ScreenGui:Destroy()
@@ -1748,48 +1644,31 @@ Connect(CloseButton.Activated, function()
 end)
 
 --==================================================
--- INITIAL STATE
+-- VIEWPORT UPDATE
 --==================================================
 
-for name, page in pairs(Pages) do
-    page.Visible = name == "Home"
+if workspace.CurrentCamera then
+
+    Connect(
+        workspace.CurrentCamera:GetPropertyChangedSignal(
+            "ViewportSize"
+        ),
+        function()
+
+            if not State.Minimized then
+                UpdateResponsive()
+            end
+        end
+    )
 end
 
-State.CurrentPage = "Home"
+--==================================================
+-- INITIAL
+--==================================================
 
-SetActiveTab("Home")
+SelectPage("Home")
 
 UpdateResponsive()
-
---==================================================
--- VIEWPORT CHANGE
---==================================================
-
-Connect(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"), function()
-    if not State.Minimized then
-        UpdateResponsive()
-    end
-end)
-
-Connect(GuiService:GetPropertyChangedSignal("ViewportDisplaySize"), function()
-    if not State.Minimized then
-        UpdateResponsive()
-    end
-end)
-
---==================================================
--- REDUCED MOTION CHANGE
---==================================================
-
-Connect(GuiService:GetPropertyChangedSignal("ReducedMotionEnabled"), function()
-    -- Future animations automatically use 0 duration.
-end)
-
---==================================================
--- FINAL THEME APPLY
---==================================================
-
-ApplyTheme(CurrentTheme)
 
 --==================================================
 -- OPEN ANIMATION
@@ -1802,7 +1681,7 @@ Main.Size = UDim2.fromOffset(
     FinalSize.Y * 0.92
 )
 
-Tween(Main, {
+Animate(Main, {
     Size = FinalSize,
 }, 0.28)
 
