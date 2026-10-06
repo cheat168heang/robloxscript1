@@ -1,7 +1,7 @@
 --//==================================================
 --// CH3A5 HUB V3
---// GUI ENGINE UPGRADE
---// KEYLESS / KEY / SCRIPT LOADER PRESERVED
+--// PROFESSIONAL GUI ENGINE
+--// GUI ONLY / ROBLOX STUDIO SAFE
 --//==================================================
 
 if not game:IsLoaded() then
@@ -24,7 +24,7 @@ local PlayerGui = Player:WaitForChild("PlayerGui")
 -- CONFIG
 --==================================================
 
-local VERSION = "V3.0"
+local VERSION = "V3.1"
 
 local CONFIG = {
     DesktopWidth = 720,
@@ -39,7 +39,10 @@ local CONFIG = {
     MinWidth = 300,
     MinHeight = 300,
 
-    AnimationTime = 0.22,
+    MaxWidth = 1100,
+    MaxHeight = 750,
+
+    AnimationTime = 0.20,
 
     CornerRadius = 14,
 
@@ -48,6 +51,8 @@ local CONFIG = {
 
     TopbarDesktop = 58,
     TopbarMobile = 58,
+
+    FloatingSize = 50,
 }
 
 --==================================================
@@ -68,14 +73,16 @@ local function GetTweenTime(Time)
     return Time
 end
 
-local function Tween(Object, Info, Properties)
+local function Tween(Object, Time, Properties, Style, Direction)
+
     if not Object then
         return nil
     end
 
-    local Duration = GetTweenTime(Info.Time)
+    local Duration = GetTweenTime(Time)
 
     if Duration <= 0 then
+
         for Property, Value in pairs(Properties) do
             pcall(function()
                 Object[Property] = Value
@@ -89,15 +96,22 @@ local function Tween(Object, Info, Properties)
         Object,
         TweenInfo.new(
             Duration,
-            Info.EasingStyle or Enum.EasingStyle.Quad,
-            Info.EasingDirection or Enum.EasingDirection.Out
+            Style or Enum.EasingStyle.Quad,
+            Direction or Enum.EasingDirection.Out
         ),
         Properties
     )
 end
 
-local function PlayTween(Object, Info, Properties)
-    local Animation = Tween(Object, Info, Properties)
+local function PlayTween(Object, Time, Properties, Style, Direction)
+
+    local Animation = Tween(
+        Object,
+        Time,
+        Properties,
+        Style,
+        Direction
+    )
 
     if Animation then
         Animation:Play()
@@ -112,141 +126,141 @@ end
 
 local Themes = {
 
-    ["Midnight"] = {
-        Background = Color3.fromRGB(12, 12, 18),
-        Surface = Color3.fromRGB(20, 20, 30),
-        Surface2 = Color3.fromRGB(27, 27, 40),
-        Accent = Color3.fromRGB(120, 90, 255),
+    Midnight = {
+        Background = Color3.fromRGB(11, 12, 18),
+        Surface = Color3.fromRGB(19, 20, 29),
+        Surface2 = Color3.fromRGB(27, 28, 40),
+        Accent = Color3.fromRGB(124, 92, 255),
         Text = Color3.fromRGB(245, 245, 255),
-        Muted = Color3.fromRGB(150, 150, 170),
-        Border = Color3.fromRGB(120, 90, 255)
+        Muted = Color3.fromRGB(145, 148, 165),
+        Border = Color3.fromRGB(124, 92, 255),
     },
 
-    ["Discord"] = {
+    Discord = {
         Background = Color3.fromRGB(25, 27, 31),
         Surface = Color3.fromRGB(32, 34, 39),
-        Surface2 = Color3.fromRGB(40, 42, 48),
+        Surface2 = Color3.fromRGB(42, 44, 52),
         Accent = Color3.fromRGB(88, 101, 242),
         Text = Color3.fromRGB(255, 255, 255),
-        Muted = Color3.fromRGB(180, 180, 190),
-        Border = Color3.fromRGB(88, 101, 242)
+        Muted = Color3.fromRGB(180, 182, 192),
+        Border = Color3.fromRGB(88, 101, 242),
     },
 
-    ["GitHub"] = {
+    GitHub = {
         Background = Color3.fromRGB(13, 17, 23),
         Surface = Color3.fromRGB(22, 27, 34),
         Surface2 = Color3.fromRGB(30, 36, 44),
         Accent = Color3.fromRGB(46, 160, 67),
         Text = Color3.fromRGB(240, 246, 252),
         Muted = Color3.fromRGB(139, 148, 158),
-        Border = Color3.fromRGB(46, 160, 67)
+        Border = Color3.fromRGB(46, 160, 67),
     },
 
-    ["Spotify"] = {
+    Spotify = {
         Background = Color3.fromRGB(12, 12, 12),
         Surface = Color3.fromRGB(24, 24, 24),
         Surface2 = Color3.fromRGB(35, 35, 35),
         Accent = Color3.fromRGB(30, 215, 96),
         Text = Color3.fromRGB(255, 255, 255),
         Muted = Color3.fromRGB(170, 170, 170),
-        Border = Color3.fromRGB(30, 215, 96)
+        Border = Color3.fromRGB(30, 215, 96),
     },
 
-    ["YouTube"] = {
+    YouTube = {
         Background = Color3.fromRGB(15, 15, 15),
         Surface = Color3.fromRGB(30, 30, 30),
-        Surface2 = Color3.fromRGB(42, 42, 42),
-        Accent = Color3.fromRGB(255, 0, 0),
+        Surface2 = Color3.fromRGB(43, 43, 43),
+        Accent = Color3.fromRGB(255, 45, 45),
         Text = Color3.fromRGB(255, 255, 255),
         Muted = Color3.fromRGB(180, 180, 180),
-        Border = Color3.fromRGB(255, 0, 0)
+        Border = Color3.fromRGB(255, 45, 45),
     },
 
-    ["Telegram"] = {
+    Telegram = {
         Background = Color3.fromRGB(15, 23, 30),
         Surface = Color3.fromRGB(25, 38, 50),
         Surface2 = Color3.fromRGB(32, 49, 64),
         Accent = Color3.fromRGB(42, 171, 238),
         Text = Color3.fromRGB(255, 255, 255),
         Muted = Color3.fromRGB(160, 180, 195),
-        Border = Color3.fromRGB(42, 171, 238)
+        Border = Color3.fromRGB(42, 171, 238),
     },
 
-    ["Twitter"] = {
+    Twitter = {
         Background = Color3.fromRGB(10, 10, 10),
         Surface = Color3.fromRGB(24, 24, 24),
         Surface2 = Color3.fromRGB(35, 35, 35),
         Accent = Color3.fromRGB(29, 155, 240),
         Text = Color3.fromRGB(255, 255, 255),
         Muted = Color3.fromRGB(160, 170, 180),
-        Border = Color3.fromRGB(29, 155, 240)
+        Border = Color3.fromRGB(29, 155, 240),
     },
 
-    ["Twitch"] = {
+    Twitch = {
         Background = Color3.fromRGB(14, 12, 20),
         Surface = Color3.fromRGB(25, 22, 35),
-        Surface2 = Color3.fromRGB(35, 31, 47),
+        Surface2 = Color3.fromRGB(36, 31, 48),
         Accent = Color3.fromRGB(145, 70, 255),
         Text = Color3.fromRGB(255, 255, 255),
         Muted = Color3.fromRGB(180, 170, 195),
-        Border = Color3.fromRGB(145, 70, 255)
+        Border = Color3.fromRGB(145, 70, 255),
     },
 
-    ["Dracula"] = {
+    Dracula = {
         Background = Color3.fromRGB(24, 24, 37),
         Surface = Color3.fromRGB(40, 42, 54),
         Surface2 = Color3.fromRGB(50, 52, 66),
         Accent = Color3.fromRGB(189, 147, 249),
         Text = Color3.fromRGB(248, 248, 242),
         Muted = Color3.fromRGB(180, 180, 190),
-        Border = Color3.fromRGB(189, 147, 249)
+        Border = Color3.fromRGB(189, 147, 249),
     },
 
-    ["Ocean"] = {
+    Ocean = {
         Background = Color3.fromRGB(7, 18, 28),
         Surface = Color3.fromRGB(12, 32, 48),
         Surface2 = Color3.fromRGB(18, 45, 64),
         Accent = Color3.fromRGB(0, 190, 255),
         Text = Color3.fromRGB(235, 250, 255),
         Muted = Color3.fromRGB(145, 180, 195),
-        Border = Color3.fromRGB(0, 190, 255)
+        Border = Color3.fromRGB(0, 190, 255),
     },
 
-    ["Crimson"] = {
+    Crimson = {
         Background = Color3.fromRGB(20, 10, 12),
         Surface = Color3.fromRGB(35, 16, 20),
         Surface2 = Color3.fromRGB(48, 21, 27),
         Accent = Color3.fromRGB(235, 55, 75),
         Text = Color3.fromRGB(255, 240, 242),
         Muted = Color3.fromRGB(185, 155, 160),
-        Border = Color3.fromRGB(235, 55, 75)
+        Border = Color3.fromRGB(235, 55, 75),
     },
 
-    ["Emerald"] = {
+    Emerald = {
         Background = Color3.fromRGB(8, 18, 14),
         Surface = Color3.fromRGB(14, 32, 25),
         Surface2 = Color3.fromRGB(20, 44, 34),
         Accent = Color3.fromRGB(40, 210, 130),
         Text = Color3.fromRGB(235, 255, 245),
         Muted = Color3.fromRGB(145, 180, 160),
-        Border = Color3.fromRGB(40, 210, 130)
+        Border = Color3.fromRGB(40, 210, 130),
     },
 
-    ["Angkor"] = {
+    Angkor = {
         Background = Color3.fromRGB(18, 14, 10),
         Surface = Color3.fromRGB(35, 27, 18),
         Surface2 = Color3.fromRGB(48, 37, 24),
         Accent = Color3.fromRGB(214, 157, 65),
         Text = Color3.fromRGB(255, 245, 220),
         Muted = Color3.fromRGB(185, 160, 125),
-        Border = Color3.fromRGB(214, 157, 65)
-    }
+        Border = Color3.fromRGB(214, 157, 65),
+    },
 }
 
-local CurrentTheme = Themes["Midnight"]
+local CurrentTheme = Themes.Midnight
 
 --==================================================
--- CONNECTION MANAGEMENT
+-- CONNECTION MANAGER
 --==================================================
 
 local Connections = {}
@@ -257,46 +271,38 @@ local function Connect(Connection)
 end
 
 local function DisconnectAll()
+
     for _, Connection in ipairs(Connections) do
+
         pcall(function()
             Connection:Disconnect()
         end)
+
     end
 
     table.clear(Connections)
 end
 
 --==================================================
--- SCRIPT LOADER
+-- SAFE ACTION PLACEHOLDER
 --==================================================
 
 local function ExecuteScript(url)
-    task.spawn(function()
-        local success, source = pcall(function()
-            return game:HttpGet(url)
-        end)
 
-        if not success or not source then
-            warn("[CH3A5 HUB] Failed to download script")
-            return
-        end
+    -- GUI ONLY
+    -- Add your own Studio-safe ModuleScript
+    -- callback here if needed.
 
-        local runSuccess, err = pcall(function()
-            local fn = loadstring(source)
+    warn(
+        "[CH3A5 HUB]",
+        "Selected:",
+        tostring(url)
+    )
 
-            if fn then
-                fn()
-            end
-        end)
-
-        if not runSuccess then
-            warn("[CH3A5 HUB] Script Error:", err)
-        end
-    end)
 end
 
 --==================================================
--- GUI ROOT
+-- REMOVE OLD GUI
 --==================================================
 
 local OldGUI = PlayerGui:FindFirstChild("CH3A5_HUB")
@@ -305,90 +311,154 @@ if OldGUI then
     OldGUI:Destroy()
 end
 
+--==================================================
+-- SCREEN GUI
+--==================================================
+
 local ScreenGui = Instance.new("ScreenGui")
+
 ScreenGui.Name = "CH3A5_HUB"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 pcall(function()
     ScreenGui.ScreenInsets = Enum.ScreenInsets.CoreUISafeInsets
 end)
 
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = PlayerGui
 
 --==================================================
--- MAIN
+-- MAIN WINDOW
 --==================================================
 
 local Main = Instance.new("Frame")
+
 Main.Name = "Main"
 Main.AnchorPoint = Vector2.new(0.5, 0.5)
+
 Main.Size = UDim2.fromOffset(
     CONFIG.DesktopWidth,
     CONFIG.DesktopHeight
 )
-Main.Position = UDim2.fromScale(0.5, 0.5)
+
+Main.Position = UDim2.fromScale(
+    0.5,
+    0.5
+)
+
 Main.BackgroundColor3 = CurrentTheme.Background
 Main.BorderSizePixel = 0
 Main.ClipsDescendants = true
+
 Main.Parent = ScreenGui
 
 local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, CONFIG.CornerRadius)
+MainCorner.CornerRadius = UDim.new(
+    0,
+    CONFIG.CornerRadius
+)
 MainCorner.Parent = Main
 
-local MainSizeConstraint = Instance.new("UISizeConstraint")
-MainSizeConstraint.MinSize = Vector2.new(
+local MainStroke = Instance.new("UIStroke")
+
+MainStroke.Color = CurrentTheme.Border
+MainStroke.Transparency = 0.58
+MainStroke.Thickness = 1
+
+MainStroke.Parent = Main
+
+local MainConstraint = Instance.new("UISizeConstraint")
+
+MainConstraint.MinSize = Vector2.new(
     CONFIG.MinWidth,
     CONFIG.MinHeight
 )
-MainSizeConstraint.MaxSize = Vector2.new(
-    1100,
-    750
+
+MainConstraint.MaxSize = Vector2.new(
+    CONFIG.MaxWidth,
+    CONFIG.MaxHeight
 )
-MainSizeConstraint.Parent = Main
+
+MainConstraint.Parent = Main
 
 local MainScale = Instance.new("UIScale")
 MainScale.Scale = 1
 MainScale.Parent = Main
-
-local Stroke = Instance.new("UIStroke")
-Stroke.Color = CurrentTheme.Border
-Stroke.Transparency = 0.45
-Stroke.Thickness = 1
-Stroke.Parent = Main
 
 --==================================================
 -- TOPBAR
 --==================================================
 
 local Topbar = Instance.new("Frame")
+
 Topbar.Name = "Topbar"
-Topbar.Size = UDim2.new(1, 0, 0, CONFIG.TopbarDesktop)
+
+Topbar.Size = UDim2.new(
+    1,
+    0,
+    0,
+    CONFIG.TopbarDesktop
+)
+
 Topbar.BackgroundColor3 = CurrentTheme.Surface
 Topbar.BorderSizePixel = 0
+
 Topbar.Parent = Main
 
-local TopbarPadding = Instance.new("UIPadding")
-TopbarPadding.PaddingLeft = UDim.new(0, 16)
-TopbarPadding.PaddingRight = UDim.new(0, 10)
-TopbarPadding.Parent = Topbar
+--==================================================
+-- TOPBAR SEPARATOR
+--==================================================
+
+local TopbarLine = Instance.new("Frame")
+
+TopbarLine.Size = UDim2.new(
+    1,
+    -24,
+    0,
+    1
+)
+
+TopbarLine.Position = UDim2.new(
+    0,
+    12,
+    1,
+    -1
+)
+
+TopbarLine.BackgroundColor3 = CurrentTheme.Border
+TopbarLine.BackgroundTransparency = 0.85
+TopbarLine.BorderSizePixel = 0
+
+TopbarLine.Parent = Topbar
 
 --==================================================
 -- LOGO
 --==================================================
 
 local Logo = Instance.new("TextLabel")
+
 Logo.Name = "Logo"
-Logo.Size = UDim2.fromOffset(42, 42)
-Logo.Position = UDim2.fromOffset(0, 8)
+
+Logo.Size = UDim2.fromOffset(
+    40,
+    40
+)
+
+Logo.Position = UDim2.fromOffset(
+    10,
+    9
+)
+
 Logo.BackgroundColor3 = CurrentTheme.Accent
-Logo.BackgroundTransparency = 0.05
+
 Logo.Text = "C5"
 Logo.Font = Enum.Font.GothamBlack
-Logo.TextSize = 15
+Logo.TextSize = 14
 Logo.TextColor3 = CurrentTheme.Text
+
+Logo.BorderSizePixel = 0
+
 Logo.Parent = Topbar
 
 local LogoCorner = Instance.new("UICorner")
@@ -400,104 +470,274 @@ LogoCorner.Parent = Logo
 --==================================================
 
 local Title = Instance.new("TextLabel")
+
 Title.Name = "Title"
-Title.Size = UDim2.new(1, -190, 0, 25)
-Title.Position = UDim2.fromOffset(52, 7)
+
+Title.Size = UDim2.new(
+    1,
+    -280,
+    0,
+    23
+)
+
+Title.Position = UDim2.fromOffset(
+    60,
+    7
+)
+
 Title.BackgroundTransparency = 1
+
 Title.Text = "CH3A5 HUB"
 Title.Font = Enum.Font.GothamBold
-Title.TextSize = 18
+Title.TextSize = 17
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.TextColor3 = CurrentTheme.Text
+
 Title.Parent = Topbar
 
 local TitleConstraint = Instance.new("UITextSizeConstraint")
-TitleConstraint.MinTextSize = 14
+
+TitleConstraint.MinTextSize = 13
 TitleConstraint.MaxTextSize = 20
+
 TitleConstraint.Parent = Title
 
+--==================================================
+-- SUBTITLE
+--==================================================
+
 local Subtitle = Instance.new("TextLabel")
+
 Subtitle.Name = "Subtitle"
-Subtitle.Size = UDim2.new(1, -190, 0, 17)
-Subtitle.Position = UDim2.fromOffset(52, 31)
+
+Subtitle.Size = UDim2.new(
+    1,
+    -280,
+    0,
+    18
+)
+
+Subtitle.Position = UDim2.fromOffset(
+    60,
+    30
+)
+
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "Premium Script Hub"
+
+Subtitle.Text = "Premium interface  •  Fast  •  Responsive"
+
 Subtitle.Font = Enum.Font.Gotham
-Subtitle.TextSize = 10
-Subtitle.TextXAlignment = Enum.TextXAlignment.Left
-Subtitle.TextColor3 = CurrentTheme.Muted
+Subtitle.TextSize = 9
+
+Subtitle.TextXAlignment =
+    Enum.TextXAlignment.Left
+
+Subtitle.TextColor3 =
+    CurrentTheme.Muted
+
 Subtitle.Parent = Topbar
 
-local SubtitleConstraint = Instance.new("UITextSizeConstraint")
-SubtitleConstraint.MinTextSize = 9
-SubtitleConstraint.MaxTextSize = 12
-SubtitleConstraint.Parent = Subtitle
-
 --==================================================
--- VERSION BADGE
+-- VERSION
 --==================================================
 
 local VersionBadge = Instance.new("TextLabel")
-VersionBadge.Name = "VersionBadge"
-VersionBadge.Size = UDim2.fromOffset(48, 24)
-VersionBadge.Position = UDim2.new(1, -155, 0, 16)
-VersionBadge.BackgroundColor3 = CurrentTheme.Background
+
+VersionBadge.Name = "Version"
+
+VersionBadge.Size = UDim2.fromOffset(
+    46,
+    23
+)
+
+VersionBadge.Position = UDim2.new(
+    1,
+    -262,
+    0,
+    17
+)
+
+VersionBadge.BackgroundColor3 =
+    CurrentTheme.Background
+
 VersionBadge.Text = VERSION
-VersionBadge.Font = Enum.Font.GothamBold
-VersionBadge.TextSize = 9
-VersionBadge.TextColor3 = CurrentTheme.Accent
+
+VersionBadge.Font =
+    Enum.Font.GothamBold
+
+VersionBadge.TextSize = 8
+
+VersionBadge.TextColor3 =
+    CurrentTheme.Accent
+
 VersionBadge.Parent = Topbar
 
 local VersionCorner = Instance.new("UICorner")
-VersionCorner.CornerRadius = UDim.new(0, 7)
-VersionCorner.Parent = VersionBadge
 
-local VersionConstraint = Instance.new("UITextSizeConstraint")
-VersionConstraint.MinTextSize = 8
-VersionConstraint.MaxTextSize = 11
-VersionConstraint.Parent = VersionBadge
+VersionCorner.CornerRadius =
+    UDim.new(0, 7)
+
+VersionCorner.Parent =
+    VersionBadge
 
 --==================================================
--- ONLINE INDICATOR
+-- ONLINE
 --==================================================
 
 local Online = Instance.new("TextLabel")
+
 Online.Name = "Online"
-Online.Size = UDim2.fromOffset(72, 24)
-Online.Position = UDim2.new(1, -103, 0, 16)
+
+Online.Size = UDim2.fromOffset(
+    68,
+    23
+)
+
+Online.Position = UDim2.new(
+    1,
+    -210,
+    0,
+    17
+)
+
 Online.BackgroundTransparency = 1
+
 Online.Text = "● Online"
-Online.Font = Enum.Font.GothamMedium
-Online.TextSize = 10
-Online.TextColor3 = CurrentTheme.Accent
+
+Online.Font =
+    Enum.Font.GothamMedium
+
+Online.TextSize = 9
+
+Online.TextColor3 =
+    CurrentTheme.Accent
+
 Online.Parent = Topbar
 
 --==================================================
--- MINIMIZE / CLOSE
+-- HIDE BUTTON
+--==================================================
+
+local HideButton = Instance.new("TextButton")
+
+HideButton.Name = "Hide"
+
+HideButton.Size = UDim2.fromOffset(
+    54,
+    27
+)
+
+HideButton.Position = UDim2.new(
+    1,
+    -143,
+    0,
+    15
+)
+
+HideButton.BackgroundColor3 =
+    CurrentTheme.Background
+
+HideButton.BorderSizePixel = 0
+
+HideButton.Text = "HIDE"
+
+HideButton.Font =
+    Enum.Font.GothamBold
+
+HideButton.TextSize = 8
+
+HideButton.TextColor3 =
+    CurrentTheme.Muted
+
+HideButton.AutoButtonColor = false
+
+HideButton.Parent = Topbar
+
+local HideCorner = Instance.new("UICorner")
+HideCorner.CornerRadius = UDim.new(0, 8)
+HideCorner.Parent = HideButton
+
+local HideStroke = Instance.new("UIStroke")
+
+HideStroke.Color =
+    CurrentTheme.Border
+
+HideStroke.Transparency = 0.72
+
+HideStroke.Thickness = 1
+
+HideStroke.Parent = HideButton
+
+--==================================================
+-- MINIMIZE
 --==================================================
 
 local Minimize = Instance.new("TextButton")
+
 Minimize.Name = "Minimize"
-Minimize.Size = UDim2.fromOffset(36, 36)
-Minimize.Position = UDim2.new(1, -77, 0, 10)
+
+Minimize.Size = UDim2.fromOffset(
+    32,
+    32
+)
+
+Minimize.Position = UDim2.new(
+    1,
+    -85,
+    0,
+    12
+)
+
 Minimize.BackgroundTransparency = 1
+
 Minimize.Text = "—"
-Minimize.TextSize = 21
-Minimize.TextColor3 = CurrentTheme.Text
-Minimize.Font = Enum.Font.GothamBold
+
+Minimize.Font =
+    Enum.Font.GothamBold
+
+Minimize.TextSize = 18
+
+Minimize.TextColor3 =
+    CurrentTheme.Text
+
 Minimize.AutoButtonColor = false
+
 Minimize.Parent = Topbar
 
+--==================================================
+-- CLOSE
+--==================================================
+
 local Close = Instance.new("TextButton")
+
 Close.Name = "Close"
-Close.Size = UDim2.fromOffset(36, 36)
-Close.Position = UDim2.new(1, -38, 0, 10)
+
+Close.Size = UDim2.fromOffset(
+    32,
+    32
+)
+
+Close.Position = UDim2.new(
+    1,
+    -40,
+    0,
+    12
+)
+
 Close.BackgroundTransparency = 1
+
 Close.Text = "×"
-Close.TextSize = 24
-Close.TextColor3 = CurrentTheme.Text
-Close.Font = Enum.Font.GothamBold
+
+Close.Font =
+    Enum.Font.GothamBold
+
+Close.TextSize = 22
+
+Close.TextColor3 =
+    CurrentTheme.Text
+
 Close.AutoButtonColor = false
+
 Close.Parent = Topbar
 
 --==================================================
@@ -505,135 +745,213 @@ Close.Parent = Topbar
 --==================================================
 
 local Sidebar = Instance.new("Frame")
+
 Sidebar.Name = "Sidebar"
+
 Sidebar.Size = UDim2.new(
     0,
     CONFIG.SidebarDesktop,
     1,
     -CONFIG.TopbarDesktop
 )
+
 Sidebar.Position = UDim2.fromOffset(
     0,
     CONFIG.TopbarDesktop
 )
-Sidebar.BackgroundColor3 = CurrentTheme.Surface
+
+Sidebar.BackgroundColor3 =
+    CurrentTheme.Surface
+
 Sidebar.BorderSizePixel = 0
+
 Sidebar.Parent = Main
 
-local SidePadding = Instance.new("UIPadding")
-SidePadding.PaddingTop = UDim.new(0, 14)
-SidePadding.PaddingLeft = UDim.new(0, 10)
-SidePadding.PaddingRight = UDim.new(0, 10)
-SidePadding.Parent = Sidebar
+local SidebarPadding = Instance.new("UIPadding")
 
-local SideLayout = Instance.new("UIListLayout")
-SideLayout.Padding = UDim.new(0, 7)
-SideLayout.SortOrder = Enum.SortOrder.LayoutOrder
-SideLayout.Parent = Sidebar
+SidebarPadding.PaddingTop =
+    UDim.new(0, 14)
+
+SidebarPadding.PaddingLeft =
+    UDim.new(0, 10)
+
+SidebarPadding.PaddingRight =
+    UDim.new(0, 10)
+
+SidebarPadding.Parent = Sidebar
+
+local SidebarLayout = Instance.new("UIListLayout")
+
+SidebarLayout.Padding =
+    UDim.new(0, 6)
+
+SidebarLayout.SortOrder =
+    Enum.SortOrder.LayoutOrder
+
+SidebarLayout.Parent = Sidebar
 
 --==================================================
 -- CONTENT
 --==================================================
 
 local Content = Instance.new("Frame")
+
 Content.Name = "Content"
+
 Content.Size = UDim2.new(
     1,
     -CONFIG.SidebarDesktop,
     1,
     -CONFIG.TopbarDesktop
 )
+
 Content.Position = UDim2.fromOffset(
     CONFIG.SidebarDesktop,
     CONFIG.TopbarDesktop
 )
-Content.BackgroundColor3 = CurrentTheme.Background
+
+Content.BackgroundColor3 =
+    CurrentTheme.Background
+
 Content.BorderSizePixel = 0
+
 Content.Parent = Main
 
 --==================================================
--- PAGES
+-- PAGE SYSTEM
 --==================================================
 
 local Pages = {}
-local PageHeaders = {}
-local PageObjects = {}
+local Tabs = {}
 
-local function CreatePage(name, title, subtitle)
+local CurrentPage = nil
+
+local function CreatePage(
+    Name,
+    PageTitle,
+    PageSubtitle
+)
 
     local Page = Instance.new("ScrollingFrame")
-    Page.Name = name
-    Page.Size = UDim2.new(1, -20, 1, -20)
-    Page.Position = UDim2.fromOffset(10, 10)
+
+    Page.Name = Name
+
+    Page.Size = UDim2.new(
+        1,
+        -24,
+        1,
+        -24
+    )
+
+    Page.Position = UDim2.fromOffset(
+        12,
+        12
+    )
+
     Page.BackgroundTransparency = 1
     Page.BorderSizePixel = 0
 
     Page.ScrollBarThickness = 3
-    Page.ScrollBarImageColor3 = CurrentTheme.Accent
 
-    Page.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    Page.CanvasSize = UDim2.new()
+    Page.ScrollBarImageColor3 =
+        CurrentTheme.Accent
 
-    Page.ScrollingDirection = Enum.ScrollingDirection.Y
+    Page.AutomaticCanvasSize =
+        Enum.AutomaticSize.Y
+
+    Page.CanvasSize =
+        UDim2.new()
+
+    Page.ScrollingDirection =
+        Enum.ScrollingDirection.Y
+
     Page.Visible = false
 
     Page.Parent = Content
 
     local Padding = Instance.new("UIPadding")
-    Padding.PaddingBottom = UDim.new(0, 12)
+
+    Padding.PaddingBottom =
+        UDim.new(0, 16)
+
     Padding.Parent = Page
 
     local Layout = Instance.new("UIListLayout")
-    Layout.Padding = UDim.new(0, 10)
-    Layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+    Layout.Padding =
+        UDim.new(0, 9)
+
+    Layout.SortOrder =
+        Enum.SortOrder.LayoutOrder
+
     Layout.Parent = Page
 
+    -- Header
+
     local Header = Instance.new("Frame")
-    Header.Name = "Header"
-    Header.Size = UDim2.new(1, 0, 0, 58)
+
+    Header.Size = UDim2.new(
+        1,
+        0,
+        0,
+        58
+    )
+
     Header.BackgroundTransparency = 1
+
     Header.LayoutOrder = -100
+
     Header.Parent = Page
 
     local HeaderTitle = Instance.new("TextLabel")
-    HeaderTitle.Name = "Title"
-    HeaderTitle.Size = UDim2.new(1, 0, 0, 30)
+
+    HeaderTitle.Size =
+        UDim2.new(1, 0, 0, 29)
+
     HeaderTitle.BackgroundTransparency = 1
-    HeaderTitle.Text = title
-    HeaderTitle.Font = Enum.Font.GothamBold
+
+    HeaderTitle.Text = PageTitle
+
+    HeaderTitle.Font =
+        Enum.Font.GothamBold
+
     HeaderTitle.TextSize = 19
-    HeaderTitle.TextXAlignment = Enum.TextXAlignment.Left
-    HeaderTitle.TextColor3 = CurrentTheme.Text
+
+    HeaderTitle.TextXAlignment =
+        Enum.TextXAlignment.Left
+
+    HeaderTitle.TextColor3 =
+        CurrentTheme.Text
+
     HeaderTitle.Parent = Header
 
-    local HeaderTitleConstraint = Instance.new("UITextSizeConstraint")
-    HeaderTitleConstraint.MinTextSize = 14
-    HeaderTitleConstraint.MaxTextSize = 22
-    HeaderTitleConstraint.Parent = HeaderTitle
-
     local HeaderSubtitle = Instance.new("TextLabel")
-    HeaderSubtitle.Name = "Subtitle"
-    HeaderSubtitle.Size = UDim2.new(1, 0, 0, 22)
-    HeaderSubtitle.Position = UDim2.fromOffset(0, 31)
+
+    HeaderSubtitle.Size =
+        UDim2.new(1, 0, 0, 20)
+
+    HeaderSubtitle.Position =
+        UDim2.fromOffset(0, 31)
+
     HeaderSubtitle.BackgroundTransparency = 1
-    HeaderSubtitle.Text = subtitle
-    HeaderSubtitle.Font = Enum.Font.Gotham
-    HeaderSubtitle.TextSize = 11
-    HeaderSubtitle.TextXAlignment = Enum.TextXAlignment.Left
-    HeaderSubtitle.TextColor3 = CurrentTheme.Muted
+
+    HeaderSubtitle.Text =
+        PageSubtitle
+
+    HeaderSubtitle.Font =
+        Enum.Font.Gotham
+
+    HeaderSubtitle.TextSize = 10
+
+    HeaderSubtitle.TextXAlignment =
+        Enum.TextXAlignment.Left
+
+    HeaderSubtitle.TextColor3 =
+        CurrentTheme.Muted
+
     HeaderSubtitle.Parent = Header
 
-    local HeaderSubtitleConstraint = Instance.new("UITextSizeConstraint")
-    HeaderSubtitleConstraint.MinTextSize = 9
-    HeaderSubtitleConstraint.MaxTextSize = 13
-    HeaderSubtitleConstraint.Parent = HeaderSubtitle
-
-    Pages[name] = Page
-    PageHeaders[name] = Header
-    PageObjects[name] = {
-        Title = HeaderTitle,
-        Subtitle = HeaderSubtitle
-    }
+    Pages[Name] = Page
 
     return Page
 end
@@ -659,213 +977,407 @@ local KeyPage = CreatePage(
 local ThemesPage = CreatePage(
     "Themes",
     "Themes",
-    "Customize the appearance of CH3A5 HUB."
+    "Customize your interface."
 )
 
 local SettingsPage = CreatePage(
     "Settings",
     "Settings",
-    "CH3A5 HUB interface settings."
+    "Manage your interface."
 )
 
 --==================================================
--- UI REGISTRY
+-- THEME REGISTRY
 --==================================================
 
 local ThemeObjects = {}
 
-local function RegisterThemeObject(Object, Property, ThemeKey)
-    table.insert(ThemeObjects, {
-        Object = Object,
-        Property = Property,
-        ThemeKey = ThemeKey
-    })
+local function RegisterTheme(
+    Object,
+    Property,
+    Key
+)
+
+    table.insert(
+        ThemeObjects,
+        {
+            Object = Object,
+            Property = Property,
+            Key = Key
+        }
+    )
+
 end
 
 --==================================================
--- UI HELPERS
+-- SECTION
 --==================================================
 
-local function AddSection(Page, text)
+local function AddSection(Page, Text)
 
     local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, 0, 0, 34)
+
+    Label.Size =
+        UDim2.new(1, 0, 0, 28)
+
     Label.BackgroundTransparency = 1
-    Label.Text = text
-    Label.Font = Enum.Font.GothamBold
-    Label.TextSize = 16
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.TextColor3 = CurrentTheme.Text
+
+    Label.Text = Text
+
+    Label.Font =
+        Enum.Font.GothamBold
+
+    Label.TextSize = 15
+
+    Label.TextXAlignment =
+        Enum.TextXAlignment.Left
+
+    Label.TextColor3 =
+        CurrentTheme.Text
+
     Label.Parent = Page
 
-    local Constraint = Instance.new("UITextSizeConstraint")
-    Constraint.MinTextSize = 13
-    Constraint.MaxTextSize = 19
-    Constraint.Parent = Label
-
-    RegisterThemeObject(Label, "TextColor3", "Text")
+    RegisterTheme(
+        Label,
+        "TextColor3",
+        "Text"
+    )
 
     return Label
 end
 
-local function AddInfo(Page, text)
+--==================================================
+-- INFO
+--==================================================
+
+local function AddInfo(Page, Text)
 
     local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, 0, 0, 30)
+
+    Label.Size =
+        UDim2.new(1, 0, 0, 26)
+
     Label.BackgroundTransparency = 1
-    Label.Text = text
-    Label.Font = Enum.Font.Gotham
-    Label.TextSize = 12
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.TextColor3 = CurrentTheme.Muted
+
+    Label.Text = Text
+
+    Label.Font =
+        Enum.Font.Gotham
+
+    Label.TextSize = 11
+
+    Label.TextXAlignment =
+        Enum.TextXAlignment.Left
+
+    Label.TextColor3 =
+        CurrentTheme.Muted
+
     Label.Parent = Page
 
-    local Constraint = Instance.new("UITextSizeConstraint")
-    Constraint.MinTextSize = 10
-    Constraint.MaxTextSize = 14
-    Constraint.Parent = Label
-
-    RegisterThemeObject(Label, "TextColor3", "Muted")
+    RegisterTheme(
+        Label,
+        "TextColor3",
+        "Muted"
+    )
 
     return Label
 end
 
 --==================================================
--- CARD
+-- SCRIPT CARD
 --==================================================
 
-local function AddScriptButton(Page, name, description, url)
+local function AddScriptButton(
+    Page,
+    NameText,
+    Description,
+    Identifier
+)
 
     local Button = Instance.new("TextButton")
-    Button.Size = UDim2.new(1, 0, 0, 70)
-    Button.BackgroundColor3 = CurrentTheme.Surface
+
+    Button.Size =
+        UDim2.new(1, 0, 0, 68)
+
+    Button.BackgroundColor3 =
+        CurrentTheme.Surface
+
     Button.BorderSizePixel = 0
+
     Button.Text = ""
+
     Button.AutoButtonColor = false
+
     Button.Selectable = true
+
     Button.Parent = Page
 
     local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 11)
+
+    Corner.CornerRadius =
+        UDim.new(0, 12)
+
     Corner.Parent = Button
 
     local Stroke = Instance.new("UIStroke")
-    Stroke.Color = CurrentTheme.Border
-    Stroke.Transparency = 0.82
+
+    Stroke.Color =
+        CurrentTheme.Border
+
+    Stroke.Transparency = 0.84
+
     Stroke.Thickness = 1
+
     Stroke.Parent = Button
 
-    local Padding = Instance.new("UIPadding")
-    Padding.PaddingLeft = UDim.new(0, 15)
-    Padding.PaddingRight = UDim.new(0, 15)
-    Button.Parent = Page
+    local Accent = Instance.new("Frame")
+
+    Accent.Size =
+        UDim2.fromOffset(3, 30)
+
+    Accent.Position =
+        UDim2.fromOffset(10, 19)
+
+    Accent.BackgroundColor3 =
+        CurrentTheme.Accent
+
+    Accent.BorderSizePixel = 0
+
+    Accent.Parent = Button
+
+    local AccentCorner = Instance.new("UICorner")
+
+    AccentCorner.CornerRadius =
+        UDim.new(1, 0)
+
+    AccentCorner.Parent = Accent
 
     local Name = Instance.new("TextLabel")
-    Name.Size = UDim2.new(1, 0, 0, 27)
-    Name.Position = UDim2.fromOffset(15, 8)
+
+    Name.Size =
+        UDim2.new(1, -80, 0, 24)
+
+    Name.Position =
+        UDim2.fromOffset(25, 8)
+
     Name.BackgroundTransparency = 1
-    Name.Text = name
-    Name.Font = Enum.Font.GothamBold
-    Name.TextSize = 14
-    Name.TextXAlignment = Enum.TextXAlignment.Left
-    Name.TextColor3 = CurrentTheme.Text
+
+    Name.Text = NameText
+
+    Name.Font =
+        Enum.Font.GothamBold
+
+    Name.TextSize = 13
+
+    Name.TextXAlignment =
+        Enum.TextXAlignment.Left
+
+    Name.TextColor3 =
+        CurrentTheme.Text
+
     Name.Parent = Button
 
-    local NameConstraint = Instance.new("UITextSizeConstraint")
-    NameConstraint.MinTextSize = 11
-    NameConstraint.MaxTextSize = 16
-    NameConstraint.Parent = Name
+    local Description = Instance.new("TextLabel")
 
-    local Desc = Instance.new("TextLabel")
-    Desc.Size = UDim2.new(1, -25, 0, 22)
-    Desc.Position = UDim2.fromOffset(15, 37)
-    Desc.BackgroundTransparency = 1
-    Desc.Text = description
-    Desc.Font = Enum.Font.Gotham
-    Desc.TextSize = 11
-    Desc.TextXAlignment = Enum.TextXAlignment.Left
-    Desc.TextColor3 = CurrentTheme.Muted
-    Desc.Parent = Button
+    Description.Size =
+        UDim2.new(1, -80, 0, 20)
 
-    local DescConstraint = Instance.new("UITextSizeConstraint")
-    DescConstraint.MinTextSize = 9
-    DescConstraint.MaxTextSize = 13
-    DescConstraint.Parent = Desc
+    Description.Position =
+        UDim2.fromOffset(25, 34)
 
-    RegisterThemeObject(Button, "BackgroundColor3", "Surface")
-    RegisterThemeObject(Name, "TextColor3", "Text")
-    RegisterThemeObject(Desc, "TextColor3", "Muted")
-    RegisterThemeObject(Stroke, "Color", "Border")
+    Description.BackgroundTransparency = 1
 
-    Connect(Button.MouseEnter:Connect(function()
+    Description.Text = Description
 
-        if UserInputService.TouchEnabled then
-            return
-        end
+    Description.Font =
+        Enum.Font.Gotham
 
-        PlayTween(
-            Button,
-            TweenInfo.new(CONFIG.AnimationTime),
-            {
-                BackgroundColor3 = CurrentTheme.Surface2
-            }
-        )
+    Description.TextSize = 10
 
-        PlayTween(
-            Stroke,
-            TweenInfo.new(CONFIG.AnimationTime),
-            {
-                Transparency = 0.35
-            }
-        )
-    end))
+    Description.TextXAlignment =
+        Enum.TextXAlignment.Left
 
-    Connect(Button.MouseLeave:Connect(function()
+    Description.TextColor3 =
+        CurrentTheme.Muted
 
-        PlayTween(
-            Button,
-            TweenInfo.new(CONFIG.AnimationTime),
-            {
-                BackgroundColor3 = CurrentTheme.Surface
-            }
-        )
+    Description.Parent = Button
 
-        PlayTween(
-            Stroke,
-            TweenInfo.new(CONFIG.AnimationTime),
-            {
-                Transparency = 0.82
-            }
-        )
-    end))
+    local Arrow = Instance.new("TextLabel")
 
-    Connect(Button.Activated:Connect(function()
+    Arrow.Size =
+        UDim2.fromOffset(30, 30)
 
-        PlayTween(
-            Button,
-            TweenInfo.new(0.08),
-            {
-                BackgroundColor3 = CurrentTheme.Accent
-            }
-        )
+    Arrow.Position =
+        UDim2.new(1, -40, 0.5, -15)
 
-        task.delay(GetTweenTime(0.1), function()
+    Arrow.BackgroundTransparency = 1
 
-            if Button.Parent then
+    Arrow.Text = "›"
+
+    Arrow.Font =
+        Enum.Font.GothamBold
+
+    Arrow.TextSize = 22
+
+    Arrow.TextColor3 =
+        CurrentTheme.Muted
+
+    Arrow.Parent = Button
+
+    RegisterTheme(
+        Button,
+        "BackgroundColor3",
+        "Surface"
+    )
+
+    RegisterTheme(
+        Stroke,
+        "Color",
+        "Border"
+    )
+
+    RegisterTheme(
+        Name,
+        "TextColor3",
+        "Text"
+    )
+
+    RegisterTheme(
+        Description,
+        "TextColor3",
+        "Muted"
+    )
+
+    RegisterTheme(
+        Arrow,
+        "TextColor3",
+        "Muted"
+    )
+
+    Connect(
+        Button.MouseEnter:Connect(
+            function()
+
+                if UserInputService.TouchEnabled then
+                    return
+                end
 
                 PlayTween(
                     Button,
-                    TweenInfo.new(0.15),
+                    0.16,
                     {
-                        BackgroundColor3 = CurrentTheme.Surface
+                        BackgroundColor3 =
+                            CurrentTheme.Surface2
+                    }
+                )
+
+                PlayTween(
+                    Stroke,
+                    0.16,
+                    {
+                        Transparency = 0.35
+                    }
+                )
+
+                PlayTween(
+                    Arrow,
+                    0.16,
+                    {
+                        TextColor3 =
+                            CurrentTheme.Accent,
+                        Position =
+                            UDim2.new(
+                                1,
+                                -37,
+                                0.5,
+                                -15
+                            )
                     }
                 )
 
             end
-        end)
+        )
+    )
 
-        ExecuteScript(url)
-    end))
+    Connect(
+        Button.MouseLeave:Connect(
+            function()
+
+                PlayTween(
+                    Button,
+                    0.16,
+                    {
+                        BackgroundColor3 =
+                            CurrentTheme.Surface
+                    }
+                )
+
+                PlayTween(
+                    Stroke,
+                    0.16,
+                    {
+                        Transparency = 0.84
+                    }
+                )
+
+                PlayTween(
+                    Arrow,
+                    0.16,
+                    {
+                        TextColor3 =
+                            CurrentTheme.Muted,
+                        Position =
+                            UDim2.new(
+                                1,
+                                -40,
+                                0.5,
+                                -15
+                            )
+                    }
+                )
+
+            end
+        )
+    )
+
+    Connect(
+        Button.Activated:Connect(
+            function()
+
+                PlayTween(
+                    Button,
+                    0.08,
+                    {
+                        BackgroundColor3 =
+                            CurrentTheme.Accent
+                    }
+                )
+
+                task.delay(
+                    GetTweenTime(0.08),
+                    function()
+
+                        if Button.Parent then
+
+                            PlayTween(
+                                Button,
+                                0.14,
+                                {
+                                    BackgroundColor3 =
+                                        CurrentTheme.Surface
+                                }
+                            )
+
+                        end
+
+                    end
+                )
+
+                ExecuteScript(Identifier)
+
+            end
+        )
+    )
 
     return Button
 end
@@ -874,31 +1386,58 @@ end
 -- COMING SOON
 --==================================================
 
-local function AddComingSoon(Page, name)
+local function AddComingSoon(
+    Page,
+    NameText
+)
 
     local Button = Instance.new("TextButton")
-    Button.Size = UDim2.new(1, 0, 0, 60)
-    Button.BackgroundColor3 = CurrentTheme.Surface
+
+    Button.Size =
+        UDim2.new(1, 0, 0, 56)
+
+    Button.BackgroundColor3 =
+        CurrentTheme.Surface
+
     Button.BorderSizePixel = 0
-    Button.Text = name .. "  •  COMING SOON"
-    Button.Font = Enum.Font.GothamBold
-    Button.TextSize = 12
-    Button.TextColor3 = CurrentTheme.Muted
+
+    Button.Text =
+        "  " .. NameText ..
+        "                         SOON"
+
+    Button.Font =
+        Enum.Font.GothamBold
+
+    Button.TextSize = 10
+
+    Button.TextXAlignment =
+        Enum.TextXAlignment.Left
+
+    Button.TextColor3 =
+        CurrentTheme.Muted
+
     Button.AutoButtonColor = false
-    Button.Selectable = true
+
     Button.Parent = Page
 
     local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 10)
+
+    Corner.CornerRadius =
+        UDim.new(0, 11)
+
     Corner.Parent = Button
 
-    local Constraint = Instance.new("UITextSizeConstraint")
-    Constraint.MinTextSize = 10
-    Constraint.MaxTextSize = 14
-    Constraint.Parent = Button
+    RegisterTheme(
+        Button,
+        "BackgroundColor3",
+        "Surface"
+    )
 
-    RegisterThemeObject(Button, "BackgroundColor3", "Surface")
-    RegisterThemeObject(Button, "TextColor3", "Muted")
+    RegisterTheme(
+        Button,
+        "TextColor3",
+        "Muted"
+    )
 
     return Button
 end
@@ -907,76 +1446,115 @@ end
 -- HOME
 --==================================================
 
-AddSection(HomePage, "Welcome to CH3A5 HUB")
-AddInfo(HomePage, "Select a category from the sidebar.")
+AddSection(
+    HomePage,
+    "Dashboard"
+)
 
-AddComingSoon(HomePage, "More Scripts")
+AddInfo(
+    HomePage,
+    "Choose a section from the sidebar to continue."
+)
+
+AddComingSoon(
+    HomePage,
+    "More Scripts"
+)
 
 --==================================================
 -- KEYLESS
 --==================================================
 
-AddSection(KeylessPage, "Keyless Scripts")
-AddInfo(KeylessPage, "No key required.")
+AddSection(
+    KeylessPage,
+    "Available Scripts"
+)
+
+AddInfo(
+    KeylessPage,
+    "Scripts that do not require a key."
+)
 
 AddScriptButton(
     KeylessPage,
     "Sources Hub",
     "Keyless",
-    "none"
+    "Sources Hub"
 )
 
 AddScriptButton(
     KeylessPage,
     "Limbo Hub",
     "Keyless",
-    "none"
+    "Limbo Hub"
 )
 
 AddScriptButton(
     KeylessPage,
     "Virexx",
     "Keyless",
-    "none"
+    "Virexx"
 )
 
 --==================================================
 -- KEY
 --==================================================
 
-AddSection(KeyPage, "Key System Scripts")
-AddInfo(KeyPage, "These scripts may require a key.")
+AddSection(
+    KeyPage,
+    "Key System"
+)
+
+AddInfo(
+    KeyPage,
+    "These scripts may require a key."
+)
 
 AddScriptButton(
     KeyPage,
     "Wzeus Hub",
     "Key System",
-    "none"
+    "Wzeus Hub"
 )
 
 AddScriptButton(
     KeyPage,
     "Pulse Hub",
     "Key System",
-    "none"
+    "Pulse Hub"
 )
 
 --==================================================
 -- THEMES
 --==================================================
 
-AddSection(ThemesPage, "Themes")
-AddInfo(ThemesPage, "Choose a theme for CH3A5 HUB.")
+AddSection(
+    ThemesPage,
+    "Appearance"
+)
+
+AddInfo(
+    ThemesPage,
+    "Select a theme to change the interface."
+)
 
 local ThemeGrid = Instance.new("UIGridLayout")
-ThemeGrid.CellPadding = UDim2.fromOffset(8, 8)
-ThemeGrid.CellSize = UDim2.new(0.5, -4, 0, 52)
-ThemeGrid.SortOrder = Enum.SortOrder.LayoutOrder
-ThemeGrid.Parent = ThemesPage
 
---==================================================
--- THEME BUTTONS
---==================================================
+ThemeGrid.CellPadding =
+    UDim2.fromOffset(8, 8)
+
+ThemeGrid.CellSize =
+    UDim2.new(
+        0.5,
+        -4,
+        0,
+        50
+    )
+
+ThemeGrid.SortOrder =
+    Enum.SortOrder.LayoutOrder
+
+ThemeGrid.Parent = ThemesPage
 
 local ThemeButtons = {}
 
@@ -984,123 +1562,185 @@ for ThemeName, ThemeData in pairs(Themes) do
 
     local Button = Instance.new("TextButton")
 
-    Button.Size = UDim2.new(1, 0, 0, 48)
-    Button.BackgroundColor3 = ThemeData.Surface
+    Button.Name = ThemeName
+
+    Button.BackgroundColor3 =
+        ThemeData.Surface
+
     Button.BorderSizePixel = 0
+
     Button.Text = ThemeName
-    Button.Font = Enum.Font.GothamBold
-    Button.TextSize = 12
-    Button.TextColor3 = ThemeData.Text
+
+    Button.Font =
+        Enum.Font.GothamBold
+
+    Button.TextSize = 11
+
+    Button.TextColor3 =
+        ThemeData.Text
+
     Button.AutoButtonColor = false
+
     Button.Selectable = true
+
     Button.Parent = ThemesPage
 
     local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 9)
+
+    Corner.CornerRadius =
+        UDim.new(0, 10)
+
     Corner.Parent = Button
 
-    local ThemeStroke = Instance.new("UIStroke")
-    ThemeStroke.Color = ThemeData.Accent
-    ThemeStroke.Transparency = 0.75
-    ThemeStroke.Thickness = 1
-    ThemeStroke.Parent = Button
+    local Stroke = Instance.new("UIStroke")
 
-    local Preview = Instance.new("Frame")
-    Preview.Size = UDim2.fromOffset(8, 28)
-    Preview.Position = UDim2.new(1, -18, 0.5, -14)
-    Preview.BackgroundColor3 = ThemeData.Accent
-    Preview.BorderSizePixel = 0
-    Preview.Parent = Button
+    Stroke.Color =
+        ThemeData.Accent
 
-    local PreviewCorner = Instance.new("UICorner")
-    PreviewCorner.CornerRadius = UDim.new(1, 0)
-    PreviewCorner.Parent = Preview
+    Stroke.Transparency = 0.75
+
+    Stroke.Thickness = 1
+
+    Stroke.Parent = Button
+
+    local Dot = Instance.new("Frame")
+
+    Dot.Size =
+        UDim2.fromOffset(8, 8)
+
+    Dot.Position =
+        UDim2.new(
+            1,
+            -17,
+            0.5,
+            -4
+        )
+
+    Dot.BackgroundColor3 =
+        ThemeData.Accent
+
+    Dot.BorderSizePixel = 0
+
+    Dot.Parent = Button
+
+    local DotCorner = Instance.new("UICorner")
+
+    DotCorner.CornerRadius =
+        UDim.new(1, 0)
+
+    DotCorner.Parent = Dot
 
     ThemeButtons[ThemeName] = {
         Button = Button,
-        Stroke = ThemeStroke,
-        Preview = Preview,
-        Data = ThemeData
+        Stroke = Stroke,
+        Dot = Dot,
+        Data = ThemeData,
     }
+
 end
 
 --==================================================
 -- SETTINGS
 --==================================================
 
-AddSection(SettingsPage, "Settings")
-AddInfo(SettingsPage, "CH3A5 HUB interface settings.")
+AddSection(
+    SettingsPage,
+    "Interface"
+)
 
-AddComingSoon(SettingsPage, "Notifications")
-AddComingSoon(SettingsPage, "Interface Customization")
-AddComingSoon(SettingsPage, "More Settings")
+AddInfo(
+    SettingsPage,
+    "More interface controls will be available soon."
+)
+
+AddComingSoon(
+    SettingsPage,
+    "Notifications"
+)
+
+AddComingSoon(
+    SettingsPage,
+    "Interface Customization"
+)
+
+AddComingSoon(
+    SettingsPage,
+    "More Settings"
+)
 
 --==================================================
--- SIDEBAR SYSTEM
+-- SIDEBAR
 --==================================================
 
-local Tabs = {}
-local CurrentPage = HomePage
-local CurrentTab = nil
-local SidebarCollapsed = false
+local function UpdateTabVisual(
+    Button,
+    Selected
+)
 
-local function UpdateTabVisual(Tab, Selected)
-
-    local Data = Tabs[Tab]
+    local Data = Tabs[Button]
 
     if not Data then
         return
     end
 
-    local Button = Data.Button
-    local Indicator = Data.Indicator
-    local Icon = Data.Icon
-    local Label = Data.Label
-
     if Selected then
 
         PlayTween(
             Button,
-            TweenInfo.new(CONFIG.AnimationTime),
+            0.16,
             {
-                BackgroundColor3 = CurrentTheme.Surface2
+                BackgroundColor3 =
+                    CurrentTheme.Surface2
             }
         )
 
         PlayTween(
-            Indicator,
-            TweenInfo.new(CONFIG.AnimationTime),
+            Data.Indicator,
+            0.16,
             {
-                BackgroundColor3 = CurrentTheme.Accent,
-                Size = UDim2.fromOffset(3, 24)
+                BackgroundColor3 =
+                    CurrentTheme.Accent,
+                Size =
+                    UDim2.fromOffset(3, 25)
             }
         )
 
-        Icon.TextColor3 = CurrentTheme.Accent
-        Label.TextColor3 = CurrentTheme.Text
+        Data.Icon.TextColor3 =
+            CurrentTheme.Accent
+
+        Data.Label.TextColor3 =
+            CurrentTheme.Text
 
     else
 
         PlayTween(
             Button,
-            TweenInfo.new(CONFIG.AnimationTime),
+            0.16,
             {
-                BackgroundColor3 = CurrentTheme.Surface
+                BackgroundColor3 =
+                    CurrentTheme.Surface
             }
         )
 
         PlayTween(
-            Indicator,
-            TweenInfo.new(CONFIG.AnimationTime),
+            Data.Indicator,
+            0.16,
             {
-                BackgroundColor3 = CurrentTheme.Surface,
-                Size = UDim2.fromOffset(3, 8)
+                BackgroundColor3 =
+                    CurrentTheme.Surface,
+                Size =
+                    UDim2.fromOffset(3, 8)
             }
         )
 
-        Icon.TextColor3 = CurrentTheme.Muted
-        Label.TextColor3 = CurrentTheme.Muted
+        Data.Icon.TextColor3 =
+            CurrentTheme.Muted
+
+        Data.Label.TextColor3 =
+            CurrentTheme.Muted
+
     end
+
 end
 
 local function SelectPage(Page)
@@ -1113,179 +1753,482 @@ local function SelectPage(Page)
         return
     end
 
-    local OldPage = CurrentPage
-
-    if OldPage then
-        OldPage.Visible = false
+    if CurrentPage then
+        CurrentPage.Visible = false
     end
 
     Page.Visible = true
+
     CurrentPage = Page
 
-    for Tab, Data in pairs(Tabs) do
+    for Button in pairs(Tabs) do
+
         UpdateTabVisual(
-            Tab,
-            Data.Page == Page
+            Button,
+            Tabs[Button].Page == Page
         )
+
     end
+
 end
 
-local function AddTab(name, icon, page)
+local function AddTab(
+    Name,
+    IconText,
+    Page
+)
 
     local Button = Instance.new("TextButton")
 
-    Button.Name = name
-    Button.Size = UDim2.new(1, 0, 0, 44)
-    Button.BackgroundColor3 = CurrentTheme.Surface
+    Button.Name = Name
+
+    Button.Size =
+        UDim2.new(1, 0, 0, 43)
+
+    Button.BackgroundColor3 =
+        CurrentTheme.Surface
+
     Button.BorderSizePixel = 0
+
     Button.Text = ""
+
     Button.AutoButtonColor = false
+
     Button.Selectable = true
+
     Button.Parent = Sidebar
 
     local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 9)
+
+    Corner.CornerRadius =
+        UDim.new(0, 10)
+
     Corner.Parent = Button
 
     local Indicator = Instance.new("Frame")
-    Indicator.Name = "ActiveIndicator"
-    Indicator.Size = UDim2.fromOffset(3, 8)
-    Indicator.Position = UDim2.new(0, 0, 0.5, -4)
-    Indicator.BackgroundColor3 = CurrentTheme.Surface
+
+    Indicator.Size =
+        UDim2.fromOffset(3, 8)
+
+    Indicator.Position =
+        UDim2.new(
+            0,
+            0,
+            0.5,
+            -4
+        )
+
+    Indicator.BackgroundColor3 =
+        CurrentTheme.Surface
+
     Indicator.BorderSizePixel = 0
+
     Indicator.Parent = Button
 
-    local IndicatorCorner = Instance.new("UICorner")
-    IndicatorCorner.CornerRadius = UDim.new(1, 0)
-    IndicatorCorner.Parent = Indicator
+    local IndicatorCorner =
+        Instance.new("UICorner")
+
+    IndicatorCorner.CornerRadius =
+        UDim.new(1, 0)
+
+    IndicatorCorner.Parent =
+        Indicator
 
     local Icon = Instance.new("TextLabel")
-    Icon.Size = UDim2.fromOffset(32, 44)
-    Icon.Position = UDim2.fromOffset(8, 0)
+
+    Icon.Size =
+        UDim2.fromOffset(32, 43)
+
+    Icon.Position =
+        UDim2.fromOffset(8, 0)
+
     Icon.BackgroundTransparency = 1
-    Icon.Text = icon
-    Icon.Font = Enum.Font.GothamBold
-    Icon.TextSize = 16
-    Icon.TextColor3 = CurrentTheme.Muted
+
+    Icon.Text = IconText
+
+    Icon.Font =
+        Enum.Font.GothamBold
+
+    Icon.TextSize = 15
+
+    Icon.TextColor3 =
+        CurrentTheme.Muted
+
     Icon.Parent = Button
 
     local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, -48, 1, 0)
-    Label.Position = UDim2.fromOffset(45, 0)
-    Label.BackgroundTransparency = 1
-    Label.Text = name
-    Label.Font = Enum.Font.GothamMedium
-    Label.TextSize = 12
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.TextColor3 = CurrentTheme.Muted
-    Label.Parent = Button
 
-    local TextConstraint = Instance.new("UITextSizeConstraint")
-    TextConstraint.MinTextSize = 10
-    TextConstraint.MaxTextSize = 14
-    TextConstraint.Parent = Label
+    Label.Size =
+        UDim2.new(
+            1,
+            -50,
+            1,
+            0
+        )
+
+    Label.Position =
+        UDim2.fromOffset(45, 0)
+
+    Label.BackgroundTransparency = 1
+
+    Label.Text = Name
+
+    Label.Font =
+        Enum.Font.GothamMedium
+
+    Label.TextSize = 11
+
+    Label.TextXAlignment =
+        Enum.TextXAlignment.Left
+
+    Label.TextColor3 =
+        CurrentTheme.Muted
+
+    Label.Parent = Button
 
     Tabs[Button] = {
         Button = Button,
         Indicator = Indicator,
         Icon = Icon,
         Label = Label,
-        Page = page,
-        Name = name
+        Page = Page,
     }
 
-    RegisterThemeObject(Button, "BackgroundColor3", "Surface")
-    RegisterThemeObject(Icon, "TextColor3", "Muted")
-    RegisterThemeObject(Label, "TextColor3", "Muted")
+    RegisterTheme(
+        Button,
+        "BackgroundColor3",
+        "Surface"
+    )
 
-    Connect(Button.MouseEnter:Connect(function()
+    Connect(
+        Button.MouseEnter:Connect(
+            function()
 
-        if UserInputService.TouchEnabled then
-            return
-        end
+                if UserInputService.TouchEnabled then
+                    return
+                end
 
-        if CurrentPage ~= page then
-            PlayTween(
-                Button,
-                TweenInfo.new(CONFIG.AnimationTime),
-                {
-                    BackgroundColor3 = CurrentTheme.Surface2
-                }
-            )
-        end
-    end))
+                if CurrentPage ~= Page then
 
-    Connect(Button.MouseLeave:Connect(function()
+                    PlayTween(
+                        Button,
+                        0.15,
+                        {
+                            BackgroundColor3 =
+                                CurrentTheme.Surface2
+                        }
+                    )
 
-        if CurrentPage ~= page then
-            PlayTween(
-                Button,
-                TweenInfo.new(CONFIG.AnimationTime),
-                {
-                    BackgroundColor3 = CurrentTheme.Surface
-                }
-            )
-        end
-    end))
+                end
 
-    Connect(Button.Activated:Connect(function()
-        SelectPage(page)
-    end))
+            end
+        )
+    )
+
+    Connect(
+        Button.MouseLeave:Connect(
+            function()
+
+                if CurrentPage ~= Page then
+
+                    PlayTween(
+                        Button,
+                        0.15,
+                        {
+                            BackgroundColor3 =
+                                CurrentTheme.Surface
+                        }
+                    )
+
+                end
+
+            end
+        )
+    )
+
+    Connect(
+        Button.Activated:Connect(
+            function()
+                SelectPage(Page)
+            end
+        )
+    )
 
     return Button
 end
 
-AddTab("Home", "⌂", HomePage)
-AddTab("Keyless", "⚡", KeylessPage)
-AddTab("Key Scripts", "🔑", KeyPage)
-AddTab("Themes", "◆", ThemesPage)
-AddTab("Settings", "⚙", SettingsPage)
+AddTab(
+    "Home",
+    "⌂",
+    HomePage
+)
+
+AddTab(
+    "Keyless",
+    "⚡",
+    KeylessPage
+)
+
+AddTab(
+    "Key Scripts",
+    "◆",
+    KeyPage
+)
+
+AddTab(
+    "Themes",
+    "◇",
+    ThemesPage
+)
+
+AddTab(
+    "Settings",
+    "⚙",
+    SettingsPage
+)
 
 --==================================================
--- MOBILE SIDEBAR TOGGLE
+-- FLOATING TOGGLE
+--==================================================
+
+local GUIEnabled = true
+
+local FloatingToggle = Instance.new("TextButton")
+
+FloatingToggle.Name =
+    "FloatingToggle"
+
+FloatingToggle.AnchorPoint =
+    Vector2.new(1, 1)
+
+FloatingToggle.Size =
+    UDim2.fromOffset(
+        CONFIG.FloatingSize,
+        CONFIG.FloatingSize
+    )
+
+FloatingToggle.Position =
+    UDim2.new(
+        1,
+        -18,
+        1,
+        -18
+    )
+
+FloatingToggle.BackgroundColor3 =
+    CurrentTheme.Accent
+
+FloatingToggle.BorderSizePixel = 0
+
+FloatingToggle.Text = "C5"
+
+FloatingToggle.Font =
+    Enum.Font.GothamBlack
+
+FloatingToggle.TextSize = 13
+
+FloatingToggle.TextColor3 =
+    CurrentTheme.Text
+
+FloatingToggle.AutoButtonColor = false
+
+FloatingToggle.Visible = false
+
+FloatingToggle.ZIndex = 100
+
+FloatingToggle.Parent = ScreenGui
+
+local FloatingCorner = Instance.new("UICorner")
+
+FloatingCorner.CornerRadius =
+    UDim.new(0, 14)
+
+FloatingCorner.Parent =
+    FloatingToggle
+
+local FloatingStroke = Instance.new("UIStroke")
+
+FloatingStroke.Color =
+    CurrentTheme.Text
+
+FloatingStroke.Transparency = 0.80
+
+FloatingStroke.Thickness = 1
+
+FloatingStroke.Parent =
+    FloatingToggle
+
+local FloatingScale = Instance.new("UIScale")
+
+FloatingScale.Scale = 1
+
+FloatingScale.Parent =
+    FloatingToggle
+
+local function SetGUIVisible(State)
+
+    GUIEnabled = State
+
+    if State then
+
+        Main.Visible = true
+        FloatingToggle.Visible = false
+
+        Main.BackgroundTransparency = 1
+
+        PlayTween(
+            Main,
+            0.20,
+            {
+                BackgroundTransparency = 0
+            },
+            Enum.EasingStyle.Quart
+        )
+
+    else
+
+        FloatingToggle.Visible = true
+
+        PlayTween(
+            Main,
+            0.18,
+            {
+                BackgroundTransparency = 1
+            },
+            Enum.EasingStyle.Quad,
+            Enum.EasingDirection.In
+        )
+
+        task.delay(
+            GetTweenTime(0.18),
+            function()
+
+                if not GUIEnabled then
+                    Main.Visible = false
+                end
+
+            end
+        )
+
+    end
+
+end
+
+Connect(
+    FloatingToggle.Activated:Connect(
+        function()
+            SetGUIVisible(true)
+        end
+    )
+)
+
+Connect(
+    FloatingToggle.MouseEnter:Connect(
+        function()
+
+            if UserInputService.TouchEnabled then
+                return
+            end
+
+            PlayTween(
+                FloatingScale,
+                0.15,
+                {
+                    Scale = 1.08
+                }
+            )
+
+        end
+    )
+)
+
+Connect(
+    FloatingToggle.MouseLeave:Connect(
+        function()
+
+            PlayTween(
+                FloatingScale,
+                0.15,
+                {
+                    Scale = 1
+                }
+            )
+
+        end
+    )
+)
+
+Connect(
+    HideButton.Activated:Connect(
+        function()
+            SetGUIVisible(false)
+        end
+    )
+)
+
+--==================================================
+-- MOBILE SIDEBAR
 --==================================================
 
 local SidebarToggle = Instance.new("TextButton")
-SidebarToggle.Name = "SidebarToggle"
-SidebarToggle.Size = UDim2.fromOffset(38, 38)
-SidebarToggle.Position = UDim2.fromOffset(10, 10)
-SidebarToggle.BackgroundColor3 = CurrentTheme.Surface2
+
+SidebarToggle.Name =
+    "SidebarToggle"
+
+SidebarToggle.Size =
+    UDim2.fromOffset(38, 38)
+
+SidebarToggle.Position =
+    UDim2.fromOffset(9, 10)
+
+SidebarToggle.BackgroundColor3 =
+    CurrentTheme.Surface2
+
 SidebarToggle.BorderSizePixel = 0
+
 SidebarToggle.Text = "☰"
-SidebarToggle.Font = Enum.Font.GothamBold
-SidebarToggle.TextSize = 17
-SidebarToggle.TextColor3 = CurrentTheme.Text
+
+SidebarToggle.Font =
+    Enum.Font.GothamBold
+
+SidebarToggle.TextSize = 16
+
+SidebarToggle.TextColor3 =
+    CurrentTheme.Text
+
 SidebarToggle.AutoButtonColor = false
+
 SidebarToggle.Visible = false
+
 SidebarToggle.Parent = Topbar
 
-local ToggleCorner = Instance.new("UICorner")
-ToggleCorner.CornerRadius = UDim.new(0, 9)
-ToggleCorner.Parent = SidebarToggle
+local SidebarToggleCorner =
+    Instance.new("UICorner")
 
-RegisterThemeObject(
-    SidebarToggle,
-    "BackgroundColor3",
-    "Surface2"
-)
+SidebarToggleCorner.CornerRadius =
+    UDim.new(0, 10)
 
-RegisterThemeObject(
-    SidebarToggle,
-    "TextColor3",
-    "Text"
-)
+SidebarToggleCorner.Parent =
+    SidebarToggle
+
+--==================================================
+-- SIDEBAR COLLAPSE
+--==================================================
+
+local SidebarCollapsed = false
 
 local function SetSidebarCollapsed(State)
 
     SidebarCollapsed = State
 
-    local Width = State
+    local Width =
+        State
         and CONFIG.SidebarMobile
         or CONFIG.SidebarDesktop
 
     PlayTween(
         Sidebar,
-        TweenInfo.new(0.2),
+        0.20,
         {
             Size = UDim2.new(
                 0,
@@ -1298,40 +2241,52 @@ local function SetSidebarCollapsed(State)
 
     PlayTween(
         Content,
-        TweenInfo.new(0.2),
+        0.20,
         {
-            Position = UDim2.fromOffset(
-                Width,
-                CONFIG.TopbarDesktop
-            ),
+            Position =
+                UDim2.fromOffset(
+                    Width,
+                    CONFIG.TopbarDesktop
+                ),
 
-            Size = UDim2.new(
-                1,
-                -Width,
-                1,
-                -CONFIG.TopbarDesktop
-            )
+            Size =
+                UDim2.new(
+                    1,
+                    -Width,
+                    1,
+                    -CONFIG.TopbarDesktop
+                )
         }
     )
 
     for _, Data in pairs(Tabs) do
-        Data.Label.Visible = not State
-        Data.Icon.Position = State
+
+        Data.Label.Visible =
+            not State
+
+        Data.Icon.Position =
+            State
             and UDim2.fromOffset(15, 0)
             or UDim2.fromOffset(8, 0)
+
     end
+
 end
 
-Connect(SidebarToggle.Activated:Connect(function()
+Connect(
+    SidebarToggle.Activated:Connect(
+        function()
 
-    SetSidebarCollapsed(
-        not SidebarCollapsed
+            SetSidebarCollapsed(
+                not SidebarCollapsed
+            )
+
+        end
     )
-
-end))
+)
 
 --==================================================
--- THEME ENGINE V3
+-- THEME ENGINE
 --==================================================
 
 local function ApplyTheme(Theme)
@@ -1339,74 +2294,132 @@ local function ApplyTheme(Theme)
     CurrentTheme = Theme
 
     -- Main
-    Main.BackgroundColor3 = Theme.Background
-    Stroke.Color = Theme.Border
+    Main.BackgroundColor3 =
+        Theme.Background
+
+    MainStroke.Color =
+        Theme.Border
 
     -- Topbar
-    Topbar.BackgroundColor3 = Theme.Surface
+    Topbar.BackgroundColor3 =
+        Theme.Surface
+
+    TopbarLine.BackgroundColor3 =
+        Theme.Border
+
+    Logo.BackgroundColor3 =
+        Theme.Accent
+
+    Title.TextColor3 =
+        Theme.Text
+
+    Subtitle.TextColor3 =
+        Theme.Muted
+
+    VersionBadge.BackgroundColor3 =
+        Theme.Background
+
+    VersionBadge.TextColor3 =
+        Theme.Accent
+
+    Online.TextColor3 =
+        Theme.Accent
+
+    HideButton.BackgroundColor3 =
+        Theme.Background
+
+    HideButton.TextColor3 =
+        Theme.Muted
+
+    HideStroke.Color =
+        Theme.Border
+
+    Minimize.TextColor3 =
+        Theme.Text
+
+    Close.TextColor3 =
+        Theme.Text
 
     -- Sidebar
-    Sidebar.BackgroundColor3 = Theme.Surface
+    Sidebar.BackgroundColor3 =
+        Theme.Surface
 
     -- Content
-    Content.BackgroundColor3 = Theme.Background
+    Content.BackgroundColor3 =
+        Theme.Background
 
-    -- Topbar
-    Logo.BackgroundColor3 = Theme.Accent
-    Title.TextColor3 = Theme.Text
-    Subtitle.TextColor3 = Theme.Muted
+    -- Floating
+    FloatingToggle.BackgroundColor3 =
+        Theme.Accent
 
-    VersionBadge.BackgroundColor3 = Theme.Background
-    VersionBadge.TextColor3 = Theme.Accent
+    FloatingToggle.TextColor3 =
+        Theme.Text
 
-    Online.TextColor3 = Theme.Accent
+    FloatingStroke.Color =
+        Theme.Text
 
-    Minimize.TextColor3 = Theme.Text
-    Close.TextColor3 = Theme.Text
+    -- Mobile toggle
+    SidebarToggle.BackgroundColor3 =
+        Theme.Surface2
 
-    -- Pages
-    for _, Object in pairs(ThemeObjects) do
+    SidebarToggle.TextColor3 =
+        Theme.Text
 
-        if Object.Object
-            and Object.Object.Parent then
+    -- Registered objects
+    for _, Data in ipairs(ThemeObjects) do
 
-            local Value = Theme[Object.ThemeKey]
+        if Data.Object
+            and Data.Object.Parent then
+
+            local Value =
+                Theme[Data.Key]
 
             if Value then
-                pcall(function()
-                    Object.Object[Object.Property] = Value
-                end)
+
+                pcall(
+                    function()
+                        Data.Object[
+                            Data.Property
+                        ] = Value
+                    end
+                )
+
             end
 
         end
+
     end
 
     -- Tabs
-    for Tab, Data in pairs(Tabs) do
+    for Button, Data in pairs(Tabs) do
+
+        local Selected =
+            CurrentPage == Data.Page
+
+        Data.Button.BackgroundColor3 =
+            Selected
+            and Theme.Surface2
+            or Theme.Surface
 
         Data.Icon.TextColor3 =
-            CurrentPage == Data.Page
+            Selected
             and Theme.Accent
             or Theme.Muted
 
         Data.Label.TextColor3 =
-            CurrentPage == Data.Page
+            Selected
             and Theme.Text
             or Theme.Muted
 
-        Data.Button.BackgroundColor3 =
-            CurrentPage == Data.Page
-            and Theme.Surface2
-            or Theme.Surface
-
         Data.Indicator.BackgroundColor3 =
-            CurrentPage == Data.Page
+            Selected
             and Theme.Accent
             or Theme.Surface
+
     end
 
-    -- Theme preview
-    for ThemeName, Data in pairs(ThemeButtons) do
+    -- Theme buttons
+    for _, Data in pairs(ThemeButtons) do
 
         Data.Button.BackgroundColor3 =
             Data.Data.Surface
@@ -1417,494 +2430,636 @@ local function ApplyTheme(Theme)
         Data.Stroke.Color =
             Data.Data.Accent
 
-        Data.Preview.BackgroundColor3 =
+        Data.Dot.BackgroundColor3 =
             Data.Data.Accent
+
     end
 
 end
 
-for ThemeName, Data in pairs(ThemeButtons) do
+for _, Data in pairs(ThemeButtons) do
 
-    Connect(Data.Button.Activated:Connect(function()
-
-        ApplyTheme(Data.Data)
-
-    end))
-
-end
-
---==================================================
--- INITIAL PAGE
---==================================================
-
-HomePage.Visible = true
-
-for Tab, Data in pairs(Tabs) do
-    UpdateTabVisual(
-        Tab,
-        Data.Page == HomePage
+    Connect(
+        Data.Button.Activated:Connect(
+            function()
+                ApplyTheme(Data.Data)
+            end
+        )
     )
+
 end
+
+--==================================================
+-- MINIMIZE
+--==================================================
+
+local Minimized = false
+
+local SavedSize =
+    Main.Size
+
+local SavedPosition =
+    Main.Position
+
+Connect(
+    Minimize.Activated:Connect(
+        function()
+
+            Minimized =
+                not Minimized
+
+            if Minimized then
+
+                SavedSize =
+                    Main.Size
+
+                SavedPosition =
+                    Main.Position
+
+                Sidebar.Visible =
+                    false
+
+                Content.Visible =
+                    false
+
+                PlayTween(
+                    Main,
+                    0.22,
+                    {
+                        Size =
+                            UDim2.new(
+                                Main.Size.X.Scale,
+                                Main.Size.X.Offset,
+                                0,
+                                CONFIG.TopbarMobile
+                            )
+                    },
+                    Enum.EasingStyle.Quart,
+                    Enum.EasingDirection.InOut
+                )
+
+                Minimize.Text = "□"
+
+            else
+
+                PlayTween(
+                    Main,
+                    0.22,
+                    {
+                        Size = SavedSize
+                    },
+                    Enum.EasingStyle.Quart,
+                    Enum.EasingDirection.Out
+                )
+
+                Main.Position =
+                    SavedPosition
+
+                task.delay(
+                    GetTweenTime(0.22),
+                    function()
+
+                        if Minimized then
+                            return
+                        end
+
+                        Sidebar.Visible =
+                            true
+
+                        Content.Visible =
+                            true
+
+                    end
+                )
+
+                Minimize.Text = "—"
+
+            end
+
+        end
+    )
+)
+
+--==================================================
+-- CLOSE
+--==================================================
+
+local Closing = false
+
+Connect(
+    Close.Activated:Connect(
+        function()
+
+            if Closing then
+                return
+            end
+
+            Closing = true
+
+            DisconnectAll()
+
+            local Animation =
+                Tween(
+                    Main,
+                    0.22,
+                    {
+                        Size =
+                            UDim2.fromOffset(
+                                0,
+                                0
+                            )
+                    },
+                    Enum.EasingStyle.Back,
+                    Enum.EasingDirection.In
+                )
+
+            if Animation then
+
+                Animation:Play()
+                Animation.Completed:Wait()
+
+            end
+
+            if ScreenGui then
+                ScreenGui:Destroy()
+            end
+
+        end
+    )
+)
+
+--==================================================
+-- DRAG SYSTEM
+--==================================================
+
+local Dragging = false
+local DragStart = nil
+local StartPosition = nil
+
+Connect(
+    Topbar.InputBegan:Connect(
+        function(Input)
+
+            if Input.UserInputType ==
+                Enum.UserInputType.MouseButton1
+                or Input.UserInputType ==
+                Enum.UserInputType.Touch then
+
+                Dragging = true
+
+                DragStart =
+                    Input.Position
+
+                StartPosition =
+                    Main.Position
+
+            end
+
+        end
+    )
+)
+
+Connect(
+    Topbar.InputEnded:Connect(
+        function(Input)
+
+            if Input.UserInputType ==
+                Enum.UserInputType.MouseButton1
+                or Input.UserInputType ==
+                Enum.UserInputType.Touch then
+
+                Dragging = false
+
+            end
+
+        end
+    )
+)
+
+local function ClampMain()
+
+    local Camera =
+        workspace.CurrentCamera
+
+    if not Camera then
+        return
+    end
+
+    local Viewport =
+        Camera.ViewportSize
+
+    local Size =
+        Main.AbsoluteSize
+
+    local Padding = 6
+
+    local HalfX =
+        Size.X / 2
+
+    local HalfY =
+        Size.Y / 2
+
+    local X =
+        math.clamp(
+            Main.AbsolutePosition.X +
+                HalfX,
+            HalfX + Padding,
+            math.max(
+                HalfX + Padding,
+                Viewport.X -
+                    HalfX -
+                    Padding
+            )
+        )
+
+    local Y =
+        math.clamp(
+            Main.AbsolutePosition.Y +
+                HalfY,
+            HalfY + Padding,
+            math.max(
+                HalfY + Padding,
+                Viewport.Y -
+                    HalfY -
+                    Padding
+            )
+        )
+
+    Main.AnchorPoint =
+        Vector2.new(0.5, 0.5)
+
+    Main.Position =
+        UDim2.fromOffset(
+            X,
+            Y
+        )
+
+end
+
+Connect(
+    UserInputService.InputChanged:Connect(
+        function(Input)
+
+            if not Dragging then
+                return
+            end
+
+            if Input.UserInputType ~=
+                Enum.UserInputType.MouseMovement
+                and Input.UserInputType ~=
+                Enum.UserInputType.Touch then
+
+                return
+            end
+
+            local Delta =
+                Input.Position -
+                DragStart
+
+            Main.Position =
+                UDim2.new(
+                    StartPosition.X.Scale,
+                    StartPosition.X.Offset +
+                        Delta.X,
+
+                    StartPosition.Y.Scale,
+                    StartPosition.Y.Offset +
+                        Delta.Y
+                )
+
+            ClampMain()
+
+        end
+    )
+)
 
 --==================================================
 -- RESPONSIVE ENGINE
 --==================================================
 
-local CurrentLayout = "Desktop"
+local function UpdateResponsive()
 
-local function GetViewport()
-
-    local Camera = workspace.CurrentCamera
-
-    if not Camera then
-        return Vector2.new(720, 460)
-    end
-
-    return Camera.ViewportSize
-end
-
-local function ClampMainPosition()
-
-    local Camera = workspace.CurrentCamera
+    local Camera =
+        workspace.CurrentCamera
 
     if not Camera then
         return
     end
 
-    local Viewport = Camera.ViewportSize
-    local Size = Main.AbsoluteSize
+    local Viewport =
+        Camera.ViewportSize
 
-    local SafePadding = 6
+    local Width =
+        Viewport.X
 
-    local MinX = Size.X / 2 + SafePadding
-    local MaxX = Viewport.X - Size.X / 2 - SafePadding
+    local Height =
+        Viewport.Y
 
-    local MinY = Size.Y / 2 + SafePadding
-    local MaxY = Viewport.Y - Size.Y / 2 - SafePadding
+    local Mobile =
+        Width < 600
 
-    local CenterX = Viewport.X / 2
-    local CenterY = Viewport.Y / 2
+    local Tablet =
+        Width >= 600
+        and Width < 900
 
-    if MaxX < MinX then
-        CenterX = Viewport.X / 2
-    else
-        CenterX = math.clamp(
-            Main.AbsolutePosition.X + Size.X / 2,
-            MinX,
-            MaxX
-        )
-    end
+    local Landscape =
+        Width > Height
 
-    if MaxY < MinY then
-        CenterY = Viewport.Y / 2
-    else
-        CenterY = math.clamp(
-            Main.AbsolutePosition.Y + Size.Y / 2,
-            MinY,
-            MaxY
-        )
-    end
+    if Mobile then
 
-    Main.Position = UDim2.fromOffset(
-        CenterX,
-        CenterY
-    )
-
-    Main.AnchorPoint = Vector2.new(0.5, 0.5)
-end
-
-local function UpdateResponsive()
-
-    local Viewport = GetViewport()
-
-    local Width = Viewport.X
-    local Height = Viewport.Y
-
-    local IsMobile = Width < 600
-    local IsTablet = Width >= 600 and Width < 900
-    local IsLandscape = Width > Height
-
-    if IsMobile then
-
-        CurrentLayout = "Mobile"
-
-        Main.Size = UDim2.new(
-            CONFIG.MobileWidthScale,
-            0,
-            CONFIG.MobileHeightScale,
-            0
-        )
+        Main.Size =
+            UDim2.new(
+                CONFIG.MobileWidthScale,
+                0,
+                CONFIG.MobileHeightScale,
+                0
+            )
 
         MainScale.Scale = 1
 
-        SidebarToggle.Visible = true
+        SidebarToggle.Visible =
+            true
 
-        Sidebar.Size = UDim2.new(
-            0,
-            CONFIG.SidebarMobile,
-            1,
-            -CONFIG.TopbarMobile
-        )
+        Sidebar.Size =
+            UDim2.new(
+                0,
+                CONFIG.SidebarMobile,
+                1,
+                -CONFIG.TopbarMobile
+            )
 
-        Content.Position = UDim2.fromOffset(
-            CONFIG.SidebarMobile,
-            CONFIG.TopbarMobile
-        )
+        Content.Position =
+            UDim2.fromOffset(
+                CONFIG.SidebarMobile,
+                CONFIG.TopbarMobile
+            )
 
-        Content.Size = UDim2.new(
-            1,
-            -CONFIG.SidebarMobile,
-            1,
-            -CONFIG.TopbarMobile
-        )
+        Content.Size =
+            UDim2.new(
+                1,
+                -CONFIG.SidebarMobile,
+                1,
+                -CONFIG.TopbarMobile
+            )
 
-        Topbar.Size = UDim2.new(
-            1,
-            0,
-            0,
-            CONFIG.TopbarMobile
-        )
+        Topbar.Size =
+            UDim2.new(
+                1,
+                0,
+                0,
+                CONFIG.TopbarMobile
+            )
 
-        Title.Position = UDim2.fromOffset(55, 8)
-        Title.Size = UDim2.new(1, -105, 0, 22)
-
-        Subtitle.Visible = false
         Logo.Visible = false
-
+        Subtitle.Visible = false
         VersionBadge.Visible = false
         Online.Visible = false
 
-        Minimize.Position = UDim2.new(1, -77, 0, 10)
-        Close.Position = UDim2.new(1, -38, 0, 10)
+        HideButton.Visible = false
+
+        Title.Position =
+            UDim2.fromOffset(
+                54,
+                8
+            )
+
+        Title.Size =
+            UDim2.new(
+                1,
+                -130,
+                0,
+                24
+            )
+
+        Minimize.Position =
+            UDim2.new(
+                1,
+                -78,
+                0,
+                12
+            )
+
+        Close.Position =
+            UDim2.new(
+                1,
+                -40,
+                0,
+                12
+            )
 
         for _, Data in pairs(Tabs) do
-            Data.Label.Visible = false
-            Data.Icon.Position = UDim2.fromOffset(15, 0)
+
+            Data.Label.Visible =
+                false
+
+            Data.Icon.Position =
+                UDim2.fromOffset(
+                    15,
+                    0
+                )
+
         end
 
-        if IsLandscape then
-            Main.Size = UDim2.new(
-                0.86,
-                0,
-                0.90,
-                0
+        if Landscape then
+
+            Main.Size =
+                UDim2.new(
+                    0.86,
+                    0,
+                    0.90,
+                    0
+                )
+
+        end
+
+    elseif Tablet then
+
+        Main.Size =
+            UDim2.fromOffset(
+                CONFIG.TabletWidth,
+                CONFIG.TabletHeight
             )
-        end
-
-    elseif IsTablet then
-
-        CurrentLayout = "Tablet"
-
-        Main.Size = UDim2.fromOffset(
-            CONFIG.TabletWidth,
-            CONFIG.TabletHeight
-        )
 
         MainScale.Scale = 0.92
 
-        SidebarToggle.Visible = false
+        SidebarToggle.Visible =
+            false
 
-        SidebarCollapsed = false
+        HideButton.Visible =
+            true
 
-        Sidebar.Size = UDim2.new(
-            0,
-            CONFIG.SidebarDesktop,
-            1,
-            -CONFIG.TopbarDesktop
-        )
+        Logo.Visible =
+            true
 
-        Content.Position = UDim2.fromOffset(
-            CONFIG.SidebarDesktop,
-            CONFIG.TopbarDesktop
-        )
+        Subtitle.Visible =
+            true
 
-        Content.Size = UDim2.new(
-            1,
-            -CONFIG.SidebarDesktop,
-            1,
-            -CONFIG.TopbarDesktop
-        )
+        VersionBadge.Visible =
+            true
 
-        Topbar.Size = UDim2.new(
-            1,
-            0,
-            0,
-            CONFIG.TopbarDesktop
-        )
+        Online.Visible =
+            true
 
-        Logo.Visible = true
-        Subtitle.Visible = true
-        VersionBadge.Visible = true
-        Online.Visible = true
+        Sidebar.Size =
+            UDim2.new(
+                0,
+                CONFIG.SidebarDesktop,
+                1,
+                -CONFIG.TopbarDesktop
+            )
+
+        Content.Position =
+            UDim2.fromOffset(
+                CONFIG.SidebarDesktop,
+                CONFIG.TopbarDesktop
+            )
+
+        Content.Size =
+            UDim2.new(
+                1,
+                -CONFIG.SidebarDesktop,
+                1,
+                -CONFIG.TopbarDesktop
+            )
 
         for _, Data in pairs(Tabs) do
-            Data.Label.Visible = true
-            Data.Icon.Position = UDim2.fromOffset(8, 0)
+
+            Data.Label.Visible =
+                true
+
+            Data.Icon.Position =
+                UDim2.fromOffset(
+                    8,
+                    0
+                )
+
         end
 
     else
 
-        CurrentLayout = "Desktop"
-
-        Main.Size = UDim2.fromOffset(
-            CONFIG.DesktopWidth,
-            CONFIG.DesktopHeight
-        )
+        Main.Size =
+            UDim2.fromOffset(
+                CONFIG.DesktopWidth,
+                CONFIG.DesktopHeight
+            )
 
         MainScale.Scale = 1
 
-        SidebarToggle.Visible = false
+        SidebarToggle.Visible =
+            false
 
-        SidebarCollapsed = false
+        HideButton.Visible =
+            true
 
-        Sidebar.Size = UDim2.new(
-            0,
-            CONFIG.SidebarDesktop,
-            1,
-            -CONFIG.TopbarDesktop
-        )
+        Logo.Visible =
+            true
 
-        Content.Position = UDim2.fromOffset(
-            CONFIG.SidebarDesktop,
-            CONFIG.TopbarDesktop
-        )
+        Subtitle.Visible =
+            true
 
-        Content.Size = UDim2.new(
-            1,
-            -CONFIG.SidebarDesktop,
-            1,
-            -CONFIG.TopbarDesktop
-        )
+        VersionBadge.Visible =
+            true
 
-        Topbar.Size = UDim2.new(
-            1,
-            0,
-            0,
-            CONFIG.TopbarDesktop
-        )
+        Online.Visible =
+            true
 
-        Logo.Visible = true
-        Subtitle.Visible = true
-        VersionBadge.Visible = true
-        Online.Visible = true
+        Sidebar.Size =
+            UDim2.new(
+                0,
+                CONFIG.SidebarDesktop,
+                1,
+                -CONFIG.TopbarDesktop
+            )
+
+        Content.Position =
+            UDim2.fromOffset(
+                CONFIG.SidebarDesktop,
+                CONFIG.TopbarDesktop
+            )
+
+        Content.Size =
+            UDim2.new(
+                1,
+                -CONFIG.SidebarDesktop,
+                1,
+                -CONFIG.TopbarDesktop
+            )
 
         for _, Data in pairs(Tabs) do
-            Data.Label.Visible = true
-            Data.Icon.Position = UDim2.fromOffset(8, 0)
+
+            Data.Label.Visible =
+                true
+
+            Data.Icon.Position =
+                UDim2.fromOffset(
+                    8,
+                    0
+                )
+
         end
 
     end
 
-    task.defer(function()
-        ClampMainPosition()
-    end)
+    task.defer(
+        function()
+            ClampMain()
+        end
+    )
+
 end
-
---==================================================
--- DRAG V3
---==================================================
-
-local Dragging = false
-local DragStart
-local StartPosition
-
-Connect(Topbar.InputBegan:Connect(function(Input)
-
-    if Input.UserInputType == Enum.UserInputType.MouseButton1
-        or Input.UserInputType == Enum.UserInputType.Touch then
-
-        Dragging = true
-
-        DragStart = Input.Position
-        StartPosition = Main.Position
-
-    end
-
-end))
-
-Connect(Topbar.InputEnded:Connect(function(Input)
-
-    if Input.UserInputType == Enum.UserInputType.MouseButton1
-        or Input.UserInputType == Enum.UserInputType.Touch then
-
-        Dragging = false
-
-    end
-
-end))
-
-Connect(UserInputService.InputChanged:Connect(function(Input)
-
-    if not Dragging then
-        return
-    end
-
-    if Input.UserInputType ~= Enum.UserInputType.MouseMovement
-        and Input.UserInputType ~= Enum.UserInputType.Touch then
-
-        return
-    end
-
-    local Delta =
-        Input.Position - DragStart
-
-    local NewX =
-        StartPosition.X.Offset + Delta.X
-
-    local NewY =
-        StartPosition.Y.Offset + Delta.Y
-
-    Main.Position = UDim2.new(
-        StartPosition.X.Scale,
-        NewX,
-        StartPosition.Y.Scale,
-        NewY
-    )
-
-    ClampMainPosition()
-
-end))
-
---==================================================
--- MINIMIZE V3
---==================================================
-
-local Minimized = false
-local SavedSize = Main.Size
-local SavedPosition = Main.Position
-
-Connect(Minimize.Activated:Connect(function()
-
-    Minimized = not Minimized
-
-    if Minimized then
-
-        SavedSize = Main.Size
-        SavedPosition = Main.Position
-
-        Sidebar.Visible = false
-        Content.Visible = false
-
-        PlayTween(
-            Main,
-            TweenInfo.new(0.22),
-            {
-                Size = UDim2.new(
-                    Main.Size.X.Scale,
-                    Main.Size.X.Offset,
-                    0,
-                    CONFIG.TopbarMobile
-                )
-            }
-        )
-
-        Minimize.Text = "□"
-
-    else
-
-        PlayTween(
-            Main,
-            TweenInfo.new(0.22),
-            {
-                Size = SavedSize
-            }
-        )
-
-        Main.Position = SavedPosition
-
-        task.delay(
-            GetTweenTime(0.22),
-            function()
-
-                if Mainimized then
-                    return
-                end
-
-                Sidebar.Visible = true
-                Content.Visible = true
-
-                UpdateResponsive()
-            end
-        )
-
-        Minimize.Text = "—"
-
-    end
-
-end))
-
---==================================================
--- CLOSE V3
---==================================================
-
-local Closing = false
-
-Connect(Close.Activated:Connect(function()
-
-    if Closing then
-        return
-    end
-
-    Closing = true
-    Dragging = false
-
-    DisconnectAll()
-
-    Sidebar.Visible = false
-    Content.Visible = false
-
-    local CloseTween = Tween(
-        Main,
-        TweenInfo.new(
-            0.25,
-            Enum.EasingStyle.Quad,
-            Enum.EasingDirection.In
-        ),
-        {
-            Size = UDim2.fromOffset(0, 0)
-        }
-    )
-
-    if CloseTween then
-        CloseTween:Play()
-        CloseTween.Completed:Wait()
-    end
-
-    if ScreenGui then
-        ScreenGui:Destroy()
-    end
-
-end))
-
---==================================================
--- KEYBOARD / GAMEPAD
---==================================================
-
-ScreenGui.Enabled = true
-
-pcall(function()
-    GuiService.SelectedObject = nil
-end)
 
 --==================================================
 -- VIEWPORT LISTENER
 --==================================================
 
-Connect(
-    workspace.CurrentCamera:GetPropertyChangedSignal(
-        "ViewportSize"
-    ):Connect(function()
+local Camera =
+    workspace.CurrentCamera
 
-        UpdateResponsive()
+if Camera then
 
-    end)
+    Connect(
+        Camera:GetPropertyChangedSignal(
+            "ViewportSize"
+        ):Connect(
+            UpdateResponsive
+        )
+    )
+
+end
+
+--==================================================
+-- INITIAL STATE
+--==================================================
+
+CurrentPage =
+    HomePage
+
+HomePage.Visible =
+    true
+
+for Button in pairs(Tabs) do
+
+    UpdateTabVisual(
+        Button,
+        Tabs[Button].Page ==
+            HomePage
+    )
+
+end
+
+ApplyTheme(
+    CurrentTheme
 )
 
---==================================================
--- FINALIZE
---==================================================
-
-ApplyTheme(CurrentTheme)
 UpdateResponsive()
 
 Main.Visible = true
+
+--==================================================
+-- FINAL
+--==================================================
+
+print(
+    "[CH3A5 HUB] Professional GUI loaded:",
+    VERSION
+)
