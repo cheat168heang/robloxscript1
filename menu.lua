@@ -1,5 +1,5 @@
---// CH3A5 HUB GUI [STANDARD EDITION]
---// GUI ONLY + User-provided script loaders (Logic untouched)
+--// CH3A5 HUB GUI [CYBERPUNK ULTIMATE V3.0]
+--// GUI ONLY + Dedicated Favorites Tab + Enhanced Cool UI
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
@@ -120,7 +120,7 @@ end
 --==================================================
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CH3A5_CYBER_MASTER"
+ScreenGui.Name = "CH3A5_CYBER_MASTER_V3"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.Parent = PlayerGui
@@ -199,7 +199,7 @@ local function Notify(titleText, descText, duration)
 end
 
 --==================================================
--- STANDARD ROBLOX DRAGGING SYSTEM (ទូទៅ)
+-- STANDARD DRAGGING SYSTEM
 --==================================================
 
 local function MakeDraggable(gui, handle)
@@ -287,13 +287,13 @@ local function ExecuteScript(scriptName, url)
 end
 
 --==================================================
--- MAIN FRAME (COMPACT 520x340 CYBERPUNK)
+-- MAIN FRAME
 --==================================================
 
 local Main = Instance.new("Frame")
 Main.Name = "Main"
-Main.Size = UDim2.fromOffset(520, 340)
-Main.Position = UDim2.new(0.5, -260, 0.5, -170)
+Main.Size = UDim2.fromOffset(540, 350)
+Main.Position = UDim2.new(0.5, -270, 0.5, -175)
 Main.BackgroundColor3 = CurrentTheme.Background
 Main.BorderSizePixel = 0
 Main.ClipsDescendants = true
@@ -310,7 +310,7 @@ MainStroke.Thickness = 1.5
 MainStroke.Parent = Main
 RegisterThemeElement(MainStroke, "Color", "Accent")
 
--- Topbar
+-- TOPBAR & STATUS BADGE
 local Topbar = Instance.new("Frame")
 Topbar.Size = UDim2.new(1, 0, 0, 38)
 Topbar.BackgroundColor3 = CurrentTheme.Surface
@@ -329,16 +329,52 @@ CyberLine.Parent = Topbar
 RegisterThemeElement(CyberLine, "BackgroundColor3", "Accent")
 
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, -100, 1, 0)
+Title.Size = UDim2.new(1, -180, 1, 0)
 Title.Position = UDim2.fromOffset(12, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "[ CH3A5 // HUB ] MASTER HUD"
+Title.Text = "[ CH3A5 // HUD ] v3.0"
 Title.Font = Enum.Font.Code
 Title.TextSize = 13
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.TextColor3 = CurrentTheme.Accent
 Title.Parent = Topbar
 RegisterThemeElement(Title, "TextColor3", "Accent")
+
+-- Online Status Badge
+local StatusBadge = Instance.new("Frame")
+StatusBadge.Size = UDim2.fromOffset(72, 20)
+StatusBadge.Position = UDim2.new(1, -150, 0.5, -10)
+StatusBadge.BackgroundColor3 = CurrentTheme.Background
+StatusBadge.BorderSizePixel = 0
+StatusBadge.Parent = Topbar
+RegisterThemeElement(StatusBadge, "BackgroundColor3", "Background")
+
+local SCorner = Instance.new("UICorner")
+SCorner.CornerRadius = UDim.new(0, 4)
+SCorner.Parent = StatusBadge
+
+local SDot = Instance.new("Frame")
+SDot.Size = UDim2.fromOffset(6, 6)
+SDot.Position = UDim2.fromOffset(8, 7)
+SDot.BackgroundColor3 = Color3.fromRGB(0, 255, 128)
+SDot.BorderSizePixel = 0
+SDot.Parent = StatusBadge
+
+local SDotCorner = Instance.new("UICorner")
+SDotCorner.CornerRadius = UDim.new(1, 0)
+SDotCorner.Parent = SDot
+
+local SText = Instance.new("TextLabel")
+SText.Size = UDim2.new(1, -20, 1, 0)
+SText.Position = UDim2.fromOffset(18, 0)
+SText.BackgroundTransparency = 1
+SText.Text = "ONLINE"
+SText.Font = Enum.Font.Code
+SText.TextSize = 9
+SText.TextColor3 = CurrentTheme.Text
+SText.TextXAlignment = Enum.TextXAlignment.Left
+SText.Parent = StatusBadge
+RegisterThemeElement(SText, "TextColor3", "Text")
 
 local Minimize = Instance.new("TextButton")
 Minimize.Size = UDim2.fromOffset(30, 30)
@@ -363,7 +399,7 @@ Close.Parent = Topbar
 RegisterThemeElement(Close, "TextColor3", "AccentAlt")
 
 --==================================================
--- FOOTER HUD BAR (FPS / PING / USER)
+-- FOOTER HUD BAR
 --==================================================
 
 local Footer = Instance.new("Frame")
@@ -414,11 +450,11 @@ RunService.RenderStepped:Connect(function()
 end)
 
 --==================================================
--- SIDEBAR
+-- SIDEBAR & SMOOTH ACTIVE INDICATOR
 --==================================================
 
 local Sidebar = Instance.new("Frame")
-Sidebar.Size = UDim2.new(0, 130, 1, -60)
+Sidebar.Size = UDim2.new(0, 135, 1, -60)
 Sidebar.Position = UDim2.fromOffset(0, 38)
 Sidebar.BackgroundColor3 = CurrentTheme.Surface
 Sidebar.BorderSizePixel = 0
@@ -436,13 +472,23 @@ SideLayout.Padding = UDim.new(0, 6)
 SideLayout.SortOrder = Enum.SortOrder.LayoutOrder
 SideLayout.Parent = Sidebar
 
+-- Glowing Active Tab Bar Indicator
+local ActiveBar = Instance.new("Frame")
+ActiveBar.Size = UDim2.new(0, 3, 0, 24)
+ActiveBar.Position = UDim2.fromOffset(0, 15)
+ActiveBar.BackgroundColor3 = CurrentTheme.Accent
+ActiveBar.BorderSizePixel = 0
+ActiveBar.ZIndex = 10
+ActiveBar.Parent = Sidebar
+RegisterThemeElement(ActiveBar, "BackgroundColor3", "Accent")
+
 --==================================================
 -- CONTENT & PAGES
 --==================================================
 
 local Content = Instance.new("Frame")
-Content.Size = UDim2.new(1, -130, 1, -60)
-Content.Position = UDim2.fromOffset(130, 38)
+Content.Size = UDim2.new(1, -135, 1, -60)
+Content.Position = UDim2.fromOffset(135, 38)
 Content.BackgroundColor3 = CurrentTheme.Background
 Content.BorderSizePixel = 0
 Content.Parent = Main
@@ -477,8 +523,138 @@ end
 local HomePage = CreatePage("Home")
 local KeylessPage = CreatePage("Keyless")
 local KeyPage = CreatePage("Key")
+local FavoritesPage = CreatePage("Favorites")
 local ThemesPage = CreatePage("Themes")
 local SettingsPage = CreatePage("Settings")
+
+--==================================================
+-- DEDICATED FAVORITES SYSTEM
+--==================================================
+
+local FavoritedData = {}
+local RegisteredStarBtns = {}
+
+local function RefreshFavoritesUI()
+    -- Clear current favorites page children (except sections/infos)
+    for _, child in ipairs(FavoritesPage:GetChildren()) do
+        if child:IsA("Frame") and child.Name == "ScriptFrame" then
+            child:Destroy()
+        end
+    end
+
+    local count = 0
+    for _, scriptData in pairs(FavoritedData) do
+        count = count + 1
+        -- Re-add to Favorites Page
+        local Frame = Instance.new("Frame")
+        Frame.Name = "ScriptFrame"
+        Frame.Size = UDim2.new(1, 0, 0, 50)
+        Frame.BackgroundColor3 = CurrentTheme.Surface
+        Frame.BorderSizePixel = 0
+        Frame.Parent = FavoritesPage
+        RegisterThemeElement(Frame, "BackgroundColor3", "Surface")
+
+        local Corner = Instance.new("UICorner")
+        Corner.CornerRadius = UDim.new(0, 4)
+        Corner.Parent = Frame
+
+        local BtnStroke = Instance.new("UIStroke")
+        BtnStroke.Color = CurrentTheme.Accent
+        BtnStroke.Transparency = 0.8
+        BtnStroke.Thickness = 1
+        BtnStroke.Parent = Frame
+        RegisterThemeElement(BtnStroke, "Color", "Accent")
+
+        local AccentBar = Instance.new("Frame")
+        AccentBar.Size = UDim2.new(0, 3, 1, 0)
+        AccentBar.BackgroundColor3 = CurrentTheme.Accent
+        AccentBar.BorderSizePixel = 0
+        AccentBar.Parent = Frame
+        RegisterThemeElement(AccentBar, "BackgroundColor3", "Accent")
+
+        local Name = Instance.new("TextLabel")
+        Name.Name = "ScriptName"
+        Name.Size = UDim2.new(1, -75, 0, 20)
+        Name.Position = UDim2.fromOffset(12, 5)
+        Name.BackgroundTransparency = 1
+        Name.Text = scriptData.Name
+        Name.Font = Enum.Font.GothamBold
+        Name.TextSize = 12
+        Name.TextXAlignment = Enum.TextXAlignment.Left
+        Name.TextColor3 = CurrentTheme.Text
+        Name.Parent = Frame
+        RegisterThemeElement(Name, "TextColor3", "Text")
+
+        local Desc = Instance.new("TextLabel")
+        Desc.Size = UDim2.new(1, -75, 0, 18)
+        Desc.Position = UDim2.fromOffset(12, 25)
+        Desc.BackgroundTransparency = 1
+        Desc.Text = "[ " .. scriptData.Desc .. " ]"
+        Desc.Font = Enum.Font.Code
+        Desc.TextSize = 10
+        Desc.TextXAlignment = Enum.TextXAlignment.Left
+        Desc.TextColor3 = CurrentTheme.Muted
+        Desc.Parent = Frame
+        RegisterThemeElement(Desc, "TextColor3", "Muted")
+
+        local ExecBtn = Instance.new("TextButton")
+        ExecBtn.Size = UDim2.new(1, -65, 1, 0)
+        ExecBtn.BackgroundTransparency = 1
+        ExecBtn.Text = ""
+        ExecBtn.Parent = Frame
+
+        ExecBtn.MouseButton1Click:Connect(function()
+            ExecuteScript(scriptData.Name, scriptData.Url)
+        end)
+
+        local CopyBtn = Instance.new("TextButton")
+        CopyBtn.Size = UDim2.fromOffset(26, 26)
+        CopyBtn.Position = UDim2.new(1, -58, 0.5, -13)
+        CopyBtn.BackgroundColor3 = CurrentTheme.Background
+        CopyBtn.Text = "📋"
+        CopyBtn.TextSize = 12
+        CopyBtn.Parent = Frame
+        RegisterThemeElement(CopyBtn, "BackgroundColor3", "Background")
+
+        local CCorner = Instance.new("UICorner")
+        CCorner.CornerRadius = UDim.new(0, 4)
+        CCorner.Parent = CopyBtn
+
+        CopyBtn.MouseButton1Click:Connect(function()
+            pcall(function() setclipboard(scriptData.Url) end)
+            Notify("CLIPBOARD", "Copied URL for " .. scriptData.Name, 2)
+        end)
+
+        local UnfavBtn = Instance.new("TextButton")
+        UnfavBtn.Size = UDim2.fromOffset(26, 26)
+        UnfavBtn.Position = UDim2.new(1, -28, 0.5, -13)
+        UnfavBtn.BackgroundColor3 = CurrentTheme.Background
+        UnfavBtn.Text = "⭐"
+        UnfavBtn.TextSize = 12
+        UnfavBtn.TextColor3 = CurrentTheme.Accent
+        UnfavBtn.Parent = Frame
+        RegisterThemeElement(UnfavBtn, "BackgroundColor3", "Background")
+
+        local FCorner = Instance.new("UICorner")
+        FCorner.CornerRadius = UDim.new(0, 4)
+        FCorner.Parent = UnfavBtn
+
+        UnfavBtn.MouseButton1Click:Connect(function()
+            FavoritedData[scriptData.Name] = nil
+            if RegisteredStarBtns[scriptData.Name] then
+                RegisteredStarBtns[scriptData.Name].TextColor3 = CurrentTheme.Muted
+            end
+            RefreshFavoritesUI()
+            Notify("FAVORITE", "Removed " .. scriptData.Name, 2)
+        end)
+    end
+
+    -- Update No Favorites Info Label
+    local NoFavLabel = FavoritesPage:FindFirstChild("NoFavLabel")
+    if NoFavLabel then
+        NoFavLabel.Visible = (count == 0)
+    end
+end
 
 --==================================================
 -- CYBERPUNK UI HELPERS
@@ -498,8 +674,9 @@ local function AddSection(Page, text)
     return Label
 end
 
-local function AddInfo(Page, text)
+local function AddInfo(Page, text, nameKey)
     local Label = Instance.new("TextLabel")
+    if nameKey then Label.Name = nameKey end
     Label.Size = UDim2.new(1, 0, 0, 18)
     Label.BackgroundTransparency = 1
     Label.Text = text
@@ -561,6 +738,7 @@ end
 
 local function AddScriptButton(Page, name, description, url)
     local Frame = Instance.new("Frame")
+    Frame.Name = "ScriptFrame"
     Frame.Size = UDim2.new(1, 0, 0, 50)
     Frame.BackgroundColor3 = CurrentTheme.Surface
     Frame.BorderSizePixel = 0
@@ -653,7 +831,7 @@ local function AddScriptButton(Page, name, description, url)
     FavBtn.BackgroundColor3 = CurrentTheme.Background
     FavBtn.Text = "⭐"
     FavBtn.TextSize = 12
-    FavBtn.TextColor3 = CurrentTheme.Muted
+    FavBtn.TextColor3 = FavoritedData[name] and CurrentTheme.Accent or CurrentTheme.Muted
     FavBtn.Parent = Frame
     RegisterThemeElement(FavBtn, "BackgroundColor3", "Background")
 
@@ -661,11 +839,19 @@ local function AddScriptButton(Page, name, description, url)
     FCorner.CornerRadius = UDim.new(0, 4)
     FCorner.Parent = FavBtn
 
-    local isFav = false
+    RegisteredStarBtns[name] = FavBtn
+
     FavBtn.MouseButton1Click:Connect(function()
-        isFav = not isFav
-        FavBtn.TextColor3 = isFav and CurrentTheme.Accent or CurrentTheme.Muted
-        Notify("FAVORITE", isFav and ("Added " .. name .. " to favorites") or ("Removed " .. name), 2)
+        if FavoritedData[name] then
+            FavoritedData[name] = nil
+            FavBtn.TextColor3 = CurrentTheme.Muted
+            Notify("FAVORITE", "Removed " .. name .. " from favorites", 2)
+        else
+            FavoritedData[name] = {Name = name, Desc = description, Url = url}
+            FavBtn.TextColor3 = CurrentTheme.Accent
+            Notify("FAVORITE", "Added " .. name .. " to favorites", 2)
+        end
+        RefreshFavoritesUI()
     end)
 
     return Frame
@@ -834,7 +1020,7 @@ local function AddComingSoon(Page, name)
 end
 
 --==================================================
--- HOME
+-- HOME PAGE
 --==================================================
 
 AddSection(HomePage, "SYSTEM OVERVIEW")
@@ -842,7 +1028,7 @@ AddInfo(HomePage, "Select module category from sidebar.")
 AddComingSoon(HomePage, "More Scripts")
 
 --==================================================
--- KEYLESS (UNTOUCHED DATA / LOADERS)
+-- KEYLESS PAGE (UNTOUCHED DATA / LOADERS)
 --==================================================
 
 AddSection(KeylessPage, "KEYLESS MODULES")
@@ -871,7 +1057,7 @@ AddScriptButton(
 )
 
 --==================================================
--- KEY (UNTOUCHED DATA / LOADERS)
+-- KEY PAGE (UNTOUCHED DATA / LOADERS)
 --==================================================
 
 AddSection(KeyPage, "PROTECTED MODULES")
@@ -893,7 +1079,15 @@ AddScriptButton(
 )
 
 --==================================================
--- THEMES
+-- FAVORITES PAGE
+--==================================================
+
+AddSection(FavoritesPage, "FAVORITED MODULES")
+AddInfo(FavoritesPage, "[ NO FAVORITE MODULES ]", "NoFavLabel")
+AddSearchBar(FavoritesPage)
+
+--==================================================
+-- THEMES PAGE
 --==================================================
 
 AddSection(ThemesPage, "COLOR SCHEMES")
@@ -934,7 +1128,7 @@ for ThemeName, ThemeData in pairs(Themes) do
 end
 
 --==================================================
--- SETTINGS & KEYBIND CHANGER
+-- SETTINGS PAGE
 --==================================================
 
 AddSection(SettingsPage, "SYSTEM CONTROLS")
@@ -1012,14 +1206,14 @@ RejoinBtn.MouseButton1Click:Connect(function()
 end)
 
 --==================================================
--- SIDEBAR NAVIGATION
+-- SIDEBAR NAVIGATION & ANIMATION
 --==================================================
 
 local TabButtons = {}
 
 local function AddTab(name, page)
     local Button = Instance.new("TextButton")
-    Button.Size = UDim2.new(1, 0, 0, 34)
+    Button.Size = UDim2.new(1, 0, 0, 32)
     Button.BackgroundColor3 = CurrentTheme.Background
     Button.BorderSizePixel = 0
     Button.Text = name
@@ -1054,6 +1248,11 @@ local function AddTab(name, page)
             Position = UDim2.fromOffset(8, 8)
         }):Play()
 
+        -- Move Glowing Active Bar Indicator smoothly
+        TweenService:Create(ActiveBar, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            Position = UDim2.fromOffset(0, Button.Position.Y.Offset + 10)
+        }):Play()
+
         Button.TextColor3 = CurrentTheme.Accent
         TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = CurrentTheme.Surface}):Play()
     end)
@@ -1064,6 +1263,7 @@ end
 local HomeTab = AddTab("> Home", HomePage)
 AddTab("> Keyless", KeylessPage)
 AddTab("> Keyed", KeyPage)
+AddTab("> Favorites", FavoritesPage)
 AddTab("> Themes", ThemesPage)
 AddTab("> Config", SettingsPage)
 
@@ -1082,7 +1282,7 @@ Minimize.MouseButton1Click:Connect(function()
     PlaySound(6042053626, 0.9)
     Minimized = not Minimized
     if Minimized then
-        TweenService:Create(Main, TweenInfo.new(0.25), {Size = UDim2.fromOffset(520, 38)}):Play()
+        TweenService:Create(Main, TweenInfo.new(0.25), {Size = UDim2.fromOffset(540, 38)}):Play()
         Sidebar.Visible = false
         Content.Visible = false
         Footer.Visible = false
@@ -1131,7 +1331,6 @@ MoonStroke.Thickness = 1.5
 MoonStroke.Parent = MoonToggle
 RegisterThemeElement(MoonStroke, "Color", "Accent")
 
--- Standard Draggable for Moon Toggle
 local getMoonMoved = MakeDraggable(MoonToggle, nil)
 
 MoonToggle.MouseButton1Click:Connect(function()
@@ -1143,4 +1342,4 @@ MoonToggle.MouseButton1Click:Connect(function()
 end)
 
 SetBlur(true)
-Notify("CYBERHUB", "Initialized Standard Version. Enjoy!", 4)
+Notify("CYBERHUB", "Initialized V3.0 Master Edition with Dedicated Favorites!", 4)
