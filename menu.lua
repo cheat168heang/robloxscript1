@@ -1,5 +1,5 @@
---// CH3A5 HUB GUI [FIXED & UPGRADED V5.1]
---// Dynamic Language Switcher + Emoji Icons + Auto Show GUI + Default Theme Saver
+--// CH3A5 HUB GUI [FIXED & ANIMATED V5.2]
+--// Smooth Animations + Corner Clipping Fix + Immediate Search Placeholder + Khmer/English
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
@@ -19,15 +19,15 @@ local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
 local StartSessionTime = tick()
-local ConfigFile = "CH3A5_Config_V5_1.json"
+local ConfigFile = "CH3A5_Config_V5_2.json"
 
 --==================================================
--- LOCAL DATA PERSISTENCE (WRITEFILE / READFILE)
+-- LOCAL DATA PERSISTENCE
 --==================================================
 
 local SavedConfig = {
     DefaultTheme = "Neon Cyan",
-    Language = "EN", -- "EN" or "KH"
+    Language = "EN",
     AutoShowGUI = true,
     Favorites = {}
 }
@@ -61,7 +61,7 @@ LoadSavedConfig()
 
 local Locales = {
     EN = {
-        Title = "[ CH3A5 // HUB ] V5.1",
+        Title = "[ CH3A5 // HUB ] V5.2",
         Home = "🏠 Home",
         Keyless = "⚡ Keyless",
         Keyed = "🔑 Keyed",
@@ -82,7 +82,7 @@ local Locales = {
         Search = "🔍 Search modules..."
     },
     KH = {
-        Title = "[ CH3A5 // HUB ] V5.1",
+        Title = "[ CH3A5 // HUB ] V5.2",
         Home = "🏠 ទំព័រដើម",
         Keyless = "⚡ គ្មាន Key",
         Keyed = "🔑 គ្មាន Key",
@@ -107,10 +107,11 @@ local Locales = {
 local CurrentLang = SavedConfig.Language or "EN"
 local TranslatableElements = {}
 
-local function RegisterTranslation(instance, key)
-    table.insert(TranslatableElements, {Instance = instance, Key = key})
+local function RegisterTranslation(instance, key, property)
+    property = property or "Text"
+    table.insert(TranslatableElements, {Instance = instance, Key = key, Property = property})
     if Locales[CurrentLang] and Locales[CurrentLang][key] then
-        instance.Text = Locales[CurrentLang][key]
+        instance[property] = Locales[CurrentLang][key]
     end
 end
 
@@ -136,7 +137,7 @@ Blur.Size = 0
 Blur.Parent = Lighting
 
 local function SetBlur(enabled)
-    TweenService:Create(Blur, TweenInfo.new(0.35), {Size = enabled and 10 or 0}):Play()
+    TweenService:Create(Blur, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = enabled and 10 or 0}):Play()
 end
 
 --==================================================
@@ -220,11 +221,11 @@ local function ApplyTheme(newTheme)
 end
 
 --==================================================
--- SCREEN GUI (20% REDUCED SIZE & DISPLAY ORDER FIX)
+-- SCREEN GUI
 --==================================================
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CH3A5_CYBER_MASTER_V5_1"
+ScreenGui.Name = "CH3A5_CYBER_MASTER_V5_2"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.DisplayOrder = 999999
@@ -257,7 +258,7 @@ local function Notify(titleText, descText, duration)
     RegisterThemeElement(Toast, "BackgroundColor3", "Surface")
 
     local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 4)
+    Corner.CornerRadius = UDim.new(0, 6)
     Corner.Parent = Toast
 
     local Stroke = Instance.new("UIStroke")
@@ -300,7 +301,7 @@ local function Notify(titleText, descText, duration)
     TDesc.Parent = Toast
     RegisterThemeElement(TDesc, "TextColor3", "Text")
 
-    TweenService:Create(Toast, TweenInfo.new(0.2), {BackgroundTransparency = 0}):Play()
+    TweenService:Create(Toast, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {BackgroundTransparency = 0}):Play()
 
     task.delay(duration, function()
         local t = TweenService:Create(Toast, TweenInfo.new(0.25), {BackgroundTransparency = 1})
@@ -383,7 +384,7 @@ local function ExecuteScript(scriptName, url)
 end
 
 --==================================================
--- MAIN FRAME (REDUCED 20%: 464 x 312)
+-- MAIN FRAME (CORNER CLIPPING FIX + ANIMATIONS)
 --==================================================
 
 local Main = Instance.new("Frame")
@@ -394,21 +395,46 @@ Main.BackgroundColor3 = CurrentTheme.Background
 Main.BorderSizePixel = 0
 Main.ClipsDescendants = true
 Main.ZIndex = 10
-Main.Visible = SavedConfig.AutoShowGUI
+Main.Visible = false
 Main.Parent = ScreenGui
 RegisterThemeElement(Main, "BackgroundColor3", "Background")
 
+-- Clean Smooth Rounded Corners for Main
 local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 6)
+MainCorner.CornerRadius = UDim.new(0, 8)
 MainCorner.Parent = Main
 
 local MainStroke = Instance.new("UIStroke")
 MainStroke.Color = CurrentTheme.Accent
 MainStroke.Thickness = 1.2
+MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 MainStroke.Parent = Main
 RegisterThemeElement(MainStroke, "Color", "Accent")
 
--- TOPBAR
+-- Smooth Animated GUI Open/Close System
+local function ToggleGUI(visible)
+    if visible then
+        Main.Visible = true
+        Main.Size = UDim2.fromOffset(0, 0)
+        Main.Position = UDim2.new(0.5, 0, 0.5, 0)
+        TweenService:Create(Main, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Size = UDim2.fromOffset(464, 312),
+            Position = UDim2.new(0.5, -232, 0.5, -156)
+        }):Play()
+    else
+        local tw = TweenService:Create(Main, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+            Size = UDim2.fromOffset(0, 0),
+            Position = UDim2.new(0.5, 0, 0.5, 0)
+        })
+        tw:Play()
+        tw.Completed:Connect(function()
+            if not Main.Visible then Main.Visible = false end
+        end)
+    end
+    SetBlur(visible)
+end
+
+-- TOPBAR (WITH ROUNDED CORNERS TOP FIX)
 local Topbar = Instance.new("Frame")
 Topbar.Size = UDim2.new(1, 0, 0, 32)
 Topbar.BackgroundColor3 = CurrentTheme.Surface
@@ -416,6 +442,10 @@ Topbar.BorderSizePixel = 0
 Topbar.ZIndex = 11
 Topbar.Parent = Main
 RegisterThemeElement(Topbar, "BackgroundColor3", "Surface")
+
+local TopbarCorner = Instance.new("UICorner")
+TopbarCorner.CornerRadius = UDim.new(0, 8)
+TopbarCorner.Parent = Topbar
 
 MakeDraggable(Main, Topbar)
 
@@ -709,7 +739,7 @@ local function RefreshFavoritesUI()
 end
 
 --==================================================
--- UI HELPERS
+-- UI HELPERS & SEARCH PLACEHOLDER FIX
 --==================================================
 
 local function AddSection(Page, text)
@@ -743,6 +773,7 @@ local function AddInfo(Page, textKey)
     return Label
 end
 
+-- FIXED IMMEDIATE SEARCH PLACEHOLDER
 local function AddSearchBar(Page)
     local SearchBox = Instance.new("TextBox")
     SearchBox.Size = UDim2.new(1, 0, 0, 24)
@@ -750,6 +781,7 @@ local function AddSearchBar(Page)
     SearchBox.BorderSizePixel = 0
     SearchBox.Font = Enum.Font.Code
     SearchBox.TextSize = 9
+    SearchBox.Text = ""
     SearchBox.TextColor3 = CurrentTheme.Text
     SearchBox.PlaceholderColor3 = CurrentTheme.Muted
     SearchBox.TextXAlignment = Enum.TextXAlignment.Left
@@ -767,7 +799,7 @@ local function AddSearchBar(Page)
     Padding.PaddingLeft = UDim.new(0, 8)
     Padding.Parent = SearchBox
 
-    SearchBox.PlaceholderText = Locales[CurrentLang].Search
+    RegisterTranslation(SearchBox, "Search", "PlaceholderText")
 
     SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
         local query = string.lower(SearchBox.Text)
@@ -822,7 +854,6 @@ local function AddScriptButton(Page, name, description, url)
     Desc.TextSize = 8
     Desc.TextTruncate = Enum.TextTruncate.AtEnd
     Desc.TextColor3 = CurrentTheme.Muted
-    Desc.TextXAlignment = Enum.TextXAlignment.Left
     Desc.ZIndex = 14
     Desc.Parent = Frame
     RegisterThemeElement(Desc, "TextColor3", "Muted")
@@ -833,6 +864,14 @@ local function AddScriptButton(Page, name, description, url)
     ExecBtn.Text = ""
     ExecBtn.ZIndex = 15
     ExecBtn.Parent = Frame
+
+    -- Hover Animation for Script Cards
+    ExecBtn.MouseEnter:Connect(function()
+        TweenService:Create(Frame, TweenInfo.new(0.2), {BackgroundColor3 = CurrentTheme.SurfaceAlt}):Play()
+    end)
+    ExecBtn.MouseLeave:Connect(function()
+        TweenService:Create(Frame, TweenInfo.new(0.2), {BackgroundColor3 = CurrentTheme.Surface}):Play()
+    end)
 
     ExecBtn.MouseButton1Click:Connect(function()
         ExecuteScript(name, url)
@@ -1187,7 +1226,7 @@ end)
 AddSection(KeylessPage, "KEYLESS MODULES")
 AddSearchBar(KeylessPage)
 
-AddScriptButton(KeylessPage, "THEAVY SL CHEAT", "Keyless", "https://pastefy.app/Lk0vDMmN/raw")
+AddScriptButton(KeylessPage, "Sources Hub", "Keyless", "https://pastefy.app/Lk0vDMmN/raw")
 AddScriptButton(KeylessPage, "Limbo Hub", "Keyless", "https://limbohub.my.id/loader.lua")
 AddScriptButton(KeylessPage, "Virexx", "Keyless", "https://gist.githubusercontent.com/virexx55/b4e8b16201904da5ab7b554aa71c378f/raw/b9524b701b35ec97603ff0a32227b24461479c5c/virex.lua")
 
@@ -1203,7 +1242,7 @@ AddSearchBar(FavoritesPage)
 RefreshFavoritesUI()
 
 --==================================================
--- THEMES PAGE (WITH SET DEFAULT BUTTON)
+-- THEMES PAGE
 --==================================================
 
 AddSection(ThemesPage, "COLOR SCHEMES")
@@ -1315,8 +1354,9 @@ local function UpdateLanguage(newLang)
 
     for _, item in ipairs(TranslatableElements) do
         if item.Instance and item.Instance.Parent then
+            local prop = item.Property or "Text"
             if Locales[CurrentLang] and Locales[CurrentLang][item.Key] then
-                item.Instance.Text = Locales[CurrentLang][item.Key]
+                item.Instance[prop] = Locales[CurrentLang][item.Key]
             end
         end
     end
@@ -1331,7 +1371,7 @@ LangBtn.MouseButton1Click:Connect(function()
 end)
 
 --==================================================
--- NAVIGATION TABS
+-- NAVIGATION TABS (WITH SLIDE ANIMATIONS)
 --==================================================
 
 local TabButtons = {}
@@ -1363,7 +1403,14 @@ local function AddTab(textKey, page)
             tabData.Button.TextColor3 = CurrentTheme.Muted
             TweenService:Create(tabData.Button, TweenInfo.new(0.2), {BackgroundColor3 = CurrentTheme.Background}):Play()
         end
+
+        -- Page Slide Animation
+        page.Position = UDim2.fromOffset(16, 6)
         page.Visible = true
+        TweenService:Create(page, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            Position = UDim2.fromOffset(6, 6)
+        }):Play()
+
         Button.TextColor3 = CurrentTheme.Accent
         TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = CurrentTheme.Surface}):Play()
     end)
@@ -1385,12 +1432,11 @@ HomeTab.BackgroundColor3 = CurrentTheme.Surface
 -- CLOSE BUTTON LOGIC
 CloseBtn.MouseButton1Click:Connect(function()
     PlaySound(6042053626, 0.8)
-    Main.Visible = false
-    SetBlur(false)
+    ToggleGUI(false)
 end)
 
 --==================================================
--- ALWAYS VISIBLE MOON TOGGLE BUTTON (🌙 EMOJI RESTORED)
+-- ALWAYS VISIBLE MOON TOGGLE BUTTON (🌙 WITH ANIMATIONS)
 --==================================================
 
 local MoonToggle = Instance.new("TextButton")
@@ -1398,7 +1444,7 @@ MoonToggle.Name = "MoonToggle"
 MoonToggle.Size = UDim2.fromOffset(36, 36)
 MoonToggle.Position = UDim2.new(0, 15, 0.4, 0)
 MoonToggle.BackgroundColor3 = CurrentTheme.Surface
-MoonToggle.Text = "C"
+MoonToggle.Text = "🌙"
 MoonToggle.Font = Enum.Font.Code
 MoonToggle.TextSize = 16
 MoonToggle.ZIndex = 500
@@ -1416,15 +1462,29 @@ MoonStroke.Thickness = 1.2
 MoonStroke.Parent = MoonToggle
 RegisterThemeElement(MoonStroke, "Color", "Accent")
 
+-- Hover Animations for Moon Toggle
+MoonToggle.MouseEnter:Connect(function()
+    TweenService:Create(MoonToggle, TweenInfo.new(0.2), {Size = UDim2.fromOffset(40, 40)}):Play()
+end)
+
+MoonToggle.MouseLeave:Connect(function()
+    TweenService:Create(MoonToggle, TweenInfo.new(0.2), {Size = UDim2.fromOffset(36, 36)}):Play()
+end)
+
 local getMoonMoved = MakeDraggable(MoonToggle, nil)
 
 MoonToggle.MouseButton1Click:Connect(function()
     if not getMoonMoved() then
         PlaySound(6042053626, 1.2)
-        Main.Visible = not Main.Visible
-        SetBlur(Main.Visible)
+        ToggleGUI(not Main.Visible)
     end
 end)
 
-SetBlur(SavedConfig.AutoShowGUI)
-Notify("CYBERHUB", "CH3A5 HUB V5.1 Loaded Successfully!", 4)
+-- INITIAL STATE
+if SavedConfig.AutoShowGUI then
+    ToggleGUI(true)
+else
+    SetBlur(false)
+end
+
+Notify("CYBERHUB", "CH3A5 HUB V5.2 Fixed & Animated!", 4)
