@@ -1,5 +1,5 @@
---// CH3A5 HUB GUI [CYBERPUNK ULTIMATE V3.0]
---// GUI ONLY + Dedicated Favorites Tab + Enhanced Cool UI
+--// CH3A5 HUB GUI [ULTRA PREMIUM V4.5]
+--// Custom Home Dashboard + Fix Tab Scrolling + Profile Card + Untouched Script Loaders
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
@@ -12,9 +12,31 @@ local RunService = game:GetService("RunService")
 local Stats = game:GetService("Stats")
 local Lighting = game:GetService("Lighting")
 local SoundService = game:GetService("SoundService")
+local MarketplaceService = game:GetService("MarketplaceService")
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
 
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
+
+local StartSessionTime = tick()
+
+-- Fetch Game Info
+local GameInfo = {Name = "Loading...", Creator = "Loading...", Icon = "rbxassetid://0"}
+task.spawn(function()
+    local success, info = pcall(function()
+        return MarketplaceService:GetProductInfo(game.PlaceId)
+    end)
+    if success and info then
+        GameInfo.Name = info.Name or "Roblox Game"
+        if info.Creator then
+            GameInfo.Creator = info.Creator.Name or "Unknown"
+        end
+        if info.IconImageAssetId and info.IconImageAssetId > 0 then
+            GameInfo.Icon = "rbxassetid://" .. tostring(info.IconImageAssetId)
+        end
+    end
+end)
 
 --==================================================
 -- SOUND EFFECTS & BLUR SYSTEM
@@ -38,7 +60,7 @@ Blur.Size = 0
 Blur.Parent = Lighting
 
 local function SetBlur(enabled)
-    TweenService:Create(Blur, TweenInfo.new(0.3), {Size = enabled and 10 or 0}):Play()
+    TweenService:Create(Blur, TweenInfo.new(0.35), {Size = enabled and 10 or 0}):Play()
 end
 
 --==================================================
@@ -49,14 +71,16 @@ local Themes = {
     ["Neon Cyan"] = {
         Background = Color3.fromRGB(10, 12, 18),
         Surface = Color3.fromRGB(16, 20, 28),
+        SurfaceAlt = Color3.fromRGB(24, 30, 44),
         Accent = Color3.fromRGB(0, 240, 255),
-        AccentAlt = Color3.fromRGB(255, 0, 85),
+        AccentAlt = Color3.fromRGB(255, 0, 110),
         Text = Color3.fromRGB(240, 250, 255),
         Muted = Color3.fromRGB(100, 140, 160)
     },
     ["Matrix Green"] = {
         Background = Color3.fromRGB(8, 14, 10),
         Surface = Color3.fromRGB(14, 22, 16),
+        SurfaceAlt = Color3.fromRGB(20, 32, 24),
         Accent = Color3.fromRGB(0, 255, 128),
         AccentAlt = Color3.fromRGB(0, 180, 255),
         Text = Color3.fromRGB(230, 255, 235),
@@ -65,14 +89,16 @@ local Themes = {
     ["Overdrive Pink"] = {
         Background = Color3.fromRGB(18, 10, 15),
         Surface = Color3.fromRGB(28, 15, 24),
+        SurfaceAlt = Color3.fromRGB(38, 20, 32),
         Accent = Color3.fromRGB(255, 0, 128),
-        AccentAlt = Color3.fromRGB(255, 230, 0),
+        AccentAlt = Color3.fromRGB(255, 210, 0),
         Text = Color3.fromRGB(255, 240, 250),
         Muted = Color3.fromRGB(170, 110, 140)
     },
     ["Synth Yellow"] = {
         Background = Color3.fromRGB(15, 14, 8),
         Surface = Color3.fromRGB(25, 23, 12),
+        SurfaceAlt = Color3.fromRGB(35, 31, 16),
         Accent = Color3.fromRGB(255, 210, 0),
         AccentAlt = Color3.fromRGB(0, 240, 255),
         Text = Color3.fromRGB(255, 252, 230),
@@ -81,6 +107,7 @@ local Themes = {
     ["Void Purple"] = {
         Background = Color3.fromRGB(12, 8, 20),
         Surface = Color3.fromRGB(20, 14, 32),
+        SurfaceAlt = Color3.fromRGB(30, 18, 46),
         Accent = Color3.fromRGB(170, 0, 255),
         AccentAlt = Color3.fromRGB(0, 240, 255),
         Text = Color3.fromRGB(245, 235, 255),
@@ -89,6 +116,7 @@ local Themes = {
     ["Red Alert"] = {
         Background = Color3.fromRGB(18, 8, 10),
         Surface = Color3.fromRGB(28, 12, 15),
+        SurfaceAlt = Color3.fromRGB(38, 16, 20),
         Accent = Color3.fromRGB(255, 35, 60),
         AccentAlt = Color3.fromRGB(255, 170, 0),
         Text = Color3.fromRGB(255, 235, 238),
@@ -120,7 +148,7 @@ end
 --==================================================
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CH3A5_CYBER_MASTER_V3"
+ScreenGui.Name = "CH3A5_CYBER_MASTER_V4"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.Parent = PlayerGui
@@ -292,8 +320,8 @@ end
 
 local Main = Instance.new("Frame")
 Main.Name = "Main"
-Main.Size = UDim2.fromOffset(540, 350)
-Main.Position = UDim2.new(0.5, -270, 0.5, -175)
+Main.Size = UDim2.fromOffset(580, 390)
+Main.Position = UDim2.new(0.5, -290, 0.5, -195)
 Main.BackgroundColor3 = CurrentTheme.Background
 Main.BorderSizePixel = 0
 Main.ClipsDescendants = true
@@ -301,7 +329,7 @@ Main.Parent = ScreenGui
 RegisterThemeElement(Main, "BackgroundColor3", "Background")
 
 local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 6)
+MainCorner.CornerRadius = UDim.new(0, 8)
 MainCorner.Parent = Main
 
 local MainStroke = Instance.new("UIStroke")
@@ -332,7 +360,7 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, -180, 1, 0)
 Title.Position = UDim2.fromOffset(12, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "[ CH3A5 // HUD ] v3.0"
+Title.Text = "[ CH3A5 // HUB ] PRO HUD"
 Title.Font = Enum.Font.Code
 Title.TextSize = 13
 Title.TextXAlignment = Enum.TextXAlignment.Left
@@ -340,7 +368,6 @@ Title.TextColor3 = CurrentTheme.Accent
 Title.Parent = Topbar
 RegisterThemeElement(Title, "TextColor3", "Accent")
 
--- Online Status Badge
 local StatusBadge = Instance.new("Frame")
 StatusBadge.Size = UDim2.fromOffset(72, 20)
 StatusBadge.Position = UDim2.new(1, -150, 0.5, -10)
@@ -399,96 +426,129 @@ Close.Parent = Topbar
 RegisterThemeElement(Close, "TextColor3", "AccentAlt")
 
 --==================================================
--- FOOTER HUD BAR
---==================================================
-
-local Footer = Instance.new("Frame")
-Footer.Size = UDim2.new(1, 0, 0, 22)
-Footer.Position = UDim2.new(0, 0, 1, -22)
-Footer.BackgroundColor3 = CurrentTheme.Surface
-Footer.BorderSizePixel = 0
-Footer.Parent = Main
-RegisterThemeElement(Footer, "BackgroundColor3", "Surface")
-
-local FooterLine = Instance.new("Frame")
-FooterLine.Size = UDim2.new(1, 0, 0, 1)
-FooterLine.BackgroundColor3 = CurrentTheme.Accent
-FooterLine.BorderSizePixel = 0
-FooterLine.Parent = Footer
-RegisterThemeElement(FooterLine, "BackgroundColor3", "Accent")
-
-local FooterLabel = Instance.new("TextLabel")
-FooterLabel.Size = UDim2.new(1, -20, 1, 0)
-FooterLabel.Position = UDim2.fromOffset(10, 0)
-FooterLabel.BackgroundTransparency = 1
-FooterLabel.Text = "[ USER: " .. Player.Name .. " | FPS: -- | PING: --ms ]"
-FooterLabel.Font = Enum.Font.Code
-FooterLabel.TextSize = 10
-FooterLabel.TextColor3 = CurrentTheme.Muted
-FooterLabel.TextXAlignment = Enum.TextXAlignment.Left
-FooterLabel.Parent = Footer
-RegisterThemeElement(FooterLabel, "TextColor3", "Muted")
-
-local FrameCount = 0
-local LastFPSUpdate = os.clock()
-
-RunService.RenderStepped:Connect(function()
-    FrameCount = FrameCount + 1
-    local now = os.clock()
-    if now - LastFPSUpdate >= 0.5 then
-        local fps = math.floor(FrameCount / (now - LastFPSUpdate))
-        FrameCount = 0
-        LastFPSUpdate = now
-
-        local ping = 0
-        pcall(function()
-            ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
-        end)
-
-        FooterLabel.Text = string.format("[ USER: %s | FPS: %d | PING: %dms ]", Player.Name, fps, ping)
-    end
-end)
-
---==================================================
--- SIDEBAR & SMOOTH ACTIVE INDICATOR
+-- SIDEBAR & FIXED SCROLLABLE TAB SYSTEM
 --==================================================
 
 local Sidebar = Instance.new("Frame")
-Sidebar.Size = UDim2.new(0, 135, 1, -60)
+Sidebar.Size = UDim2.new(0, 145, 1, -38)
 Sidebar.Position = UDim2.fromOffset(0, 38)
 Sidebar.BackgroundColor3 = CurrentTheme.Surface
 Sidebar.BorderSizePixel = 0
 Sidebar.Parent = Main
 RegisterThemeElement(Sidebar, "BackgroundColor3", "Surface")
 
+-- Scrollable Tab Holder (Fixes Overflow)
+local TabHolder = Instance.new("ScrollingFrame")
+TabHolder.Size = UDim2.new(1, 0, 1, -55)
+TabHolder.Position = UDim2.fromOffset(0, 0)
+TabHolder.BackgroundTransparency = 1
+TabHolder.BorderSizePixel = 0
+TabHolder.ScrollBarThickness = 2
+TabHolder.ScrollBarImageColor3 = CurrentTheme.Accent
+TabHolder.CanvasSize = UDim2.new()
+TabHolder.AutomaticCanvasSize = Enum.AutomaticSize.Y
+TabHolder.Parent = Sidebar
+RegisterThemeElement(TabHolder, "ScrollBarImageColor3", "Accent")
+
 local SidePadding = Instance.new("UIPadding")
-SidePadding.PaddingTop = UDim.new(0, 10)
-SidePadding.PaddingLeft = UDim.new(0, 8)
-SidePadding.PaddingRight = UDim.new(0, 8)
-SidePadding.Parent = Sidebar
+SidePadding.PaddingTop = UDim.new(0, 8)
+SidePadding.PaddingLeft = UDim.new(0, 6)
+SidePadding.PaddingRight = UDim.new(0, 6)
+SidePadding.Parent = TabHolder
 
 local SideLayout = Instance.new("UIListLayout")
 SideLayout.Padding = UDim.new(0, 6)
 SideLayout.SortOrder = Enum.SortOrder.LayoutOrder
-SideLayout.Parent = Sidebar
+SideLayout.Parent = TabHolder
 
--- Glowing Active Tab Bar Indicator
-local ActiveBar = Instance.new("Frame")
-ActiveBar.Size = UDim2.new(0, 3, 0, 24)
-ActiveBar.Position = UDim2.fromOffset(0, 15)
-ActiveBar.BackgroundColor3 = CurrentTheme.Accent
-ActiveBar.BorderSizePixel = 0
-ActiveBar.ZIndex = 10
-ActiveBar.Parent = Sidebar
-RegisterThemeElement(ActiveBar, "BackgroundColor3", "Accent")
+--==================================================
+-- BOTTOM-LEFT SIDEBAR PROFILE CARD
+--==================================================
+
+local ProfileCard = Instance.new("Frame")
+ProfileCard.Size = UDim2.new(1, -12, 0, 46)
+ProfileCard.Position = UDim2.new(0, 6, 1, -50)
+ProfileCard.BackgroundColor3 = CurrentTheme.Background
+ProfileCard.BorderSizePixel = 0
+ProfileCard.Parent = Sidebar
+RegisterThemeElement(ProfileCard, "BackgroundColor3", "Background")
+
+local PCorner = Instance.new("UICorner")
+PCorner.CornerRadius = UDim.new(0, 6)
+PCorner.Parent = ProfileCard
+
+local PStroke = Instance.new("UIStroke")
+PStroke.Color = CurrentTheme.Accent
+PStroke.Transparency = 0.7
+PStroke.Thickness = 1
+PStroke.Parent = ProfileCard
+RegisterThemeElement(PStroke, "Color", "Accent")
+
+local PAvatar = Instance.new("ImageLabel")
+PAvatar.Size = UDim2.fromOffset(32, 32)
+PAvatar.Position = UDim2.fromOffset(7, 7)
+PAvatar.BackgroundTransparency = 1
+PAvatar.Image = "rbxthumb://type=AvatarHeadShot&id=" .. Player.UserId .. "&w=150&h=150"
+PAvatar.Parent = ProfileCard
+
+local PACorner = Instance.new("UICorner")
+PACorner.CornerRadius = UDim.new(1, 0)
+PACorner.Parent = PAvatar
+
+local POnlineDot = Instance.new("Frame")
+POnlineDot.Size = UDim2.fromOffset(8, 8)
+POnlineDot.Position = UDim2.fromOffset(29, 29)
+POnlineDot.BackgroundColor3 = Color3.fromRGB(0, 255, 128)
+POnlineDot.BorderSizePixel = 0
+POnlineDot.ZIndex = 2
+POnlineDot.Parent = ProfileCard
+
+local PODCorner = Instance.new("UICorner")
+PODCorner.CornerRadius = UDim.new(1, 0)
+PODCorner.Parent = POnlineDot
+
+local PName = Instance.new("TextLabel")
+PName.Size = UDim2.new(1, -70, 0, 16)
+PName.Position = UDim2.fromOffset(44, 7)
+PName.BackgroundTransparency = 1
+PName.Text = Player.DisplayName
+PName.Font = Enum.Font.GothamBold
+PName.TextSize = 11
+PName.TextColor3 = CurrentTheme.Text
+PName.TextXAlignment = Enum.TextXAlignment.Left
+PName.Parent = ProfileCard
+RegisterThemeElement(PName, "TextColor3", "Text")
+
+local PUser = Instance.new("TextLabel")
+PUser.Size = UDim2.new(1, -70, 0, 14)
+PUser.Position = UDim2.fromOffset(44, 23)
+PUser.BackgroundTransparency = 1
+PUser.Text = "@" .. Player.Name
+PUser.Font = Enum.Font.Code
+PUser.TextSize = 9
+PUser.TextColor3 = CurrentTheme.Muted
+PUser.TextXAlignment = Enum.TextXAlignment.Left
+PUser.Parent = ProfileCard
+RegisterThemeElement(PUser, "TextColor3", "Muted")
+
+local GearBtn = Instance.new("TextButton")
+GearBtn.Size = UDim2.fromOffset(20, 20)
+GearBtn.Position = UDim2.new(1, -24, 0.5, -10)
+GearBtn.BackgroundTransparency = 1
+GearBtn.Text = "⚙"
+GearBtn.Font = Enum.Font.GothamBold
+GearBtn.TextSize = 12
+GearBtn.TextColor3 = CurrentTheme.Muted
+GearBtn.Parent = ProfileCard
+RegisterThemeElement(GearBtn, "TextColor3", "Muted")
 
 --==================================================
 -- CONTENT & PAGES
 --==================================================
 
 local Content = Instance.new("Frame")
-Content.Size = UDim2.new(1, -135, 1, -60)
-Content.Position = UDim2.fromOffset(135, 38)
+Content.Size = UDim2.new(1, -145, 1, -38)
+Content.Position = UDim2.fromOffset(145, 38)
 Content.BackgroundColor3 = CurrentTheme.Background
 Content.BorderSizePixel = 0
 Content.Parent = Main
@@ -527,6 +587,11 @@ local FavoritesPage = CreatePage("Favorites")
 local ThemesPage = CreatePage("Themes")
 local SettingsPage = CreatePage("Settings")
 
+GearBtn.MouseButton1Click:Connect(function()
+    for _, page in pairs(Pages) do page.Visible = false end
+    SettingsPage.Visible = true
+end)
+
 --==================================================
 -- DEDICATED FAVORITES SYSTEM
 --==================================================
@@ -535,7 +600,6 @@ local FavoritedData = {}
 local RegisteredStarBtns = {}
 
 local function RefreshFavoritesUI()
-    -- Clear current favorites page children (except sections/infos)
     for _, child in ipairs(FavoritesPage:GetChildren()) do
         if child:IsA("Frame") and child.Name == "ScriptFrame" then
             child:Destroy()
@@ -545,7 +609,6 @@ local function RefreshFavoritesUI()
     local count = 0
     for _, scriptData in pairs(FavoritedData) do
         count = count + 1
-        -- Re-add to Favorites Page
         local Frame = Instance.new("Frame")
         Frame.Name = "ScriptFrame"
         Frame.Size = UDim2.new(1, 0, 0, 50)
@@ -574,7 +637,7 @@ local function RefreshFavoritesUI()
 
         local Name = Instance.new("TextLabel")
         Name.Name = "ScriptName"
-        Name.Size = UDim2.new(1, -75, 0, 20)
+        Name.Size = UDim2.new(1, -45, 0, 20)
         Name.Position = UDim2.fromOffset(12, 5)
         Name.BackgroundTransparency = 1
         Name.Text = scriptData.Name
@@ -586,7 +649,7 @@ local function RefreshFavoritesUI()
         RegisterThemeElement(Name, "TextColor3", "Text")
 
         local Desc = Instance.new("TextLabel")
-        Desc.Size = UDim2.new(1, -75, 0, 18)
+        Desc.Size = UDim2.new(1, -45, 0, 18)
         Desc.Position = UDim2.fromOffset(12, 25)
         Desc.BackgroundTransparency = 1
         Desc.Text = "[ " .. scriptData.Desc .. " ]"
@@ -598,31 +661,13 @@ local function RefreshFavoritesUI()
         RegisterThemeElement(Desc, "TextColor3", "Muted")
 
         local ExecBtn = Instance.new("TextButton")
-        ExecBtn.Size = UDim2.new(1, -65, 1, 0)
+        ExecBtn.Size = UDim2.new(1, -35, 1, 0)
         ExecBtn.BackgroundTransparency = 1
         ExecBtn.Text = ""
         ExecBtn.Parent = Frame
 
         ExecBtn.MouseButton1Click:Connect(function()
             ExecuteScript(scriptData.Name, scriptData.Url)
-        end)
-
-        local CopyBtn = Instance.new("TextButton")
-        CopyBtn.Size = UDim2.fromOffset(26, 26)
-        CopyBtn.Position = UDim2.new(1, -58, 0.5, -13)
-        CopyBtn.BackgroundColor3 = CurrentTheme.Background
-        CopyBtn.Text = "📋"
-        CopyBtn.TextSize = 12
-        CopyBtn.Parent = Frame
-        RegisterThemeElement(CopyBtn, "BackgroundColor3", "Background")
-
-        local CCorner = Instance.new("UICorner")
-        CCorner.CornerRadius = UDim.new(0, 4)
-        CCorner.Parent = CopyBtn
-
-        CopyBtn.MouseButton1Click:Connect(function()
-            pcall(function() setclipboard(scriptData.Url) end)
-            Notify("CLIPBOARD", "Copied URL for " .. scriptData.Name, 2)
         end)
 
         local UnfavBtn = Instance.new("TextButton")
@@ -649,7 +694,6 @@ local function RefreshFavoritesUI()
         end)
     end
 
-    -- Update No Favorites Info Label
     local NoFavLabel = FavoritesPage:FindFirstChild("NoFavLabel")
     if NoFavLabel then
         NoFavLabel.Visible = (count == 0)
@@ -736,6 +780,7 @@ local function AddSearchBar(Page)
     end)
 end
 
+-- NO COPY BUTTON AS REQUESTED
 local function AddScriptButton(Page, name, description, url)
     local Frame = Instance.new("Frame")
     Frame.Name = "ScriptFrame"
@@ -765,7 +810,7 @@ local function AddScriptButton(Page, name, description, url)
 
     local Name = Instance.new("TextLabel")
     Name.Name = "ScriptName"
-    Name.Size = UDim2.new(1, -75, 0, 20)
+    Name.Size = UDim2.new(1, -45, 0, 20)
     Name.Position = UDim2.fromOffset(12, 5)
     Name.BackgroundTransparency = 1
     Name.Text = name
@@ -777,7 +822,7 @@ local function AddScriptButton(Page, name, description, url)
     RegisterThemeElement(Name, "TextColor3", "Text")
 
     local Desc = Instance.new("TextLabel")
-    Desc.Size = UDim2.new(1, -75, 0, 18)
+    Desc.Size = UDim2.new(1, -45, 0, 18)
     Desc.Position = UDim2.fromOffset(12, 25)
     Desc.BackgroundTransparency = 1
     Desc.Text = "[ " .. description .. " ]"
@@ -789,7 +834,7 @@ local function AddScriptButton(Page, name, description, url)
     RegisterThemeElement(Desc, "TextColor3", "Muted")
 
     local ExecBtn = Instance.new("TextButton")
-    ExecBtn.Size = UDim2.new(1, -65, 1, 0)
+    ExecBtn.Size = UDim2.new(1, -35, 1, 0)
     ExecBtn.BackgroundTransparency = 1
     ExecBtn.Text = ""
     ExecBtn.Parent = Frame
@@ -805,24 +850,6 @@ local function AddScriptButton(Page, name, description, url)
 
     ExecBtn.MouseButton1Click:Connect(function()
         ExecuteScript(name, url)
-    end)
-
-    local CopyBtn = Instance.new("TextButton")
-    CopyBtn.Size = UDim2.fromOffset(26, 26)
-    CopyBtn.Position = UDim2.new(1, -58, 0.5, -13)
-    CopyBtn.BackgroundColor3 = CurrentTheme.Background
-    CopyBtn.Text = "📋"
-    CopyBtn.TextSize = 12
-    CopyBtn.Parent = Frame
-    RegisterThemeElement(CopyBtn, "BackgroundColor3", "Background")
-
-    local CCorner = Instance.new("UICorner")
-    CCorner.CornerRadius = UDim.new(0, 4)
-    CCorner.Parent = CopyBtn
-
-    CopyBtn.MouseButton1Click:Connect(function()
-        pcall(function() setclipboard(url) end)
-        Notify("CLIPBOARD", "Copied URL for " .. name, 2)
     end)
 
     local FavBtn = Instance.new("TextButton")
@@ -1000,35 +1027,401 @@ local function AddSlider(Page, text, minVal, maxVal, defaultVal, callback)
     end)
 end
 
-local function AddComingSoon(Page, name)
-    local Button = Instance.new("TextButton")
-    Button.Size = UDim2.new(1, 0, 0, 38)
-    Button.BackgroundColor3 = CurrentTheme.Surface
-    Button.BorderSizePixel = 0
-    Button.Text = name .. " // COMING SOON"
-    Button.Font = Enum.Font.Code
-    Button.TextSize = 10
-    Button.TextColor3 = CurrentTheme.Muted
-    Button.AutoButtonColor = false
-    Button.Parent = Page
-    RegisterThemeElement(Button, "BackgroundColor3", "Surface")
-    RegisterThemeElement(Button, "TextColor3", "Muted")
+--==================================================
+-- PREMIUM HOME PAGE REDESIGN
+--==================================================
 
-    local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 4)
-    Corner.Parent = Button
+-- 1. TOP HEADER
+local HomeHeader = Instance.new("Frame")
+HomeHeader.Size = UDim2.new(1, 0, 0, 40)
+HomeHeader.BackgroundTransparency = 1
+HomeHeader.Parent = HomePage
+
+local HomeIcon = Instance.new("TextLabel")
+HomeIcon.Size = UDim2.fromOffset(24, 24)
+HomeIcon.Position = UDim2.fromOffset(0, 0)
+HomeIcon.BackgroundTransparency = 1
+HomeIcon.Text = "🏠"
+HomeIcon.TextSize = 16
+HomeIcon.Parent = HomeHeader
+
+local HomeTitle = Instance.new("TextLabel")
+HomeTitle.Size = UDim2.new(1, -180, 0, 20)
+HomeTitle.Position = UDim2.fromOffset(28, 0)
+HomeTitle.BackgroundTransparency = 1
+HomeTitle.Text = "Welcome to CH3A5 HUB"
+HomeTitle.Font = Enum.Font.GothamBold
+HomeTitle.TextSize = 15
+HomeTitle.TextColor3 = CurrentTheme.Text
+HomeTitle.TextXAlignment = Enum.TextXAlignment.Left
+HomeTitle.Parent = HomeHeader
+RegisterThemeElement(HomeTitle, "TextColor3", "Text")
+
+local HomeSub = Instance.new("TextLabel")
+HomeSub.Size = UDim2.new(1, -180, 0, 14)
+HomeSub.Position = UDim2.fromOffset(28, 20)
+HomeSub.BackgroundTransparency = 1
+HomeSub.Text = "Premium Cyberpunk Execution Environment"
+HomeSub.Font = Enum.Font.Code
+HomeSub.TextSize = 9
+HomeSub.TextColor3 = CurrentTheme.Muted
+HomeSub.TextXAlignment = Enum.TextXAlignment.Left
+HomeSub.Parent = HomeHeader
+RegisterThemeElement(HomeSub, "TextColor3", "Muted")
+
+local HeaderDivider = Instance.new("Frame")
+HeaderDivider.Size = UDim2.new(1, 0, 0, 1)
+HeaderDivider.Position = UDim2.fromOffset(0, 38)
+HeaderDivider.BackgroundColor3 = CurrentTheme.Accent
+HeaderDivider.BorderSizePixel = 0
+HeaderDivider.Parent = HomeHeader
+RegisterThemeElement(HeaderDivider, "BackgroundColor3", "Accent")
+
+-- 2. WELCOME CARD
+local WelcomeCard = Instance.new("Frame")
+WelcomeCard.Size = UDim2.new(1, 0, 0, 80)
+WelcomeCard.BackgroundColor3 = CurrentTheme.Surface
+WelcomeCard.BorderSizePixel = 0
+WelcomeCard.Parent = HomePage
+RegisterThemeElement(WelcomeCard, "BackgroundColor3", "Surface")
+
+local WCorner = Instance.new("UICorner")
+WCorner.CornerRadius = UDim.new(0, 6)
+WCorner.Parent = WelcomeCard
+
+local WStroke = Instance.new("UIStroke")
+WStroke.Color = CurrentTheme.Accent
+WStroke.Transparency = 0.8
+WStroke.Thickness = 1
+WStroke.Parent = WelcomeCard
+RegisterThemeElement(WStroke, "Color", "Accent")
+
+local WAvatar = Instance.new("ImageLabel")
+WAvatar.Size = UDim2.fromOffset(56, 56)
+WAvatar.Position = UDim2.fromOffset(12, 12)
+WAvatar.BackgroundTransparency = 1
+WAvatar.Image = "rbxthumb://type=AvatarHeadShot&id=" .. Player.UserId .. "&w=150&h=150"
+WAvatar.Parent = WelcomeCard
+
+local WACorner = Instance.new("UICorner")
+WACorner.CornerRadius = UDim.new(1, 0)
+WACorner.Parent = WAvatar
+
+local WTag = Instance.new("TextLabel")
+WTag.Size = UDim2.new(1, -180, 0, 14)
+WTag.Position = UDim2.fromOffset(78, 12)
+WTag.BackgroundTransparency = 1
+WTag.Text = "WELCOME BACK"
+WTag.Font = Enum.Font.Code
+WTag.TextSize = 10
+WTag.TextColor3 = CurrentTheme.Accent
+WTag.TextXAlignment = Enum.TextXAlignment.Left
+WTag.Parent = WelcomeCard
+RegisterThemeElement(WTag, "TextColor3", "Accent")
+
+local WName = Instance.new("TextLabel")
+WName.Size = UDim2.new(1, -180, 0, 20)
+WName.Position = UDim2.fromOffset(78, 26)
+WName.BackgroundTransparency = 1
+WName.Text = Player.DisplayName
+WName.Font = Enum.Font.GothamBold
+WName.TextSize = 16
+WName.TextColor3 = CurrentTheme.Text
+WName.TextXAlignment = Enum.TextXAlignment.Left
+WName.Parent = WelcomeCard
+RegisterThemeElement(WName, "TextColor3", "Text")
+
+local WUser = Instance.new("TextLabel")
+WUser.Size = UDim2.new(1, -180, 0, 16)
+WUser.Position = UDim2.fromOffset(78, 48)
+WUser.BackgroundTransparency = 1
+WUser.Text = "@" .. Player.Name
+WUser.Font = Enum.Font.Code
+WUser.TextSize = 10
+WUser.TextColor3 = CurrentTheme.Muted
+WUser.TextXAlignment = Enum.TextXAlignment.Left
+WUser.Parent = WelcomeCard
+RegisterThemeElement(WUser, "TextColor3", "Muted")
+
+local VerBadge = Instance.new("TextLabel")
+VerBadge.Size = UDim2.fromOffset(75, 22)
+VerBadge.Position = UDim2.new(1, -85, 0.5, -11)
+VerBadge.BackgroundColor3 = CurrentTheme.Background
+VerBadge.Text = "v4.5 PRO"
+VerBadge.Font = Enum.Font.Code
+VerBadge.TextSize = 10
+VerBadge.TextColor3 = CurrentTheme.Accent
+VerBadge.Parent = WelcomeCard
+RegisterThemeElement(VerBadge, "BackgroundColor3", "Background")
+RegisterThemeElement(VerBadge, "TextColor3", "Accent")
+
+local VBCorner = Instance.new("UICorner")
+VBCorner.CornerRadius = UDim.new(0, 4)
+VBCorner.Parent = VerBadge
+
+-- 3. PERFORMANCE DASHBOARD CARD
+local PerfCard = Instance.new("Frame")
+PerfCard.Size = UDim2.new(1, 0, 0, 85)
+PerfCard.BackgroundColor3 = CurrentTheme.Surface
+PerfCard.BorderSizePixel = 0
+PerfCard.Parent = HomePage
+RegisterThemeElement(PerfCard, "BackgroundColor3", "Surface")
+
+local PCorner2 = Instance.new("UICorner")
+PCorner2.CornerRadius = UDim.new(0, 6)
+PCorner2.Parent = PerfCard
+
+local PGrid = Instance.new("UIGridLayout")
+PGrid.CellSize = UDim2.new(0.25, -6, 1, -12)
+PGrid.CellPadding = UDim2.fromOffset(8, 0)
+PGrid.SortOrder = Enum.SortOrder.LayoutOrder
+PGrid.Parent = PerfCard
+
+local PPad = Instance.new("UIPadding")
+PPad.PaddingTop = UDim.new(0, 6)
+PPad.PaddingLeft = UDim.new(0, 8)
+PPad.PaddingRight = UDim.new(0, 8)
+PPad.Parent = PerfCard
+
+local function CreatePerfItem(title, initialValue, hasBar)
+    local Item = Instance.new("Frame")
+    Item.BackgroundColor3 = CurrentTheme.Background
+    Item.BorderSizePixel = 0
+    Item.Parent = PerfCard
+    RegisterThemeElement(Item, "BackgroundColor3", "Background")
+
+    local ICorner = Instance.new("UICorner")
+    ICorner.CornerRadius = UDim.new(0, 4)
+    ICorner.Parent = Item
+
+    local ITitle = Instance.new("TextLabel")
+    ITitle.Size = UDim2.new(1, -10, 0, 16)
+    ITitle.Position = UDim2.fromOffset(8, 6)
+    ITitle.BackgroundTransparency = 1
+    ITitle.Text = title
+    ITitle.Font = Enum.Font.Code
+    ITitle.TextSize = 9
+    ITitle.TextColor3 = CurrentTheme.Muted
+    ITitle.TextXAlignment = Enum.TextXAlignment.Left
+    ITitle.Parent = Item
+    RegisterThemeElement(ITitle, "TextColor3", "Muted")
+
+    local IVal = Instance.new("TextLabel")
+    IVal.Size = UDim2.new(1, -10, 0, 22)
+    IVal.Position = UDim2.fromOffset(8, 22)
+    IVal.BackgroundTransparency = 1
+    IVal.Text = initialValue
+    IVal.Font = Enum.Font.Code
+    IVal.TextSize = 14
+    IVal.TextColor3 = CurrentTheme.Text
+    IVal.TextXAlignment = Enum.TextXAlignment.Left
+    IVal.Parent = Item
+    RegisterThemeElement(IVal, "TextColor3", "Text")
+
+    local FillBar
+    if hasBar then
+        local BarTrack = Instance.new("Frame")
+        BarTrack.Size = UDim2.new(1, -16, 0, 4)
+        BarTrack.Position = UDim2.fromOffset(8, 52)
+        BarTrack.BackgroundColor3 = CurrentTheme.Surface
+        BarTrack.BorderSizePixel = 0
+        BarTrack.Parent = Item
+        RegisterThemeElement(BarTrack, "BackgroundColor3", "Surface")
+
+        local BTCorner = Instance.new("UICorner")
+        BTCorner.CornerRadius = UDim.new(1, 0)
+        BTCorner.Parent = BarTrack
+
+        FillBar = Instance.new("Frame")
+        FillBar.Size = UDim2.new(0.5, 0, 1, 0)
+        FillBar.BackgroundColor3 = CurrentTheme.Accent
+        FillBar.BorderSizePixel = 0
+        FillBar.Parent = BarTrack
+        RegisterThemeElement(FillBar, "BackgroundColor3", "Accent")
+
+        local FBCorner = Instance.new("UICorner")
+        FBCorner.CornerRadius = UDim.new(1, 0)
+        FBCorner.Parent = FillBar
+    end
+
+    return IVal, FillBar
 end
 
---==================================================
--- HOME PAGE
---==================================================
+local FPSVal, FPSBar = CreatePerfItem("FPS", "60", true)
+local PingVal, PingBar = CreatePerfItem("PING", "0ms", true)
+local PlayersVal = CreatePerfItem("PLAYERS", "1/1", false)
+local SessionVal = CreatePerfItem("SESSION", "00m 00s", false)
 
-AddSection(HomePage, "SYSTEM OVERVIEW")
-AddInfo(HomePage, "Select module category from sidebar.")
-AddComingSoon(HomePage, "More Scripts")
+-- Live Dashboard Updater
+task.spawn(function()
+    local frameCount = 0
+    local lastCheck = os.clock()
+
+    RunService.RenderStepped:Connect(function()
+        frameCount = frameCount + 1
+        local now = os.clock()
+        if now - lastCheck >= 0.5 then
+            local fps = math.floor(frameCount / (now - lastCheck))
+            frameCount = 0
+            lastCheck = now
+
+            local ping = 0
+            pcall(function()
+                ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+            end)
+
+            FPSVal.Text = tostring(fps)
+            PingVal.Text = tostring(ping) .. "ms"
+
+            if FPSBar then FPSBar.Size = UDim2.new(math.clamp(fps / 60, 0, 1), 0, 1, 0) end
+            if PingBar then PingBar.Size = UDim2.new(math.clamp(1 - (ping / 250), 0.1, 1), 0, 1, 0) end
+
+            PlayersVal.Text = tostring(#Players:GetPlayers()) .. "/" .. tostring(Players.MaxPlayers)
+
+            local elapsed = math.floor(tick() - StartSessionTime)
+            local mins = math.floor(elapsed / 60)
+            local secs = elapsed % 60
+            SessionVal.Text = string.format("%02dm %02ds", mins, secs)
+        end
+    end)
+end)
+
+-- 4. CURRENT GAME / SERVER CARD
+local GameCard = Instance.new("Frame")
+GameCard.Size = UDim2.new(1, 0, 0, 130)
+GameCard.BackgroundColor3 = CurrentTheme.Surface
+GameCard.BorderSizePixel = 0
+GameCard.Parent = HomePage
+RegisterThemeElement(GameCard, "BackgroundColor3", "Surface")
+
+local GCorner = Instance.new("UICorner")
+GCorner.CornerRadius = UDim.new(0, 6)
+GCorner.Parent = GameCard
+
+local GIcon = Instance.new("ImageLabel")
+GIcon.Size = UDim2.fromOffset(48, 48)
+GIcon.Position = UDim2.fromOffset(12, 12)
+GIcon.BackgroundTransparency = 1
+GIcon.Image = "rbxassetid://0"
+GIcon.Parent = GameCard
+
+local GICorner = Instance.new("UICorner")
+GICorner.CornerRadius = UDim.new(0, 6)
+GICorner.Parent = GIcon
+
+local GName = Instance.new("TextLabel")
+GName.Size = UDim2.new(1, -75, 0, 20)
+GName.Position = UDim2.fromOffset(68, 12)
+GName.BackgroundTransparency = 1
+GName.Text = "Loading Game..."
+GName.Font = Enum.Font.GothamBold
+GName.TextSize = 14
+GName.TextColor3 = CurrentTheme.Text
+GName.TextXAlignment = Enum.TextXAlignment.Left
+GName.Parent = GameCard
+RegisterThemeElement(GName, "TextColor3", "Text")
+
+local GDev = Instance.new("TextLabel")
+GDev.Size = UDim2.new(1, -75, 0, 16)
+GDev.Position = UDim2.fromOffset(68, 32)
+GDev.BackgroundTransparency = 1
+GDev.Text = "By Developer"
+GDev.Font = Enum.Font.Code
+GDev.TextSize = 10
+GDev.TextColor3 = CurrentTheme.Muted
+GDev.TextXAlignment = Enum.TextXAlignment.Left
+GDev.Parent = GameCard
+RegisterThemeElement(GDev, "TextColor3", "Muted")
+
+task.spawn(function()
+    while task.wait(1) do
+        if GameInfo.Name ~= "Loading..." then
+            GName.Text = GameInfo.Name
+            GDev.Text = "By " .. GameInfo.Creator
+            GIcon.Image = GameInfo.Icon
+            break
+        end
+    end
+end)
+
+-- Action Buttons Grid
+local ActGrid = Instance.new("Frame")
+ActGrid.Size = UDim2.new(1, -24, 0, 36)
+ActGrid.Position = UDim2.fromOffset(12, 80)
+ActGrid.BackgroundTransparency = 1
+ActGrid.Parent = GameCard
+
+local ALayout = Instance.new("UIGridLayout")
+ALayout.CellSize = UDim2.new(0.25, -6, 1, 0)
+ALayout.CellPadding = UDim2.fromOffset(8, 0)
+ALayout.Parent = ActGrid
+
+local function CreateActionButton(text, callback)
+    local Btn = Instance.new("TextButton")
+    Btn.BackgroundColor3 = CurrentTheme.Background
+    Btn.Text = text
+    Btn.Font = Enum.Font.Code
+    Btn.TextSize = 10
+    Btn.TextColor3 = CurrentTheme.Text
+    Btn.Parent = ActGrid
+    RegisterThemeElement(Btn, "BackgroundColor3", "Background")
+    RegisterThemeElement(Btn, "TextColor3", "Text")
+
+    local BCorner = Instance.new("UICorner")
+    BCorner.CornerRadius = UDim.new(0, 4)
+    BCorner.Parent = Btn
+
+    local BStroke = Instance.new("UIStroke")
+    BStroke.Color = CurrentTheme.Accent
+    BStroke.Transparency = 0.8
+    BStroke.Thickness = 1
+    BStroke.Parent = Btn
+    RegisterThemeElement(BStroke, "Color", "Accent")
+
+    Btn.MouseEnter:Connect(function()
+        TweenService:Create(BStroke, TweenInfo.new(0.2), {Transparency = 0}):Play()
+    end)
+    Btn.MouseLeave:Connect(function()
+        TweenService:Create(BStroke, TweenInfo.new(0.2), {Transparency = 0.8}):Play()
+    end)
+
+    Btn.MouseButton1Click:Connect(callback)
+end
+
+-- Server Action Logic
+CreateActionButton("⚡ Rejoin", function()
+    TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, Player)
+end)
+
+local function ServerHop(lowest)
+    Notify("SERVER", "Searching for server...", 3)
+    task.spawn(function()
+        local url = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=" .. (lowest and "Asc" or "Desc") .. "&limit=100"
+        local success, result = pcall(function() return game:HttpGet(url) end)
+        if success and result then
+            local data = HttpService:JSONDecode(result)
+            if data and data.data then
+                for _, s in ipairs(data.data) do
+                    if s.playing and s.playing < s.maxPlayers and s.id ~= game.JobId then
+                        TeleportService:TeleportToPlaceInstance(game.PlaceId, s.id, Player)
+                        return
+                    end
+                end
+            end
+        end
+        Notify("SERVER", "No alternate server found!", 3)
+    end)
+end
+
+CreateActionButton("🚀 Hop", function() ServerHop(false) end)
+CreateActionButton("📉 Low Hop", function() ServerHop(true) end)
+CreateActionButton("📋 Job ID", function()
+    pcall(function() setclipboard(game.JobId) end)
+    Notify("SERVER", "Copied Job ID to clipboard", 2)
+end)
 
 --==================================================
--- KEYLESS PAGE (UNTOUCHED DATA / LOADERS)
+-- KEYLESS PAGE (UNTOUCHED LOADERS)
 --==================================================
 
 AddSection(KeylessPage, "KEYLESS MODULES")
@@ -1057,7 +1450,7 @@ AddScriptButton(
 )
 
 --==================================================
--- KEY PAGE (UNTOUCHED DATA / LOADERS)
+-- KEY PAGE (UNTOUCHED LOADERS)
 --==================================================
 
 AddSection(KeyPage, "PROTECTED MODULES")
@@ -1185,26 +1578,6 @@ UserInputService.InputBegan:Connect(function(input, gpe)
     end
 end)
 
-local RejoinBtn = Instance.new("TextButton")
-RejoinBtn.Size = UDim2.new(1, 0, 0, 34)
-RejoinBtn.BackgroundColor3 = CurrentTheme.Surface
-RejoinBtn.BorderSizePixel = 0
-RejoinBtn.Text = "⚡ REJOIN SERVER"
-RejoinBtn.Font = Enum.Font.Code
-RejoinBtn.TextSize = 11
-RejoinBtn.TextColor3 = CurrentTheme.Text
-RejoinBtn.Parent = SettingsPage
-RegisterThemeElement(RejoinBtn, "BackgroundColor3", "Surface")
-RegisterThemeElement(RejoinBtn, "TextColor3", "Text")
-
-local RJCorner = Instance.new("UICorner")
-RJCorner.CornerRadius = UDim.new(0, 4)
-RJCorner.Parent = RejoinBtn
-
-RejoinBtn.MouseButton1Click:Connect(function()
-    game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, Player)
-end)
-
 --==================================================
 -- SIDEBAR NAVIGATION & ANIMATION
 --==================================================
@@ -1221,7 +1594,7 @@ local function AddTab(name, page)
     Button.TextSize = 11
     Button.TextColor3 = CurrentTheme.Muted
     Button.AutoButtonColor = false
-    Button.Parent = Sidebar
+    Button.Parent = TabHolder
     RegisterThemeElement(Button, "BackgroundColor3", "Background")
 
     local Corner = Instance.new("UICorner")
@@ -1246,11 +1619,6 @@ local function AddTab(name, page)
         page.Visible = true
         TweenService:Create(page, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
             Position = UDim2.fromOffset(8, 8)
-        }):Play()
-
-        -- Move Glowing Active Bar Indicator smoothly
-        TweenService:Create(ActiveBar, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-            Position = UDim2.fromOffset(0, Button.Position.Y.Offset + 10)
         }):Play()
 
         Button.TextColor3 = CurrentTheme.Accent
@@ -1282,17 +1650,15 @@ Minimize.MouseButton1Click:Connect(function()
     PlaySound(6042053626, 0.9)
     Minimized = not Minimized
     if Minimized then
-        TweenService:Create(Main, TweenInfo.new(0.25), {Size = UDim2.fromOffset(540, 38)}):Play()
+        TweenService:Create(Main, TweenInfo.new(0.25), {Size = UDim2.fromOffset(580, 38)}):Play()
         Sidebar.Visible = false
         Content.Visible = false
-        Footer.Visible = false
         SetBlur(false)
     else
         TweenService:Create(Main, TweenInfo.new(0.25), {Size = OriginalSize}):Play()
         task.wait(0.15)
         Sidebar.Visible = true
         Content.Visible = true
-        Footer.Visible = true
         SetBlur(true)
     end
 end)
@@ -1342,4 +1708,4 @@ MoonToggle.MouseButton1Click:Connect(function()
 end)
 
 SetBlur(true)
-Notify("CYBERHUB", "Initialized V3.0 Master Edition with Dedicated Favorites!", 4)
+Notify("CYBERHUB", "Initialized V4.5 PRO Dashboard!", 4)
