@@ -1,5 +1,5 @@
---// CH3A5 HUB GUI [ULTRA EDITION V5.0]
---// Reduced Size 20% + Persistent Theme/Favs + Auto-Load + Khmer/English + Asset Icons
+--// CH3A5 HUB GUI [FIXED & UPGRADED V5.1]
+--// Dynamic Language Switcher + Emoji Icons + Auto Show GUI + Default Theme Saver
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
@@ -12,25 +12,23 @@ local RunService = game:GetService("RunService")
 local Stats = game:GetService("Stats")
 local Lighting = game:GetService("Lighting")
 local SoundService = game:GetService("SoundService")
-local MarketplaceService = game:GetService("MarketplaceService")
-local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
 
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
 local StartSessionTime = tick()
-local ConfigFile = "CH3A5_Config_V5.json"
+local ConfigFile = "CH3A5_Config_V5_1.json"
 
 --==================================================
 -- LOCAL DATA PERSISTENCE (WRITEFILE / READFILE)
 --==================================================
 
 local SavedConfig = {
-    Theme = "Neon Cyan",
+    DefaultTheme = "Neon Cyan",
     Language = "EN", -- "EN" or "KH"
-    AutoLoad = false,
-    AutoLoadUrl = "",
+    AutoShowGUI = true,
     Favorites = {}
 }
 
@@ -63,44 +61,58 @@ LoadSavedConfig()
 
 local Locales = {
     EN = {
-        Title = "[ CH3A5 // HUB ] V5.0",
-        Home = "Home",
-        Keyless = "Keyless",
-        Keyed = "Keyed",
-        Favorites = "Favorites",
-        Themes = "Themes",
-        Config = "Config",
+        Title = "[ CH3A5 // HUB ] V5.1",
+        Home = "🏠 Home",
+        Keyless = "⚡ Keyless",
+        Keyed = "🔑 Keyed",
+        Favorites = "⭐ Favorites",
+        Themes = "🎨 Themes",
+        Config = "⚙️ Config",
         Welcome = "WELCOME BACK",
         Overview = "System Overview",
         NoFav = "[ NO FAVORITE MODULES ]",
-        AutoLoadLabel = "Auto Load Script on Launch",
-        LangLabel = "Language: English",
-        Rejoin = "Rejoin",
-        Hop = "Server Hop",
-        LowHop = "Low Hop",
-        CopyJob = "Job ID"
+        AutoShowLabel = "Auto Show GUI on Execute",
+        LangLabel = "Language: English (EN)",
+        SetDefault = "SET DEFAULT",
+        IsDefault = "DEFAULT",
+        Rejoin = "⚡ Rejoin",
+        Hop = "🚀 Hop",
+        LowHop = "📉 Low Hop",
+        CopyJob = "📋 Job ID",
+        Search = "🔍 Search modules..."
     },
     KH = {
-        Title = "[ CH3A5 // HUB ] V5.0",
-        Home = "ទំព័រដើម",
-        Keyless = "គ្មាន Key",
-        Keyed = "មាន Key",
-        Favorites = "ចូលចិត្ត",
-        Themes = "ពណ៌ GUI",
-        Config = "ការកំណត់",
+        Title = "[ CH3A5 // HUB ] V5.1",
+        Home = "🏠 ទំព័រដើម",
+        Keyless = "⚡ គ្មាន Key",
+        Keyed = "🔑 គ្មាន Key",
+        Favorites = "⭐ ចូលចិត្ត",
+        Themes = "🎨 ពណ៌ GUI",
+        Config = "⚙️ ការកំណត់",
         Welcome = "ស្វាគមន៍ត្រឡប់មកវិញ",
         Overview = "ព័ត៌មានប្រព័ន្ធ",
         NoFav = "[ គ្មាន Script ចូលចិត្តទេ ]",
-        AutoLoadLabel = "Auto រត់ Script ពេលបើក",
-        LangLabel = "ភាសា: ភាសាខ្មែរ",
-        Rejoin = "ចូលឡើងវិញ",
-        Hop = "ប្តូរ Server",
-        LowHop = "Server ទំនេរ",
-        CopyJob = "ចម្លង Job ID"
+        AutoShowLabel = "Auto បើក GUI ពេល Execute",
+        LangLabel = "ភាសា: ភាសាខ្មែរ (KH)",
+        SetDefault = "កំណត់ DEFAULT",
+        IsDefault = "DEFAULT រួច",
+        Rejoin = "⚡ ចូលឡើងវិញ",
+        Hop = "🚀 ប្តូរ Server",
+        LowHop = "📉 Server ទំនេរ",
+        CopyJob = "📋 ចម្លង Job ID",
+        Search = "🔍 ស្វែងរក Script..."
     }
 }
 
 local CurrentLang = SavedConfig.Language or "EN"
+local TranslatableElements = {}
+
+local function RegisterTranslation(instance, key)
+    table.insert(TranslatableElements, {Instance = instance, Key = key})
+    if Locales[CurrentLang] and Locales[CurrentLang][key] then
+        instance.Text = Locales[CurrentLang][key]
+    end
+end
 
 --==================================================
 -- SOUND EFFECTS & BLUR
@@ -188,7 +200,7 @@ local Themes = {
     }
 }
 
-local CurrentTheme = Themes[SavedConfig.Theme] or Themes["Neon Cyan"]
+local CurrentTheme = Themes[SavedConfig.DefaultTheme] or Themes["Neon Cyan"]
 local RegisteredElements = {}
 
 local function RegisterThemeElement(instance, property, themeKey)
@@ -196,12 +208,8 @@ local function RegisterThemeElement(instance, property, themeKey)
     instance[property] = CurrentTheme[themeKey]
 end
 
-local function ApplyTheme(newTheme, name)
+local function ApplyTheme(newTheme)
     CurrentTheme = newTheme
-    if name then
-        SavedConfig.Theme = name
-        SaveConfig()
-    end
     for _, item in ipairs(RegisteredElements) do
         if item.Instance and item.Instance.Parent then
             TweenService:Create(item.Instance, TweenInfo.new(0.3), {
@@ -216,7 +224,7 @@ end
 --==================================================
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CH3A5_CYBER_MASTER_V5"
+ScreenGui.Name = "CH3A5_CYBER_MASTER_V5_1"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.DisplayOrder = 999999
@@ -386,6 +394,7 @@ Main.BackgroundColor3 = CurrentTheme.Background
 Main.BorderSizePixel = 0
 Main.ClipsDescendants = true
 Main.ZIndex = 10
+Main.Visible = SavedConfig.AutoShowGUI
 Main.Parent = ScreenGui
 RegisterThemeElement(Main, "BackgroundColor3", "Background")
 
@@ -414,7 +423,6 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, -140, 1, 0)
 Title.Position = UDim2.fromOffset(10, 0)
 Title.BackgroundTransparency = 1
-Title.Text = Locales[CurrentLang].Title
 Title.Font = Enum.Font.Code
 Title.TextSize = 11
 Title.TextXAlignment = Enum.TextXAlignment.Left
@@ -422,6 +430,7 @@ Title.TextColor3 = CurrentTheme.Accent
 Title.ZIndex = 12
 Title.Parent = Topbar
 RegisterThemeElement(Title, "TextColor3", "Accent")
+RegisterTranslation(Title, "Title")
 
 local StatusBadge = Instance.new("Frame")
 StatusBadge.Size = UDim2.fromOffset(60, 16)
@@ -461,17 +470,19 @@ SText.ZIndex = 13
 SText.Parent = StatusBadge
 RegisterThemeElement(SText, "TextColor3", "Text")
 
-local CloseBtnIcon = Instance.new("ImageButton")
-CloseBtnIcon.Size = UDim2.fromOffset(16, 16)
-CloseBtnIcon.Position = UDim2.new(1, -24, 0.5, -8)
-CloseBtnIcon.BackgroundTransparency = 1
-CloseBtnIcon.Image = "rbxassetid://6031094678"
-CloseBtnIcon.ImageColor3 = CurrentTheme.AccentAlt
-CloseBtnIcon.ZIndex = 13
-CloseBtnIcon.Parent = Topbar
-RegisterThemeElement(CloseBtnIcon, "ImageColor3", "AccentAlt")
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.fromOffset(24, 24)
+CloseBtn.Position = UDim2.new(1, -28, 0.5, -12)
+CloseBtn.BackgroundTransparency = 1
+CloseBtn.Text = "✕"
+CloseBtn.Font = Enum.Font.Code
+CloseBtn.TextSize = 12
+CloseBtn.TextColor3 = CurrentTheme.AccentAlt
+CloseBtn.ZIndex = 13
+CloseBtn.Parent = Topbar
+RegisterThemeElement(CloseBtn, "TextColor3", "AccentAlt")
 
--- SIDEBAR & FIXED SCROLLING TABS
+-- SIDEBAR
 local Sidebar = Instance.new("Frame")
 Sidebar.Size = UDim2.new(0, 115, 1, -32)
 Sidebar.Position = UDim2.fromOffset(0, 32)
@@ -501,7 +512,7 @@ SidePad.PaddingLeft = UDim.new(0, 5)
 SidePad.PaddingRight = UDim.new(0, 5)
 SidePad.Parent = TabHolder
 
--- PROFILE CARD AT BOTTOM SIDEBAR
+-- PROFILE CARD
 local ProfileCard = Instance.new("Frame")
 ProfileCard.Size = UDim2.new(1, -10, 0, 36)
 ProfileCard.Position = UDim2.new(0, 5, 1, -38)
@@ -668,20 +679,23 @@ local function RefreshFavoritesUI()
             ExecuteScript(scriptData.Name, scriptData.Url)
         end)
 
-        local UnfavIcon = Instance.new("ImageButton")
-        UnfavIcon.Size = UDim2.fromOffset(18, 18)
-        UnfavIcon.Position = UDim2.new(1, -22, 0.5, -9)
-        UnfavIcon.BackgroundTransparency = 1
-        UnfavIcon.Image = "rbxassetid://6031094678"
-        UnfavIcon.ImageColor3 = CurrentTheme.Accent
-        UnfavIcon.ZIndex = 15
-        UnfavIcon.Parent = Frame
+        local StarBtn = Instance.new("TextButton")
+        StarBtn.Size = UDim2.fromOffset(22, 22)
+        StarBtn.Position = UDim2.new(1, -26, 0.5, -11)
+        StarBtn.BackgroundTransparency = 1
+        StarBtn.Text = "⭐"
+        StarBtn.Font = Enum.Font.Code
+        StarBtn.TextSize = 12
+        StarBtn.TextColor3 = CurrentTheme.Accent
+        StarBtn.ZIndex = 15
+        StarBtn.Parent = Frame
+        RegisterThemeElement(StarBtn, "TextColor3", "Accent")
 
-        UnfavIcon.MouseButton1Click:Connect(function()
+        StarBtn.MouseButton1Click:Connect(function()
             SavedConfig.Favorites[scriptName] = nil
             SaveConfig()
             if RegisteredStarBtns[scriptName] then
-                RegisteredStarBtns[scriptName].ImageColor3 = CurrentTheme.Muted
+                RegisteredStarBtns[scriptName].TextColor3 = CurrentTheme.Muted
             end
             RefreshFavoritesUI()
             Notify("FAVORITE", "Removed " .. scriptName, 2)
@@ -713,12 +727,11 @@ local function AddSection(Page, text)
     return Label
 end
 
-local function AddInfo(Page, text, nameKey)
+local function AddInfo(Page, textKey)
     local Label = Instance.new("TextLabel")
-    if nameKey then Label.Name = nameKey end
+    if textKey == "NoFav" then Label.Name = "NoFavLabel" end
     Label.Size = UDim2.new(1, 0, 0, 14)
     Label.BackgroundTransparency = 1
-    Label.Text = text
     Label.Font = Enum.Font.Gotham
     Label.TextSize = 9
     Label.TextXAlignment = Enum.TextXAlignment.Left
@@ -726,6 +739,7 @@ local function AddInfo(Page, text, nameKey)
     Label.ZIndex = 13
     Label.Parent = Page
     RegisterThemeElement(Label, "TextColor3", "Muted")
+    RegisterTranslation(Label, textKey)
     return Label
 end
 
@@ -734,8 +748,6 @@ local function AddSearchBar(Page)
     SearchBox.Size = UDim2.new(1, 0, 0, 24)
     SearchBox.BackgroundColor3 = CurrentTheme.Surface
     SearchBox.BorderSizePixel = 0
-    SearchBox.PlaceholderText = "Search..."
-    SearchBox.Text = ""
     SearchBox.Font = Enum.Font.Code
     SearchBox.TextSize = 9
     SearchBox.TextColor3 = CurrentTheme.Text
@@ -754,6 +766,8 @@ local function AddSearchBar(Page)
     local Padding = Instance.new("UIPadding")
     Padding.PaddingLeft = UDim.new(0, 8)
     Padding.Parent = SearchBox
+
+    SearchBox.PlaceholderText = Locales[CurrentLang].Search
 
     SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
         local query = string.lower(SearchBox.Text)
@@ -824,25 +838,27 @@ local function AddScriptButton(Page, name, description, url)
         ExecuteScript(name, url)
     end)
 
-    local FavIcon = Instance.new("ImageButton")
-    FavIcon.Size = UDim2.fromOffset(18, 18)
-    FavIcon.Position = UDim2.new(1, -22, 0.5, -9)
-    FavIcon.BackgroundTransparency = 1
-    FavIcon.Image = "rbxassetid://6031094678"
-    FavIcon.ImageColor3 = SavedConfig.Favorites[name] and CurrentTheme.Accent or CurrentTheme.Muted
-    FavIcon.ZIndex = 15
-    FavIcon.Parent = Frame
+    local StarBtn = Instance.new("TextButton")
+    StarBtn.Size = UDim2.fromOffset(22, 22)
+    StarBtn.Position = UDim2.new(1, -26, 0.5, -11)
+    StarBtn.BackgroundTransparency = 1
+    StarBtn.Text = "⭐"
+    StarBtn.Font = Enum.Font.Code
+    StarBtn.TextSize = 12
+    StarBtn.TextColor3 = SavedConfig.Favorites[name] and CurrentTheme.Accent or CurrentTheme.Muted
+    StarBtn.ZIndex = 15
+    StarBtn.Parent = Frame
 
-    RegisteredStarBtns[name] = FavIcon
+    RegisteredStarBtns[name] = StarBtn
 
-    FavIcon.MouseButton1Click:Connect(function()
+    StarBtn.MouseButton1Click:Connect(function()
         if SavedConfig.Favorites[name] then
             SavedConfig.Favorites[name] = nil
-            FavIcon.ImageColor3 = CurrentTheme.Muted
+            StarBtn.TextColor3 = CurrentTheme.Muted
             Notify("FAVORITE", "Removed " .. name, 2)
         else
             SavedConfig.Favorites[name] = {Name = name, Desc = description, Url = url}
-            FavIcon.ImageColor3 = CurrentTheme.Accent
+            StarBtn.TextColor3 = CurrentTheme.Accent
             Notify("FAVORITE", "Added " .. name, 2)
         end
         SaveConfig()
@@ -852,7 +868,7 @@ local function AddScriptButton(Page, name, description, url)
     return Frame
 end
 
-local function AddToggle(Page, text, defaultState, callback)
+local function AddToggle(Page, textKey, defaultState, callback)
     local state = defaultState or false
 
     local ToggleFrame = Instance.new("Frame")
@@ -871,7 +887,6 @@ local function AddToggle(Page, text, defaultState, callback)
     Label.Size = UDim2.new(1, -50, 1, 0)
     Label.Position = UDim2.fromOffset(8, 0)
     Label.BackgroundTransparency = 1
-    Label.Text = text
     Label.Font = Enum.Font.Code
     Label.TextSize = 9
     Label.TextColor3 = CurrentTheme.Text
@@ -879,6 +894,7 @@ local function AddToggle(Page, text, defaultState, callback)
     Label.ZIndex = 14
     Label.Parent = ToggleFrame
     RegisterThemeElement(Label, "TextColor3", "Text")
+    RegisterTranslation(Label, textKey)
 
     local SwitchBtn = Instance.new("TextButton")
     SwitchBtn.Size = UDim2.fromOffset(36, 16)
@@ -918,21 +934,10 @@ HomeHeader.BackgroundTransparency = 1
 HomeHeader.ZIndex = 13
 HomeHeader.Parent = HomePage
 
-local HomeIconImg = Instance.new("ImageLabel")
-HomeIconImg.Size = UDim2.fromOffset(16, 16)
-HomeIconImg.Position = UDim2.fromOffset(0, 2)
-HomeIconImg.BackgroundTransparency = 1
-HomeIconImg.Image = "rbxassetid://6031075931"
-HomeIconImg.ImageColor3 = CurrentTheme.Accent
-HomeIconImg.ZIndex = 14
-HomeIconImg.Parent = HomeHeader
-RegisterThemeElement(HomeIconImg, "ImageColor3", "Accent")
-
 local HomeTitle = Instance.new("TextLabel")
-HomeTitle.Size = UDim2.new(1, -24, 0, 16)
-HomeTitle.Position = UDim2.fromOffset(22, 0)
+HomeTitle.Size = UDim2.new(1, 0, 0, 16)
+HomeTitle.Position = UDim2.fromOffset(0, 0)
 HomeTitle.BackgroundTransparency = 1
-HomeTitle.Text = Locales[CurrentLang].Title
 HomeTitle.Font = Enum.Font.GothamBold
 HomeTitle.TextSize = 12
 HomeTitle.TextColor3 = CurrentTheme.Text
@@ -940,6 +945,7 @@ HomeTitle.TextXAlignment = Enum.TextXAlignment.Left
 HomeTitle.ZIndex = 14
 HomeTitle.Parent = HomeHeader
 RegisterThemeElement(HomeTitle, "TextColor3", "Text")
+RegisterTranslation(HomeTitle, "Title")
 
 -- WELCOME CARD
 local WelcomeCard = Instance.new("Frame")
@@ -970,7 +976,6 @@ local WTag = Instance.new("TextLabel")
 WTag.Size = UDim2.new(1, -120, 0, 12)
 WTag.Position = UDim2.fromOffset(62, 10)
 WTag.BackgroundTransparency = 1
-WTag.Text = Locales[CurrentLang].Welcome
 WTag.Font = Enum.Font.Code
 WTag.TextSize = 8
 WTag.TextColor3 = CurrentTheme.Accent
@@ -978,6 +983,7 @@ WTag.TextXAlignment = Enum.TextXAlignment.Left
 WTag.ZIndex = 14
 WTag.Parent = WelcomeCard
 RegisterThemeElement(WTag, "TextColor3", "Accent")
+RegisterTranslation(WTag, "Welcome")
 
 local WName = Instance.new("TextLabel")
 WName.Size = UDim2.new(1, -120, 0, 16)
@@ -1126,7 +1132,6 @@ ALayout.Parent = ActGrid
 local function CreateActionButton(textKey, callback)
     local Btn = Instance.new("TextButton")
     Btn.BackgroundColor3 = CurrentTheme.Background
-    Btn.Text = Locales[CurrentLang][textKey] or textKey
     Btn.Font = Enum.Font.Code
     Btn.TextSize = 8
     Btn.TextColor3 = CurrentTheme.Text
@@ -1134,6 +1139,7 @@ local function CreateActionButton(textKey, callback)
     Btn.Parent = ActGrid
     RegisterThemeElement(Btn, "BackgroundColor3", "Background")
     RegisterThemeElement(Btn, "TextColor3", "Text")
+    RegisterTranslation(Btn, textKey)
 
     local BCorner = Instance.new("UICorner")
     BCorner.CornerRadius = UDim.new(0, 4)
@@ -1179,73 +1185,115 @@ end)
 --==================================================
 
 AddSection(KeylessPage, "KEYLESS MODULES")
-AddInfo(KeylessPage, "Direct execution without key verification.")
 AddSearchBar(KeylessPage)
 
-AddScriptButton(KeylessPage, "Sources Hub", "Keyless", "https://pastefy.app/Lk0vDMmN/raw")
+AddScriptButton(KeylessPage, "THEAVY SL CHEAT", "Keyless", "https://pastefy.app/Lk0vDMmN/raw")
 AddScriptButton(KeylessPage, "Limbo Hub", "Keyless", "https://limbohub.my.id/loader.lua")
 AddScriptButton(KeylessPage, "Virexx", "Keyless", "https://gist.githubusercontent.com/virexx55/b4e8b16201904da5ab7b554aa71c378f/raw/b9524b701b35ec97603ff0a32227b24461479c5c/virex.lua")
 
 AddSection(KeyPage, "PROTECTED MODULES")
-AddInfo(KeyPage, "Requires key access to run.")
 AddSearchBar(KeyPage)
 
 AddScriptButton(KeyPage, "Wzeus Hub", "Key System", "https://raw.githubusercontent.com/Wzeus-NTH/Wzeusno1/main/Wzeus/nthzz")
 AddScriptButton(KeyPage, "Pulse Hub", "Key System", "https://raw.githubusercontent.com/PulseZax/Loader/refs/heads/main/.lua")
 
 AddSection(FavoritesPage, "FAVORITED MODULES")
-AddInfo(FavoritesPage, Locales[CurrentLang].NoFav, "NoFavLabel")
+AddInfo(FavoritesPage, "NoFav")
 AddSearchBar(FavoritesPage)
 RefreshFavoritesUI()
 
 --==================================================
--- THEMES PAGE (PERSISTENT AUTO-SAVE)
+-- THEMES PAGE (WITH SET DEFAULT BUTTON)
 --==================================================
 
 AddSection(ThemesPage, "COLOR SCHEMES")
-AddInfo(ThemesPage, "Select theme to save automatically.")
+
+local RegisteredDefaultBtns = {}
+
+local function UpdateThemeButtonsUI()
+    for tName, btnRef in pairs(RegisteredDefaultBtns) do
+        if tName == SavedConfig.DefaultTheme then
+            btnRef.Text = "[" .. Locales[CurrentLang].IsDefault .. "]"
+            btnRef.TextColor3 = CurrentTheme.Accent
+        else
+            btnRef.Text = "[" .. Locales[CurrentLang].SetDefault .. "]"
+            btnRef.TextColor3 = CurrentTheme.Muted
+        end
+    end
+end
 
 for ThemeName, ThemeData in pairs(Themes) do
-    local Button = Instance.new("TextButton")
-    Button.Size = UDim2.new(1, 0, 0, 28)
-    Button.BackgroundColor3 = ThemeData.Surface
-    Button.BorderSizePixel = 0
-    Button.Text = "  > " .. ThemeName
-    Button.Font = Enum.Font.Code
-    Button.TextSize = 9
-    Button.TextColor3 = ThemeData.Text
-    Button.TextXAlignment = Enum.TextXAlignment.Left
-    Button.ZIndex = 13
-    Button.Parent = ThemesPage
+    local Frame = Instance.new("Frame")
+    Frame.Size = UDim2.new(1, 0, 0, 28)
+    Frame.BackgroundColor3 = ThemeData.Surface
+    Frame.BorderSizePixel = 0
+    Frame.ZIndex = 13
+    Frame.Parent = ThemesPage
 
     local Corner = Instance.new("UICorner")
     Corner.CornerRadius = UDim.new(0, 4)
-    Corner.Parent = Button
+    Corner.Parent = Frame
 
-    Button.MouseButton1Click:Connect(function()
+    local NameBtn = Instance.new("TextButton")
+    NameBtn.Size = UDim2.new(1, -90, 1, 0)
+    NameBtn.BackgroundTransparency = 1
+    NameBtn.Text = "  🎨 " .. ThemeName
+    NameBtn.Font = Enum.Font.Code
+    NameBtn.TextSize = 9
+    NameBtn.TextColor3 = ThemeData.Text
+    NameBtn.TextXAlignment = Enum.TextXAlignment.Left
+    NameBtn.ZIndex = 14
+    NameBtn.Parent = Frame
+
+    NameBtn.MouseButton1Click:Connect(function()
         PlaySound(6042053626, 1)
-        ApplyTheme(ThemeData, ThemeName)
-        Notify("THEME", "Saved & set: " .. ThemeName, 2)
+        ApplyTheme(ThemeData)
+        Notify("THEME", "Applied: " .. ThemeName, 2)
+    end)
+
+    local SetDefBtn = Instance.new("TextButton")
+    SetDefBtn.Size = UDim2.fromOffset(80, 20)
+    SetDefBtn.Position = UDim2.new(1, -84, 0.5, -10)
+    SetDefBtn.BackgroundColor3 = ThemeData.Background
+    SetDefBtn.Font = Enum.Font.Code
+    SetDefBtn.TextSize = 8
+    SetDefBtn.ZIndex = 15
+    SetDefBtn.Parent = Frame
+
+    local DCorner = Instance.new("UICorner")
+    DCorner.CornerRadius = UDim.new(0, 4)
+    DCorner.Parent = SetDefBtn
+
+    RegisteredDefaultBtns[ThemeName] = SetDefBtn
+
+    SetDefBtn.MouseButton1Click:Connect(function()
+        PlaySound(6042053626, 1)
+        SavedConfig.DefaultTheme = ThemeName
+        SaveConfig()
+        ApplyTheme(ThemeData)
+        UpdateThemeButtonsUI()
+        Notify("THEME", "Set Default: " .. ThemeName, 2)
     end)
 end
 
+UpdateThemeButtonsUI()
+
 --==================================================
--- CONFIG & LANGUAGE SETTINGS
+-- CONFIG & DYNAMIC LANGUAGE SWITCHER
 --==================================================
 
 AddSection(SettingsPage, "SYSTEM CONTROLS")
 
-AddToggle(SettingsPage, Locales[CurrentLang].AutoLoadLabel, SavedConfig.AutoLoad, function(enabled)
-    SavedConfig.AutoLoad = enabled
+AddToggle(SettingsPage, "AutoShowLabel", SavedConfig.AutoShowGUI, function(enabled)
+    SavedConfig.AutoShowGUI = enabled
     SaveConfig()
-    Notify("SETTINGS", "Auto Load: " .. (enabled and "ON" or "OFF"), 2)
+    Notify("SETTINGS", "Auto Show GUI: " .. (enabled and "ON" or "OFF"), 2)
 end)
 
 local LangBtn = Instance.new("TextButton")
 LangBtn.Size = UDim2.new(1, 0, 0, 28)
 LangBtn.BackgroundColor3 = CurrentTheme.Surface
 LangBtn.BorderSizePixel = 0
-LangBtn.Text = "  " .. Locales[CurrentLang].LangLabel
 LangBtn.Font = Enum.Font.Code
 LangBtn.TextSize = 9
 LangBtn.TextColor3 = CurrentTheme.Text
@@ -1254,17 +1302,31 @@ LangBtn.ZIndex = 13
 LangBtn.Parent = SettingsPage
 RegisterThemeElement(LangBtn, "BackgroundColor3", "Surface")
 RegisterThemeElement(LangBtn, "TextColor3", "Text")
+RegisterTranslation(LangBtn, "LangLabel")
 
 local LCorner = Instance.new("UICorner")
 LCorner.CornerRadius = UDim.new(0, 4)
 LCorner.Parent = LangBtn
 
-LangBtn.MouseButton1Click:Connect(function()
-    CurrentLang = (CurrentLang == "EN") and "KH" or "EN"
+local function UpdateLanguage(newLang)
+    CurrentLang = newLang
     SavedConfig.Language = CurrentLang
     SaveConfig()
-    LangBtn.Text = "  " .. Locales[CurrentLang].LangLabel
-    Title.Text = Locales[CurrentLang].Title
+
+    for _, item in ipairs(TranslatableElements) do
+        if item.Instance and item.Instance.Parent then
+            if Locales[CurrentLang] and Locales[CurrentLang][item.Key] then
+                item.Instance.Text = Locales[CurrentLang][item.Key]
+            end
+        end
+    end
+    UpdateThemeButtonsUI()
+    RefreshFavoritesUI()
+end
+
+LangBtn.MouseButton1Click:Connect(function()
+    local nextLang = (CurrentLang == "EN") and "KH" or "EN"
+    UpdateLanguage(nextLang)
     Notify("LANGUAGE", "Updated to " .. CurrentLang, 2)
 end)
 
@@ -1279,7 +1341,6 @@ local function AddTab(textKey, page)
     Button.Size = UDim2.new(1, 0, 0, 26)
     Button.BackgroundColor3 = CurrentTheme.Background
     Button.BorderSizePixel = 0
-    Button.Text = Locales[CurrentLang][textKey] or textKey
     Button.Font = Enum.Font.Code
     Button.TextSize = 9
     Button.TextColor3 = CurrentTheme.Muted
@@ -1287,6 +1348,7 @@ local function AddTab(textKey, page)
     Button.ZIndex = 13
     Button.Parent = TabHolder
     RegisterThemeElement(Button, "BackgroundColor3", "Background")
+    RegisterTranslation(Button, textKey)
 
     local Corner = Instance.new("UICorner")
     Corner.CornerRadius = UDim.new(0, 4)
@@ -1321,27 +1383,28 @@ HomeTab.TextColor3 = CurrentTheme.Accent
 HomeTab.BackgroundColor3 = CurrentTheme.Surface
 
 -- CLOSE BUTTON LOGIC
-CloseBtnIcon.MouseButton1Click:Connect(function()
+CloseBtn.MouseButton1Click:Connect(function()
     PlaySound(6042053626, 0.8)
     Main.Visible = false
     SetBlur(false)
 end)
 
 --==================================================
--- ALWAYS VISIBLE MOON TOGGLE ICON (🌙 REPLACED WITH ASSET)
+-- ALWAYS VISIBLE MOON TOGGLE BUTTON (🌙 EMOJI RESTORED)
 --==================================================
 
-local MoonToggle = Instance.new("ImageButton")
+local MoonToggle = Instance.new("TextButton")
 MoonToggle.Name = "MoonToggle"
 MoonToggle.Size = UDim2.fromOffset(36, 36)
 MoonToggle.Position = UDim2.new(0, 15, 0.4, 0)
 MoonToggle.BackgroundColor3 = CurrentTheme.Surface
-MoonToggle.Image = "rbxassetid://6031068421" -- Clean Night/Moon Icon
-MoonToggle.ImageColor3 = CurrentTheme.Accent
+MoonToggle.Text = "C"
+MoonToggle.Font = Enum.Font.Code
+MoonToggle.TextSize = 16
 MoonToggle.ZIndex = 500
+MoonToggle.Visible = true
 MoonToggle.Parent = ScreenGui
 RegisterThemeElement(MoonToggle, "BackgroundColor3", "Surface")
-RegisterThemeElement(MoonToggle, "ImageColor3", "Accent")
 
 local MoonCorner = Instance.new("UICorner")
 MoonCorner.CornerRadius = UDim.new(1, 0)
@@ -1363,5 +1426,5 @@ MoonToggle.MouseButton1Click:Connect(function()
     end
 end)
 
-SetBlur(true)
-Notify("CYBERHUB", "CH3A5 HUB V5.0 Loaded Successfully!", 4)
+SetBlur(SavedConfig.AutoShowGUI)
+Notify("CYBERHUB", "CH3A5 HUB V5.1 Loaded Successfully!", 4)
