@@ -1,5 +1,5 @@
---// CH3A5 HUB GUI [ULTRA EDITION V6.5]
---// Sharp 90-Degree Bottom Corners + Transparent Profile Card
+--// CH3A5 HUB GUI [ULTRA EDITION V6.6]
+--// Square Main Frame + Rounded Bottom Edge Wrapper
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
@@ -19,7 +19,7 @@ local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
 local StartSessionTime = tick()
-local ConfigFile = "CH3A5_Config_V6_5.json"
+local ConfigFile = "CH3A5_Config_V6_6.json"
 
 --==================================================
 -- LOCAL DATA PERSISTENCE
@@ -129,7 +129,7 @@ end
 --==================================================
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CH3A5_CYBER_MASTER_V6_5"
+ScreenGui.Name = "CH3A5_CYBER_MASTER_V6_6"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.DisplayOrder = 999999
@@ -288,7 +288,7 @@ local function ExecuteScript(scriptName, url)
 end
 
 --==================================================
--- MAIN FRAME (EXACT SQUARE 90° BOTTOM CORNERS)
+-- MAIN FRAME (SQUARE CORNERS)
 --==================================================
 
 local Main = Instance.new("Frame")
@@ -303,16 +303,27 @@ Main.Visible = false
 Main.Parent = ScreenGui
 RegisterThemeElement(Main, "BackgroundColor3", "Background")
 
-local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 8)
-MainCorner.Parent = Main
-
+-- Main Stroke Outline
 local MainStroke = Instance.new("UIStroke")
 MainStroke.Color = CurrentTheme.Accent
 MainStroke.Thickness = 1.2
 MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 MainStroke.Parent = Main
 RegisterThemeElement(MainStroke, "Color", "Accent")
+
+-- Rounded Bottom Wrapper (Rounded at the very bottom edge of GUI)
+local BottomWrapper = Instance.new("Frame")
+BottomWrapper.Size = UDim2.new(1, 0, 0, 8)
+BottomWrapper.Position = UDim2.new(0, 0, 1, -8)
+BottomWrapper.BackgroundColor3 = CurrentTheme.Background
+BottomWrapper.BorderSizePixel = 0
+BottomWrapper.ZIndex = 10
+BottomWrapper.Parent = Main
+RegisterThemeElement(BottomWrapper, "BackgroundColor3", "Background")
+
+local BWCorner = Instance.new("UICorner")
+BWCorner.CornerRadius = UDim.new(0, 8)
+BWCorner.Parent = BottomWrapper
 
 local isGuiOpen = false
 local isGuiAnimating = false
@@ -358,17 +369,13 @@ Topbar.ZIndex = 11
 Topbar.Parent = Main
 RegisterThemeElement(Topbar, "BackgroundColor3", "Surface")
 
-local TopbarCorner = Instance.new("UICorner")
-TopbarCorner.CornerRadius = UDim.new(0, 8)
-TopbarCorner.Parent = Topbar
-
 MakeDraggable(Main, Topbar)
 
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, -140, 1, 0)
 Title.Position = UDim2.fromOffset(10, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "[ CH3A5 // HUB ] V6.5"
+Title.Text = "[ CH3A5 // HUB ] V6.6"
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 12
 Title.TextXAlignment = Enum.TextXAlignment.Left
@@ -779,8 +786,8 @@ local function AddScriptButton(Page, name, description, url)
     DescLabel.Font = Enum.Font.Code
     DescLabel.TextSize = 8
     DescLabel.TextTruncate = Enum.TextTruncate.AtEnd
-    DescLabel.TextXAlignment = Enum.TextXAlignment.Left
     DescLabel.TextColor3 = CurrentTheme.Muted
+    DescLabel.TextXAlignment = Enum.TextXAlignment.Left
     DescLabel.ZIndex = 14
     DescLabel.Parent = Frame
     RegisterThemeElement(DescLabel, "TextColor3", "Muted")
@@ -913,7 +920,7 @@ local HomeTitle = Instance.new("TextLabel")
 HomeTitle.Size = UDim2.new(1, 0, 0, 18)
 HomeTitle.Position = UDim2.fromOffset(0, 0)
 HomeTitle.BackgroundTransparency = 1
-HomeTitle.Text = "[ CH3A5 // HUB ] V6.5"
+HomeTitle.Text = "[ CH3A5 // HUB ] V6.6"
 HomeTitle.Font = Enum.Font.GothamBold
 HomeTitle.TextSize = 13
 HomeTitle.TextColor3 = CurrentTheme.Text
@@ -1399,4 +1406,4 @@ else
     SetBlur(false)
 end
 
-Notify("CYBERHUB", "CH3A5 HUB V6.5 Ready!", 4)
+Notify("CYBERHUB", "CH3A5 HUB V6.6 Ready!", 4)
