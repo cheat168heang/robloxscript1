@@ -1,5 +1,5 @@
---// CH3A5 HUB GUI [ULTRA EDITION V6.2]
---// Top-Right Close Button + Rounded Bottom Corners + Bold Tabs + 12+ Social Media Themes
+--// CH3A5 HUB GUI [ULTRA EDITION V6.3]
+--// Bottom-Left Rounded Sidebar + High-Contrast Tab Highlight System
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
@@ -19,7 +19,7 @@ local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
 local StartSessionTime = tick()
-local ConfigFile = "CH3A5_Config_V6_2.json"
+local ConfigFile = "CH3A5_Config_V6_3.json"
 
 --==================================================
 -- LOCAL DATA PERSISTENCE
@@ -85,26 +85,26 @@ end
 
 local Themes = {
     -- Classic Themes
-    ["Neon Cyan"] = { Background = Color3.fromRGB(10, 12, 18), Surface = Color3.fromRGB(16, 20, 28), SurfaceAlt = Color3.fromRGB(24, 30, 44), Accent = Color3.fromRGB(0, 240, 255), AccentAlt = Color3.fromRGB(255, 0, 110), Text = Color3.fromRGB(240, 250, 255), Muted = Color3.fromRGB(100, 140, 160) },
-    ["Matrix Green"] = { Background = Color3.fromRGB(8, 14, 10), Surface = Color3.fromRGB(14, 22, 16), SurfaceAlt = Color3.fromRGB(20, 32, 24), Accent = Color3.fromRGB(0, 255, 128), AccentAlt = Color3.fromRGB(0, 180, 255), Text = Color3.fromRGB(230, 255, 235), Muted = Color3.fromRGB(100, 160, 120) },
-    ["Overdrive Pink"] = { Background = Color3.fromRGB(18, 10, 15), Surface = Color3.fromRGB(28, 15, 24), SurfaceAlt = Color3.fromRGB(38, 20, 32), Accent = Color3.fromRGB(255, 0, 128), AccentAlt = Color3.fromRGB(255, 210, 0), Text = Color3.fromRGB(255, 240, 250), Muted = Color3.fromRGB(170, 110, 140) },
-    ["Synth Yellow"] = { Background = Color3.fromRGB(15, 14, 8), Surface = Color3.fromRGB(25, 23, 12), SurfaceAlt = Color3.fromRGB(35, 31, 16), Accent = Color3.fromRGB(255, 210, 0), AccentAlt = Color3.fromRGB(0, 240, 255), Text = Color3.fromRGB(255, 252, 230), Muted = Color3.fromRGB(160, 150, 100) },
-    ["Void Purple"] = { Background = Color3.fromRGB(12, 8, 20), Surface = Color3.fromRGB(20, 14, 32), SurfaceAlt = Color3.fromRGB(30, 18, 46), Accent = Color3.fromRGB(170, 0, 255), AccentAlt = Color3.fromRGB(0, 240, 255), Text = Color3.fromRGB(245, 235, 255), Muted = Color3.fromRGB(140, 110, 170) },
-    ["Red Alert"] = { Background = Color3.fromRGB(18, 8, 10), Surface = Color3.fromRGB(28, 12, 15), SurfaceAlt = Color3.fromRGB(38, 16, 20), Accent = Color3.fromRGB(255, 35, 60), AccentAlt = Color3.fromRGB(255, 170, 0), Text = Color3.fromRGB(255, 235, 238), Muted = Color3.fromRGB(170, 110, 115) },
+    ["Neon Cyan"] = { Background = Color3.fromRGB(10, 12, 18), Surface = Color3.fromRGB(16, 20, 28), SurfaceAlt = Color3.fromRGB(28, 36, 52), Accent = Color3.fromRGB(0, 240, 255), AccentAlt = Color3.fromRGB(255, 0, 110), Text = Color3.fromRGB(240, 250, 255), Muted = Color3.fromRGB(100, 140, 160) },
+    ["Matrix Green"] = { Background = Color3.fromRGB(8, 14, 10), Surface = Color3.fromRGB(14, 22, 16), SurfaceAlt = Color3.fromRGB(24, 40, 28), Accent = Color3.fromRGB(0, 255, 128), AccentAlt = Color3.fromRGB(0, 180, 255), Text = Color3.fromRGB(230, 255, 235), Muted = Color3.fromRGB(100, 160, 120) },
+    ["Overdrive Pink"] = { Background = Color3.fromRGB(18, 10, 15), Surface = Color3.fromRGB(28, 15, 24), SurfaceAlt = Color3.fromRGB(48, 24, 40), Accent = Color3.fromRGB(255, 0, 128), AccentAlt = Color3.fromRGB(255, 210, 0), Text = Color3.fromRGB(255, 240, 250), Muted = Color3.fromRGB(170, 110, 140) },
+    ["Synth Yellow"] = { Background = Color3.fromRGB(15, 14, 8), Surface = Color3.fromRGB(25, 23, 12), SurfaceAlt = Color3.fromRGB(45, 40, 20), Accent = Color3.fromRGB(255, 210, 0), AccentAlt = Color3.fromRGB(0, 240, 255), Text = Color3.fromRGB(255, 252, 230), Muted = Color3.fromRGB(160, 150, 100) },
+    ["Void Purple"] = { Background = Color3.fromRGB(12, 8, 20), Surface = Color3.fromRGB(20, 14, 32), SurfaceAlt = Color3.fromRGB(38, 24, 58), Accent = Color3.fromRGB(170, 0, 255), AccentAlt = Color3.fromRGB(0, 240, 255), Text = Color3.fromRGB(245, 235, 255), Muted = Color3.fromRGB(140, 110, 170) },
+    ["Red Alert"] = { Background = Color3.fromRGB(18, 8, 10), Surface = Color3.fromRGB(28, 12, 15), SurfaceAlt = Color3.fromRGB(48, 20, 25), Accent = Color3.fromRGB(255, 35, 60), AccentAlt = Color3.fromRGB(255, 170, 0), Text = Color3.fromRGB(255, 235, 238), Muted = Color3.fromRGB(170, 110, 115) },
 
-    -- 12 New Social Media Inspired Themes
-    ["Discord Dark"] = { Background = Color3.fromRGB(30, 33, 36), Surface = Color3.fromRGB(47, 49, 54), SurfaceAlt = Color3.fromRGB(54, 57, 63), Accent = Color3.fromRGB(88, 101, 242), AccentAlt = Color3.fromRGB(235, 69, 158), Text = Color3.fromRGB(255, 255, 255), Muted = Color3.fromRGB(185, 187, 190) },
-    ["TikTok Dark"] = { Background = Color3.fromRGB(18, 18, 18), Surface = Color3.fromRGB(28, 28, 28), SurfaceAlt = Color3.fromRGB(38, 38, 38), Accent = Color3.fromRGB(238, 29, 82), AccentAlt = Color3.fromRGB(105, 201, 208), Text = Color3.fromRGB(255, 255, 255), Muted = Color3.fromRGB(150, 150, 150) },
-    ["YouTube Dark"] = { Background = Color3.fromRGB(15, 15, 15), Surface = Color3.fromRGB(33, 33, 33), SurfaceAlt = Color3.fromRGB(45, 45, 45), Accent = Color3.fromRGB(255, 0, 0), AccentAlt = Color3.fromRGB(62, 166, 255), Text = Color3.fromRGB(241, 241, 241), Muted = Color3.fromRGB(170, 170, 170) },
-    ["Spotify Green"] = { Background = Color3.fromRGB(18, 18, 18), Surface = Color3.fromRGB(24, 24, 24), SurfaceAlt = Color3.fromRGB(40, 40, 40), Accent = Color3.fromRGB(29, 185, 84), AccentAlt = Color3.fromRGB(30, 215, 96), Text = Color3.fromRGB(255, 255, 255), Muted = Color3.fromRGB(179, 179, 179) },
+    -- Social Media Themes
+    ["Discord Dark"] = { Background = Color3.fromRGB(30, 33, 36), Surface = Color3.fromRGB(47, 49, 54), SurfaceAlt = Color3.fromRGB(66, 70, 78), Accent = Color3.fromRGB(88, 101, 242), AccentAlt = Color3.fromRGB(235, 69, 158), Text = Color3.fromRGB(255, 255, 255), Muted = Color3.fromRGB(185, 187, 190) },
+    ["TikTok Dark"] = { Background = Color3.fromRGB(18, 18, 18), Surface = Color3.fromRGB(28, 28, 28), SurfaceAlt = Color3.fromRGB(44, 44, 44), Accent = Color3.fromRGB(238, 29, 82), AccentAlt = Color3.fromRGB(105, 201, 208), Text = Color3.fromRGB(255, 255, 255), Muted = Color3.fromRGB(150, 150, 150) },
+    ["YouTube Dark"] = { Background = Color3.fromRGB(15, 15, 15), Surface = Color3.fromRGB(33, 33, 33), SurfaceAlt = Color3.fromRGB(50, 50, 50), Accent = Color3.fromRGB(255, 0, 0), AccentAlt = Color3.fromRGB(62, 166, 255), Text = Color3.fromRGB(241, 241, 241), Muted = Color3.fromRGB(170, 170, 170) },
+    ["Spotify Green"] = { Background = Color3.fromRGB(18, 18, 18), Surface = Color3.fromRGB(24, 24, 24), SurfaceAlt = Color3.fromRGB(42, 42, 42), Accent = Color3.fromRGB(29, 185, 84), AccentAlt = Color3.fromRGB(30, 215, 96), Text = Color3.fromRGB(255, 255, 255), Muted = Color3.fromRGB(179, 179, 179) },
     ["Instagram Dark"] = { Background = Color3.fromRGB(0, 0, 0), Surface = Color3.fromRGB(18, 18, 18), SurfaceAlt = Color3.fromRGB(38, 38, 38), Accent = Color3.fromRGB(225, 48, 108), AccentAlt = Color3.fromRGB(245, 96, 64), Text = Color3.fromRGB(255, 255, 255), Muted = Color3.fromRGB(168, 168, 168) },
-    ["X Twitter"] = { Background = Color3.fromRGB(0, 0, 0), Surface = Color3.fromRGB(22, 24, 28), SurfaceAlt = Color3.fromRGB(32, 35, 40), Accent = Color3.fromRGB(29, 161, 242), AccentAlt = Color3.fromRGB(231, 233, 234), Text = Color3.fromRGB(247, 249, 249), Muted = Color3.fromRGB(113, 118, 123) },
-    ["Twitch Purple"] = { Background = Color3.fromRGB(14, 14, 16), Surface = Color3.fromRGB(31, 31, 35), SurfaceAlt = Color3.fromRGB(42, 42, 48), Accent = Color3.fromRGB(145, 70, 255), AccentAlt = Color3.fromRGB(119, 44, 232), Text = Color3.fromRGB(239, 239, 241), Muted = Color3.fromRGB(173, 173, 184) },
-    ["Telegram Blue"] = { Background = Color3.fromRGB(23, 33, 43), Surface = Color3.fromRGB(36, 47, 61), SurfaceAlt = Color3.fromRGB(43, 58, 76), Accent = Color3.fromRGB(42, 171, 238), AccentAlt = Color3.fromRGB(34, 158, 217), Text = Color3.fromRGB(245, 245, 245), Muted = Color3.fromRGB(127, 145, 164) },
-    ["Reddit Orange"] = { Background = Color3.fromRGB(11, 20, 22), Surface = Color3.fromRGB(26, 40, 45), SurfaceAlt = Color3.fromRGB(36, 52, 58), Accent = Color3.fromRGB(255, 69, 0), AccentAlt = Color3.fromRGB(0, 121, 211), Text = Color3.fromRGB(215, 218, 220), Muted = Color3.fromRGB(130, 140, 145) },
-    ["WhatsApp Dark"] = { Background = Color3.fromRGB(17, 27, 33), Surface = Color3.fromRGB(32, 44, 51), SurfaceAlt = Color3.fromRGB(42, 57, 66), Accent = Color3.fromRGB(37, 211, 102), AccentAlt = Color3.fromRGB(0, 168, 132), Text = Color3.fromRGB(233, 237, 239), Muted = Color3.fromRGB(134, 150, 160) },
-    ["Pinterest Red"] = { Background = Color3.fromRGB(17, 17, 17), Surface = Color3.fromRGB(28, 28, 28), SurfaceAlt = Color3.fromRGB(40, 40, 40), Accent = Color3.fromRGB(230, 0, 35), AccentAlt = Color3.fromRGB(255, 90, 96), Text = Color3.fromRGB(255, 255, 255), Muted = Color3.fromRGB(160, 160, 160) },
-    ["Snapchat Dark"] = { Background = Color3.fromRGB(15, 15, 15), Surface = Color3.fromRGB(26, 26, 26), SurfaceAlt = Color3.fromRGB(38, 38, 38), Accent = Color3.fromRGB(255, 252, 0), AccentAlt = Color3.fromRGB(0, 209, 255), Text = Color3.fromRGB(255, 255, 255), Muted = Color3.fromRGB(160, 160, 160) }
+    ["X Twitter"] = { Background = Color3.fromRGB(0, 0, 0), Surface = Color3.fromRGB(22, 24, 28), SurfaceAlt = Color3.fromRGB(38, 42, 50), Accent = Color3.fromRGB(29, 161, 242), AccentAlt = Color3.fromRGB(231, 233, 234), Text = Color3.fromRGB(247, 249, 249), Muted = Color3.fromRGB(113, 118, 123) },
+    ["Twitch Purple"] = { Background = Color3.fromRGB(14, 14, 16), Surface = Color3.fromRGB(31, 31, 35), SurfaceAlt = Color3.fromRGB(50, 48, 60), Accent = Color3.fromRGB(145, 70, 255), AccentAlt = Color3.fromRGB(119, 44, 232), Text = Color3.fromRGB(239, 239, 241), Muted = Color3.fromRGB(173, 173, 184) },
+    ["Telegram Blue"] = { Background = Color3.fromRGB(23, 33, 43), Surface = Color3.fromRGB(36, 47, 61), SurfaceAlt = Color3.fromRGB(50, 66, 85), Accent = Color3.fromRGB(42, 171, 238), AccentAlt = Color3.fromRGB(34, 158, 217), Text = Color3.fromRGB(245, 245, 245), Muted = Color3.fromRGB(127, 145, 164) },
+    ["Reddit Orange"] = { Background = Color3.fromRGB(11, 20, 22), Surface = Color3.fromRGB(26, 40, 45), SurfaceAlt = Color3.fromRGB(40, 60, 68), Accent = Color3.fromRGB(255, 69, 0), AccentAlt = Color3.fromRGB(0, 121, 211), Text = Color3.fromRGB(215, 218, 220), Muted = Color3.fromRGB(130, 140, 145) },
+    ["WhatsApp Dark"] = { Background = Color3.fromRGB(17, 27, 33), Surface = Color3.fromRGB(32, 44, 51), SurfaceAlt = Color3.fromRGB(48, 64, 74), Accent = Color3.fromRGB(37, 211, 102), AccentAlt = Color3.fromRGB(0, 168, 132), Text = Color3.fromRGB(233, 237, 239), Muted = Color3.fromRGB(134, 150, 160) },
+    ["Pinterest Red"] = { Background = Color3.fromRGB(17, 17, 17), Surface = Color3.fromRGB(28, 28, 28), SurfaceAlt = Color3.fromRGB(46, 46, 46), Accent = Color3.fromRGB(230, 0, 35), AccentAlt = Color3.fromRGB(255, 90, 96), Text = Color3.fromRGB(255, 255, 255), Muted = Color3.fromRGB(160, 160, 160) },
+    ["Snapchat Dark"] = { Background = Color3.fromRGB(15, 15, 15), Surface = Color3.fromRGB(26, 26, 26), SurfaceAlt = Color3.fromRGB(44, 44, 44), Accent = Color3.fromRGB(255, 252, 0), AccentAlt = Color3.fromRGB(0, 209, 255), Text = Color3.fromRGB(255, 255, 255), Muted = Color3.fromRGB(160, 160, 160) }
 }
 
 local CurrentTheme = Themes[SavedConfig.DefaultTheme] or Themes["Neon Cyan"]
@@ -131,7 +131,7 @@ end
 --==================================================
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CH3A5_CYBER_MASTER_V6_2"
+ScreenGui.Name = "CH3A5_CYBER_MASTER_V6_3"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.DisplayOrder = 999999
@@ -370,7 +370,7 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, -140, 1, 0)
 Title.Position = UDim2.fromOffset(10, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "[ CH3A5 // HUB ] V6.2"
+Title.Text = "[ CH3A5 // HUB ] V6.3"
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 12
 Title.TextXAlignment = Enum.TextXAlignment.Left
@@ -438,7 +438,7 @@ CloseBtn.MouseLeave:Connect(function()
     TweenService:Create(CloseBtn, TweenInfo.new(0.15), {TextColor3 = CurrentTheme.AccentAlt}):Play()
 end)
 
--- SIDEBAR (WITH BOTTOM ROUNDED CORNERS FIX)
+-- SIDEBAR (ONLY BOTTOM-LEFT ROUNDED CORNER)
 local Sidebar = Instance.new("Frame")
 Sidebar.Size = UDim2.new(0, 115, 1, -32)
 Sidebar.Position = UDim2.fromOffset(0, 32)
@@ -451,6 +451,25 @@ RegisterThemeElement(Sidebar, "BackgroundColor3", "Surface")
 local SidebarCorner = Instance.new("UICorner")
 SidebarCorner.CornerRadius = UDim.new(0, 8)
 SidebarCorner.Parent = Sidebar
+
+-- Square Covers for Top and Right edges of Sidebar (leaves ONLY Bottom-Left rounded)
+local TopCover = Instance.new("Frame")
+TopCover.Size = UDim2.new(1, 0, 0, 12)
+TopCover.Position = UDim2.fromOffset(0, 0)
+TopCover.BackgroundColor3 = CurrentTheme.Surface
+TopCover.BorderSizePixel = 0
+TopCover.ZIndex = 11
+TopCover.Parent = Sidebar
+RegisterThemeElement(TopCover, "BackgroundColor3", "Surface")
+
+local RightCover = Instance.new("Frame")
+RightCover.Size = UDim2.new(0, 12, 1, 0)
+RightCover.Position = UDim2.new(1, -12, 0, 0)
+RightCover.BackgroundColor3 = CurrentTheme.Surface
+RightCover.BorderSizePixel = 0
+RightCover.ZIndex = 11
+RightCover.Parent = Sidebar
+RegisterThemeElement(RightCover, "BackgroundColor3", "Surface")
 
 local TabHolder = Instance.new("ScrollingFrame")
 TabHolder.Size = UDim2.new(1, 0, 1, -42)
@@ -526,7 +545,7 @@ PUser.ZIndex = 13
 PUser.Parent = ProfileCard
 RegisterThemeElement(PUser, "TextColor3", "Muted")
 
--- CONTENT & PAGES (WITH BOTTOM ROUNDED CORNERS FIX)
+-- CONTENT & PAGES
 local Content = Instance.new("Frame")
 Content.Size = UDim2.new(1, -115, 1, -32)
 Content.Position = UDim2.fromOffset(115, 32)
@@ -929,7 +948,7 @@ local HomeTitle = Instance.new("TextLabel")
 HomeTitle.Size = UDim2.new(1, 0, 0, 18)
 HomeTitle.Position = UDim2.fromOffset(0, 0)
 HomeTitle.BackgroundTransparency = 1
-HomeTitle.Text = "[ CH3A5 // HUB ] V6.2"
+HomeTitle.Text = "[ CH3A5 // HUB ] V6.3"
 HomeTitle.Font = Enum.Font.GothamBold
 HomeTitle.TextSize = 13
 HomeTitle.TextColor3 = CurrentTheme.Text
@@ -1282,15 +1301,15 @@ AddToggle(SettingsPage, "Auto Show GUI on Execute", SavedConfig.AutoShowGUI, fun
 end)
 
 --==================================================
--- NAVIGATION TABS (5% LARGER & BOLD TEXT)
+-- NAVIGATION TABS (HIGH CONTRAST & ACCENT INDICATOR)
 --==================================================
 
 local TabButtons = {}
 
 local function AddTab(titleText, page)
     local Button = Instance.new("TextButton")
-    Button.Size = UDim2.new(1, 0, 0, 26)
-    Button.BackgroundColor3 = CurrentTheme.Background
+    Button.Size = UDim2.new(1, 0, 0, 28)
+    Button.BackgroundColor3 = CurrentTheme.Surface
     Button.BorderSizePixel = 0
     Button.Text = titleText
     Button.Font = Enum.Font.GothamBold
@@ -1299,20 +1318,36 @@ local function AddTab(titleText, page)
     Button.AutoButtonColor = false
     Button.ZIndex = 13
     Button.Parent = TabHolder
-    RegisterThemeElement(Button, "BackgroundColor3", "Background")
+    RegisterThemeElement(Button, "BackgroundColor3", "Surface")
 
     local Corner = Instance.new("UICorner")
     Corner.CornerRadius = UDim.new(0, 4)
     Corner.Parent = Button
 
-    TabButtons[titleText] = {Button = Button, Page = page}
+    -- Active Accent Indicator Bar on Left
+    local Indicator = Instance.new("Frame")
+    Indicator.Size = UDim2.new(0, 3, 0.65, 0)
+    Indicator.Position = UDim2.new(0, 2, 0.175, 0)
+    Indicator.BackgroundColor3 = CurrentTheme.Accent
+    Indicator.BorderSizePixel = 0
+    Indicator.BackgroundTransparency = 1
+    Indicator.ZIndex = 14
+    Indicator.Parent = Button
+    RegisterThemeElement(Indicator, "BackgroundColor3", "Accent")
+
+    local ICorner = Instance.new("UICorner")
+    ICorner.CornerRadius = UDim.new(1, 0)
+    ICorner.Parent = Indicator
+
+    TabButtons[titleText] = {Button = Button, Page = page, Indicator = Indicator}
 
     Button.MouseButton1Click:Connect(function()
         PlaySound(6042053626, 1)
         for _, tabData in pairs(TabButtons) do
             tabData.Page.Visible = false
             tabData.Button.TextColor3 = CurrentTheme.Muted
-            TweenService:Create(tabData.Button, TweenInfo.new(0.2), {BackgroundColor3 = CurrentTheme.Background}):Play()
+            TweenService:Create(tabData.Button, TweenInfo.new(0.2), {BackgroundColor3 = CurrentTheme.Surface}):Play()
+            TweenService:Create(tabData.Indicator, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
         end
 
         page.Position = UDim2.fromOffset(16, 6)
@@ -1322,7 +1357,8 @@ local function AddTab(titleText, page)
         }):Play()
 
         Button.TextColor3 = CurrentTheme.Accent
-        TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = CurrentTheme.Surface}):Play()
+        TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = CurrentTheme.SurfaceAlt}):Play()
+        TweenService:Create(Indicator, TweenInfo.new(0.2), {BackgroundTransparency = 0}):Play()
     end)
 
     return Button
@@ -1335,9 +1371,13 @@ AddTab("⭐ Favorites", FavoritesPage)
 AddTab("🎨 Themes", ThemesPage)
 AddTab("⚙️ Config", SettingsPage)
 
+-- INITIAL ACTIVE TAB STATE
 HomePage.Visible = true
 HomeTab.TextColor3 = CurrentTheme.Accent
-HomeTab.BackgroundColor3 = CurrentTheme.Surface
+HomeTab.BackgroundColor3 = CurrentTheme.SurfaceAlt
+if TabButtons["🏠 Home"] and TabButtons["🏠 Home"].Indicator then
+    TabButtons["🏠 Home"].Indicator.BackgroundTransparency = 0
+end
 
 -- CLOSE BUTTON LOGIC
 CloseBtn.MouseButton1Click:Connect(function()
@@ -1396,4 +1436,4 @@ else
     SetBlur(false)
 end
 
-Notify("CYBERHUB", "CH3A5 HUB V6.2 Ready!", 4)
+Notify("CYBERHUB", "CH3A5 HUB V6.3 Ready!", 4)
