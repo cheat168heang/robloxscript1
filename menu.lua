@@ -1,4 +1,4 @@
---// CH3A5 HUB GUI [CYBERPUNK MASTER EDITION]
+--// CH3A5 HUB GUI [CYBERPUNK ULTIMATE FIXED]
 --// GUI ONLY + User-provided script loaders (Logic untouched)
 
 if not game:IsLoaded() then
@@ -199,20 +199,22 @@ local function Notify(titleText, descText, duration)
 end
 
 --==================================================
--- PERFECT PER-FRAME BOUNDED DRAG SYSTEM (UN-STICKABLE)
+-- INSTANT UN-STICK DRAGGING SYSTEM (100% FIXED)
 --==================================================
 
 local function MakeDraggable(frame, handle)
     handle = handle or frame
     local dragging = false
-    local lastInputPos = nil
+    local dragStart = Vector2.zero
+    local startPos = Vector2.zero
     local hasMoved = false
 
     handle.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             hasMoved = false
-            lastInputPos = input.Position
+            dragStart = Vector2.new(input.Position.X, input.Position.Y)
+            startPos = Vector2.new(frame.AbsolutePosition.X, frame.AbsolutePosition.Y)
         end
     end)
 
@@ -224,28 +226,38 @@ local function MakeDraggable(frame, handle)
 
     UserInputService.InputChanged:Connect(function(input)
         if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            local currentPos = input.Position
-            local delta = currentPos - lastInputPos
-            lastInputPos = currentPos
-
-            if delta.Magnitude > 0.5 then
-                hasMoved = true
-            end
-
             local Camera = workspace.CurrentCamera
             if not Camera then return end
             local Viewport = Camera.ViewportSize
 
-            local halfW = frame.AbsoluteSize.X * frame.AnchorPoint.X
-            local halfH = frame.AbsoluteSize.Y * frame.AnchorPoint.Y
+            local currentMouse = Vector2.new(input.Position.X, input.Position.Y)
+            local delta = currentMouse - dragStart
 
-            local curX = frame.AbsolutePosition.X + halfW
-            local curY = frame.AbsolutePosition.Y + halfH
+            if delta.Magnitude > 3 then
+                hasMoved = true
+            end
 
-            local newX = math.clamp(curX + delta.X, halfW, Viewport.X - (frame.AbsoluteSize.X - halfW))
-            local newY = math.clamp(curY + delta.Y, halfH, Viewport.Y - (frame.AbsoluteSize.Y - halfH))
+            local rawX = startPos.X + delta.X
+            local rawY = startPos.Y + delta.Y
 
-            frame.Position = UDim2.fromOffset(newX, newY)
+            local maxX = math.max(0, Viewport.X - frame.AbsoluteSize.X)
+            local maxY = math.max(0, Viewport.Y - frame.AbsoluteSize.Y)
+
+            local clampedX = math.clamp(rawX, 0, maxX)
+            local clampedY = math.clamp(rawY, 0, maxY)
+
+            -- Recalibrate dragStart on edge impact so moving inward instantly un-sticks!
+            if rawX ~= clampedX then
+                dragStart = Vector2.new(currentMouse.X - (clampedX - startPos.X), dragStart.Y)
+            end
+            if rawY ~= clampedY then
+                dragStart = Vector2.new(dragStart.X, currentMouse.Y - (clampedY - startPos.Y))
+            end
+
+            local offsetX = clampedX + (frame.AnchorPoint.X * frame.AbsoluteSize.X)
+            local offsetY = clampedY + (frame.AnchorPoint.Y * frame.AbsoluteSize.Y)
+
+            frame.Position = UDim2.fromOffset(offsetX, offsetY)
         end
     end)
 
@@ -310,19 +322,15 @@ MainStroke.Thickness = 1.5
 MainStroke.Parent = Main
 RegisterThemeElement(MainStroke, "Color", "Accent")
 
--- Apply Bounded Drag to Main GUI
-MakeDraggable(Main, nil)
-
---==================================================
--- TOPBAR
---==================================================
-
+-- Topbar for dragging Main
 local Topbar = Instance.new("Frame")
 Topbar.Size = UDim2.new(1, 0, 0, 38)
 Topbar.BackgroundColor3 = CurrentTheme.Surface
 Topbar.BorderSizePixel = 0
 Topbar.Parent = Main
 RegisterThemeElement(Topbar, "BackgroundColor3", "Surface")
+
+MakeDraggable(Main, Topbar)
 
 local CyberLine = Instance.new("Frame")
 CyberLine.Size = UDim2.new(1, 0, 0, 1)
@@ -485,7 +493,7 @@ local ThemesPage = CreatePage("Themes")
 local SettingsPage = CreatePage("Settings")
 
 --==================================================
--- CYBERPUNK UI HELPERS (WITH COPY & FAVORITES)
+-- CYBERPUNK UI HELPERS
 --==================================================
 
 local function AddSection(Page, text)
@@ -614,7 +622,6 @@ local function AddScriptButton(Page, name, description, url)
     Desc.Parent = Frame
     RegisterThemeElement(Desc, "TextColor3", "Muted")
 
-    -- Click Area to Execute
     local ExecBtn = Instance.new("TextButton")
     ExecBtn.Size = UDim2.new(1, -65, 1, 0)
     ExecBtn.BackgroundTransparency = 1
@@ -634,7 +641,6 @@ local function AddScriptButton(Page, name, description, url)
         ExecuteScript(name, url)
     end)
 
-    -- Copy Link Button
     local CopyBtn = Instance.new("TextButton")
     CopyBtn.Size = UDim2.fromOffset(26, 26)
     CopyBtn.Position = UDim2.new(1, -58, 0.5, -13)
@@ -653,7 +659,6 @@ local function AddScriptButton(Page, name, description, url)
         Notify("CLIPBOARD", "Copied URL for " .. name, 2)
     end)
 
-    -- Favorite Button
     local FavBtn = Instance.new("TextButton")
     FavBtn.Size = UDim2.fromOffset(26, 26)
     FavBtn.Position = UDim2.new(1, -28, 0.5, -13)
@@ -959,7 +964,6 @@ AddSlider(SettingsPage, "UI Transparency", 0, 50, 0, function(val)
     Main.BackgroundTransparency = val / 100
 end)
 
--- Dynamic Keybind Picker
 local CurrentKeybind = Enum.KeyCode.RightControl
 
 local KeybindBtn = Instance.new("TextButton")
@@ -1020,7 +1024,7 @@ RejoinBtn.MouseButton1Click:Connect(function()
 end)
 
 --==================================================
--- SIDEBAR NAVIGATION & ANIMATION
+-- SIDEBAR NAVIGATION
 --==================================================
 
 local TabButtons = {}
@@ -1115,17 +1119,18 @@ Close.MouseButton1Click:Connect(function()
 end)
 
 --==================================================
--- ALWAYS VISIBLE MOON TOGGLE BUTTON (🌙)
+-- ALWAYS VISIBLE MOON TOGGLE (🌙)
 --==================================================
 
 local MoonToggle = Instance.new("TextButton")
 MoonToggle.Name = "MoonToggle"
 MoonToggle.Size = UDim2.fromOffset(42, 42)
-MoonToggle.Position = UDim2.new(0, 20, 0.5, -21)
+MoonToggle.Position = UDim2.fromOffset(20, 200)
+MoonToggle.AnchorPoint = Vector2.new(0.5, 0.5)
 MoonToggle.BackgroundColor3 = CurrentTheme.Surface
 MoonToggle.Text = "🌙"
 MoonToggle.TextSize = 18
-MoonToggle.ZIndex = 100
+MoonToggle.ZIndex = 1000
 MoonToggle.Parent = ScreenGui
 RegisterThemeElement(MoonToggle, "BackgroundColor3", "Surface")
 
@@ -1139,7 +1144,7 @@ MoonStroke.Thickness = 1.5
 MoonStroke.Parent = MoonToggle
 RegisterThemeElement(MoonStroke, "Color", "Accent")
 
--- Apply Bounded Drag to Moon Toggle
+-- Apply Fixed Draggable to Moon Toggle
 local getMoonMoved = MakeDraggable(MoonToggle, nil)
 
 MoonToggle.MouseButton1Click:Connect(function()
@@ -1151,4 +1156,4 @@ MoonToggle.MouseButton1Click:Connect(function()
 end)
 
 SetBlur(true)
-Notify("CYBERHUB", "Initialized Master HUD. Moon Toggle Ready!", 4)
+Notify("CYBERHUB", "Initialized Master HUD. Smooth Edge-Bounds Active!", 4)
