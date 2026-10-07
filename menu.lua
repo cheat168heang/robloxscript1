@@ -1,5 +1,5 @@
---// CH3A5 HUB GUI (Enhanced Edition)
---// GUI ONLY + User-provided script loaders
+--// CH3A5 HUB GUI [CYBERPUNK EDITION]
+--// GUI ONLY + User-provided script loaders (Logic untouched)
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
@@ -13,120 +13,73 @@ local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
 --==================================================
--- CONFIG & THEMES
+-- CYBERPUNK THEMES
 --==================================================
 
 local Themes = {
-    ["Midnight"] = {
-        Background = Color3.fromRGB(12, 12, 18),
-        Surface = Color3.fromRGB(20, 20, 30),
-        Accent = Color3.fromRGB(120, 90, 255),
-        Text = Color3.fromRGB(245, 245, 255),
-        Muted = Color3.fromRGB(150, 150, 170)
+    ["Neon Cyan"] = {
+        Background = Color3.fromRGB(10, 12, 18),
+        Surface = Color3.fromRGB(16, 20, 28),
+        Accent = Color3.fromRGB(0, 240, 255),
+        AccentAlt = Color3.fromRGB(255, 0, 85),
+        Text = Color3.fromRGB(240, 250, 255),
+        Muted = Color3.fromRGB(100, 140, 160)
     },
-    ["Discord"] = {
-        Background = Color3.fromRGB(25, 27, 31),
-        Surface = Color3.fromRGB(32, 34, 39),
-        Accent = Color3.fromRGB(88, 101, 242),
-        Text = Color3.fromRGB(255, 255, 255),
-        Muted = Color3.fromRGB(180, 180, 190)
+    ["Matrix Green"] = {
+        Background = Color3.fromRGB(8, 14, 10),
+        Surface = Color3.fromRGB(14, 22, 16),
+        Accent = Color3.fromRGB(0, 255, 128),
+        AccentAlt = Color3.fromRGB(0, 180, 255),
+        Text = Color3.fromRGB(230, 255, 235),
+        Muted = Color3.fromRGB(100, 160, 120)
     },
-    ["GitHub"] = {
-        Background = Color3.fromRGB(13, 17, 23),
-        Surface = Color3.fromRGB(22, 27, 34),
-        Accent = Color3.fromRGB(46, 160, 67),
-        Text = Color3.fromRGB(240, 246, 252),
-        Muted = Color3.fromRGB(139, 148, 158)
+    ["Overdrive Pink"] = {
+        Background = Color3.fromRGB(18, 10, 15),
+        Surface = Color3.fromRGB(28, 15, 24),
+        Accent = Color3.fromRGB(255, 0, 128),
+        AccentAlt = Color3.fromRGB(255, 230, 0),
+        Text = Color3.fromRGB(255, 240, 250),
+        Muted = Color3.fromRGB(170, 110, 140)
     },
-    ["Spotify"] = {
-        Background = Color3.fromRGB(12, 12, 12),
-        Surface = Color3.fromRGB(24, 24, 24),
-        Accent = Color3.fromRGB(30, 215, 96),
-        Text = Color3.fromRGB(255, 255, 255),
-        Muted = Color3.fromRGB(170, 170, 170)
+    ["Synth Yellow"] = {
+        Background = Color3.fromRGB(15, 14, 8),
+        Surface = Color3.fromRGB(25, 23, 12),
+        Accent = Color3.fromRGB(255, 210, 0),
+        AccentAlt = Color3.fromRGB(0, 240, 255),
+        Text = Color3.fromRGB(255, 252, 230),
+        Muted = Color3.fromRGB(160, 150, 100)
     },
-    ["YouTube"] = {
-        Background = Color3.fromRGB(15, 15, 15),
-        Surface = Color3.fromRGB(30, 30, 30),
-        Accent = Color3.fromRGB(255, 0, 0),
-        Text = Color3.fromRGB(255, 255, 255),
-        Muted = Color3.fromRGB(180, 180, 180)
+    ["Void Purple"] = {
+        Background = Color3.fromRGB(12, 8, 20),
+        Surface = Color3.fromRGB(20, 14, 32),
+        Accent = Color3.fromRGB(170, 0, 255),
+        AccentAlt = Color3.fromRGB(0, 240, 255),
+        Text = Color3.fromRGB(245, 235, 255),
+        Muted = Color3.fromRGB(140, 110, 170)
     },
-    ["Telegram"] = {
-        Background = Color3.fromRGB(15, 23, 30),
-        Surface = Color3.fromRGB(25, 38, 50),
-        Accent = Color3.fromRGB(42, 171, 238),
-        Text = Color3.fromRGB(255, 255, 255),
-        Muted = Color3.fromRGB(160, 180, 195)
-    },
-    ["Twitter"] = {
-        Background = Color3.fromRGB(10, 10, 10),
-        Surface = Color3.fromRGB(24, 24, 24),
-        Accent = Color3.fromRGB(29, 155, 240),
-        Text = Color3.fromRGB(255, 255, 255),
-        Muted = Color3.fromRGB(160, 170, 180)
-    },
-    ["Twitch"] = {
-        Background = Color3.fromRGB(14, 12, 20),
-        Surface = Color3.fromRGB(25, 22, 35),
-        Accent = Color3.fromRGB(145, 70, 255),
-        Text = Color3.fromRGB(255, 255, 255),
-        Muted = Color3.fromRGB(180, 170, 195)
-    },
-    ["Dracula"] = {
-        Background = Color3.fromRGB(24, 24, 37),
-        Surface = Color3.fromRGB(40, 42, 54),
-        Accent = Color3.fromRGB(189, 147, 249),
-        Text = Color3.fromRGB(248, 248, 242),
-        Muted = Color3.fromRGB(180, 180, 190)
-    },
-    ["Ocean"] = {
-        Background = Color3.fromRGB(7, 18, 28),
-        Surface = Color3.fromRGB(12, 32, 48),
-        Accent = Color3.fromRGB(0, 190, 255),
-        Text = Color3.fromRGB(235, 250, 255),
-        Muted = Color3.fromRGB(145, 180, 195)
-    },
-    ["Crimson"] = {
-        Background = Color3.fromRGB(20, 10, 12),
-        Surface = Color3.fromRGB(35, 16, 20),
-        Accent = Color3.fromRGB(235, 55, 75),
-        Text = Color3.fromRGB(255, 240, 242),
-        Muted = Color3.fromRGB(185, 155, 160)
-    },
-    ["Emerald"] = {
-        Background = Color3.fromRGB(8, 18, 14),
-        Surface = Color3.fromRGB(14, 32, 25),
-        Accent = Color3.fromRGB(40, 210, 130),
-        Text = Color3.fromRGB(235, 255, 245),
-        Muted = Color3.fromRGB(145, 180, 160)
-    },
-    ["Angkor"] = {
-        Background = Color3.fromRGB(18, 14, 10),
-        Surface = Color3.fromRGB(35, 27, 18),
-        Accent = Color3.fromRGB(214, 157, 65),
-        Text = Color3.fromRGB(255, 245, 220),
-        Muted = Color3.fromRGB(185, 160, 125)
+    ["Red Alert"] = {
+        Background = Color3.fromRGB(18, 8, 10),
+        Surface = Color3.fromRGB(28, 12, 15),
+        Accent = Color3.fromRGB(255, 35, 60),
+        AccentAlt = Color3.fromRGB(255, 170, 0),
+        Text = Color3.fromRGB(255, 235, 238),
+        Muted = Color3.fromRGB(170, 110, 115)
     }
 }
 
-local CurrentTheme = Themes["Midnight"]
-local RegisteredThemeElements = {}
+local CurrentTheme = Themes["Neon Cyan"]
+local RegisteredElements = {}
 
 local function RegisterThemeElement(instance, property, themeKey)
-    table.insert(RegisteredThemeElements, {
-        Instance = instance,
-        Property = property,
-        Key = themeKey
-    })
+    table.insert(RegisteredElements, {Instance = instance, Property = property, Key = themeKey})
     instance[property] = CurrentTheme[themeKey]
 end
 
 local function ApplyTheme(newTheme)
     CurrentTheme = newTheme
-    for _, item in ipairs(RegisteredThemeElements) do
+    for _, item in ipairs(RegisteredElements) do
         if item.Instance and item.Instance.Parent then
-            TweenService:Create(item.Instance, TweenInfo.new(0.35), {
+            TweenService:Create(item.Instance, TweenInfo.new(0.3), {
                 [item.Property] = CurrentTheme[item.Key]
             }):Play()
         end
@@ -134,88 +87,84 @@ local function ApplyTheme(newTheme)
 end
 
 --==================================================
--- NOTIFICATION SYSTEM
+-- SCREEN GUI & NOTIFICATIONS
 --==================================================
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CH3A5_HUB"
+ScreenGui.Name = "CH3A5_CYBER_HUB"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.Parent = PlayerGui
 
 local NotifContainer = Instance.new("Frame")
-NotifContainer.Name = "NotifContainer"
-NotifContainer.Size = UDim2.new(0, 280, 1, -20)
-NotifContainer.Position = UDim2.new(1, -290, 0, 10)
+NotifContainer.Size = UDim2.new(0, 240, 1, -20)
+NotifContainer.Position = UDim2.new(1, -250, 0, 10)
 NotifContainer.BackgroundTransparency = 1
 NotifContainer.Parent = ScreenGui
 
 local NotifLayout = Instance.new("UIListLayout")
 NotifLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
-NotifLayout.Padding = UDim.new(0, 8)
-NotifLayout.SortOrder = Enum.SortOrder.LayoutOrder
+NotifLayout.Padding = UDim.new(0, 6)
 NotifLayout.Parent = NotifContainer
 
 local function Notify(titleText, descText, duration)
-    duration = duration or 3.5
+    duration = duration or 3
 
     local Toast = Instance.new("Frame")
-    Toast.Size = UDim2.new(1, 0, 0, 55)
+    Toast.Size = UDim2.new(1, 0, 0, 48)
     Toast.BackgroundColor3 = CurrentTheme.Surface
     Toast.BorderSizePixel = 0
     Toast.BackgroundTransparency = 1
     Toast.Parent = NotifContainer
     RegisterThemeElement(Toast, "BackgroundColor3", "Surface")
 
-    local ToastCorner = Instance.new("UICorner")
-    ToastCorner.CornerRadius = UDim.new(0, 8)
-    ToastCorner.Parent = Toast
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 4)
+    Corner.Parent = Toast
 
-    local ToastStroke = Instance.new("UIStroke")
-    ToastStroke.Color = CurrentTheme.Accent
-    ToastStroke.Transparency = 0.5
-    ToastStroke.Thickness = 1
-    ToastStroke.Parent = Toast
-    RegisterThemeElement(ToastStroke, "Color", "Accent")
+    local Stroke = Instance.new("UIStroke")
+    Stroke.Color = CurrentTheme.Accent
+    Stroke.Thickness = 1
+    Stroke.Parent = Toast
+    RegisterThemeElement(Stroke, "Color", "Accent")
+
+    local AccentBar = Instance.new("Frame")
+    AccentBar.Size = UDim2.new(0, 3, 1, 0)
+    AccentBar.BackgroundColor3 = CurrentTheme.Accent
+    AccentBar.BorderSizePixel = 0
+    AccentBar.Parent = Toast
+    RegisterThemeElement(AccentBar, "BackgroundColor3", "Accent")
 
     local TTitle = Instance.new("TextLabel")
-    TTitle.Size = UDim2.new(1, -20, 0, 20)
-    TTitle.Position = UDim2.fromOffset(10, 6)
+    TTitle.Size = UDim2.new(1, -15, 0, 18)
+    TTitle.Position = UDim2.fromOffset(10, 4)
     TTitle.BackgroundTransparency = 1
-    TTitle.Text = titleText
-    TTitle.Font = Enum.Font.GothamBold
-    TTitle.TextSize = 13
-    TTitle.TextColor3 = CurrentTheme.Text
+    TTitle.Text = "// " .. titleText
+    TTitle.Font = Enum.Font.Code
+    TTitle.TextSize = 11
+    TTitle.TextColor3 = CurrentTheme.Accent
     TTitle.TextXAlignment = Enum.TextXAlignment.Left
-    TTitle.TextTransparency = 1
     TTitle.Parent = Toast
-    RegisterThemeElement(TTitle, "TextColor3", "Text")
+    RegisterThemeElement(TTitle, "TextColor3", "Accent")
 
     local TDesc = Instance.new("TextLabel")
-    TDesc.Size = UDim2.new(1, -20, 0, 22)
-    TDesc.Position = UDim2.fromOffset(10, 26)
+    TDesc.Size = UDim2.new(1, -15, 0, 20)
+    TDesc.Position = UDim2.fromOffset(10, 22)
     TDesc.BackgroundTransparency = 1
     TDesc.Text = descText
     TDesc.Font = Enum.Font.Gotham
-    TDesc.TextSize = 11
-    TDesc.TextColor3 = CurrentTheme.Muted
+    TDesc.TextSize = 10
+    TDesc.TextColor3 = CurrentTheme.Text
     TDesc.TextXAlignment = Enum.TextXAlignment.Left
-    TDesc.TextTransparency = 1
     TDesc.Parent = Toast
-    RegisterThemeElement(TDesc, "TextColor3", "Muted")
+    RegisterThemeElement(TDesc, "TextColor3", "Text")
 
-    TweenService:Create(Toast, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play()
-    TweenService:Create(TTitle, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
-    TweenService:Create(TDesc, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+    TweenService:Create(Toast, TweenInfo.new(0.2), {BackgroundTransparency = 0}):Play()
 
     task.delay(duration, function()
-        local t1 = TweenService:Create(Toast, TweenInfo.new(0.3), {BackgroundTransparency = 1})
-        TweenService:Create(TTitle, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-        TweenService:Create(TDesc, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-        t1:Play()
-        t1.Completed:Connect(function()
-            Toast:Destroy()
-        end)
+        local t = TweenService:Create(Toast, TweenInfo.new(0.25), {BackgroundTransparency = 1})
+        t:Play()
+        t.Completed:Connect(function() Toast:Destroy() end)
     end)
 end
 
@@ -224,7 +173,7 @@ end
 --==================================================
 
 local function ExecuteScript(scriptName, url)
-    Notify("CH3A5 HUB", "Executing " .. scriptName .. "...", 2.5)
+    Notify("EXECUTE", "Downloading " .. scriptName .. "...", 2)
     task.spawn(function()
         local success, source = pcall(function()
             return game:HttpGet(url)
@@ -232,7 +181,7 @@ local function ExecuteScript(scriptName, url)
 
         if not success or not source then
             warn("[CH3A5 HUB] Failed to download script")
-            Notify("CH3A5 HUB", "Failed to download " .. scriptName, 3)
+            Notify("ERROR", "Failed to download " .. scriptName, 3)
             return
         end
 
@@ -245,20 +194,20 @@ local function ExecuteScript(scriptName, url)
 
         if not runSuccess then
             warn("[CH3A5 HUB] Script Error:", err)
-            Notify("CH3A5 HUB", "Error running " .. scriptName, 3)
+            Notify("ERROR", "Script Error in " .. scriptName, 3)
         else
-            Notify("CH3A5 HUB", scriptName .. " loaded successfully!", 3)
+            Notify("SYSTEM", scriptName .. " Executed!", 3)
         end
     end)
 end
 
 --==================================================
--- MAIN GUI FRAME
+-- MAIN FRAME (COMPACT 520x330 CYBERPUNK)
 --==================================================
 
 local Main = Instance.new("Frame")
 Main.Name = "Main"
-Main.Size = UDim2.fromOffset(720, 460)
+Main.Size = UDim2.fromOffset(520, 330)
 Main.Position = UDim2.new(0.5, 0, 0.5, 0)
 Main.AnchorPoint = Vector2.new(0.5, 0.5)
 Main.BackgroundColor3 = CurrentTheme.Background
@@ -268,93 +217,88 @@ Main.Parent = ScreenGui
 RegisterThemeElement(Main, "BackgroundColor3", "Background")
 
 local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 14)
+MainCorner.CornerRadius = UDim.new(0, 6)
 MainCorner.Parent = Main
 
-local Stroke = Instance.new("UIStroke")
-Stroke.Color = CurrentTheme.Accent
-Stroke.Transparency = 0.55
-Stroke.Thickness = 1
-Stroke.Parent = Main
-RegisterThemeElement(Stroke, "Color", "Accent")
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = CurrentTheme.Accent
+MainStroke.Thickness = 1.5
+MainStroke.Parent = Main
+RegisterThemeElement(MainStroke, "Color", "Accent")
 
 --==================================================
 -- TOPBAR
 --==================================================
 
 local Topbar = Instance.new("Frame")
-Topbar.Size = UDim2.new(1, 0, 0, 55)
+Topbar.Size = UDim2.new(1, 0, 0, 42)
 Topbar.BackgroundColor3 = CurrentTheme.Surface
 Topbar.BorderSizePixel = 0
 Topbar.Parent = Main
 RegisterThemeElement(Topbar, "BackgroundColor3", "Surface")
 
-local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, -120, 0, 25)
-Title.Position = UDim2.fromOffset(18, 8)
-Title.BackgroundTransparency = 1
-Title.Text = "CH3A5 HUB"
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 20
-Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.TextColor3 = CurrentTheme.Text
-Title.Parent = Topbar
-RegisterThemeElement(Title, "TextColor3", "Text")
+local CyberLine = Instance.new("Frame")
+CyberLine.Size = UDim2.new(1, 0, 0, 1)
+CyberLine.Position = UDim2.new(0, 0, 1, -1)
+CyberLine.BackgroundColor3 = CurrentTheme.Accent
+CyberLine.BorderSizePixel = 0
+CyberLine.Parent = Topbar
+RegisterThemeElement(CyberLine, "BackgroundColor3", "Accent")
 
-local Subtitle = Instance.new("TextLabel")
-Subtitle.Size = UDim2.fromOffset(180, 18)
-Subtitle.Position = UDim2.fromOffset(18, 31)
-Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "Premium Script Hub"
-Subtitle.Font = Enum.Font.Gotham
-Subtitle.TextSize = 10
-Subtitle.TextXAlignment = Enum.TextXAlignment.Left
-Subtitle.TextColor3 = CurrentTheme.Muted
-Subtitle.Parent = Topbar
-RegisterThemeElement(Subtitle, "TextColor3", "Muted")
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -100, 1, 0)
+Title.Position = UDim2.fromOffset(12, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "[ CH3A5 // HUB ] v2.0"
+Title.Font = Enum.Font.Code
+Title.TextSize = 14
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.TextColor3 = CurrentTheme.Accent
+Title.Parent = Topbar
+RegisterThemeElement(Title, "TextColor3", "Accent")
 
 local Minimize = Instance.new("TextButton")
-Minimize.Size = UDim2.fromOffset(40, 40)
-Minimize.Position = UDim2.new(1, -88, 0, 8)
+Minimize.Size = UDim2.fromOffset(32, 32)
+Minimize.Position = UDim2.new(1, -70, 0, 5)
 Minimize.BackgroundTransparency = 1
 Minimize.Text = "—"
-Minimize.TextSize = 18
+Minimize.TextSize = 14
 Minimize.TextColor3 = CurrentTheme.Text
-Minimize.Font = Enum.Font.GothamBold
+Minimize.Font = Enum.Font.Code
 Minimize.Parent = Topbar
 RegisterThemeElement(Minimize, "TextColor3", "Text")
 
 local Close = Instance.new("TextButton")
-Close.Size = UDim2.fromOffset(40, 40)
-Close.Position = UDim2.new(1, -45, 0, 8)
+Close.Size = UDim2.fromOffset(32, 32)
+Close.Position = UDim2.new(1, -36, 0, 5)
 Close.BackgroundTransparency = 1
-Close.Text = "×"
-Close.TextSize = 22
-Close.TextColor3 = CurrentTheme.Text
-Close.Font = Enum.Font.GothamBold
+Close.Text = "✕"
+Close.TextSize = 14
+Close.TextColor3 = CurrentTheme.AccentAlt
+Close.Font = Enum.Font.Code
 Close.Parent = Topbar
-RegisterThemeElement(Close, "TextColor3", "Text")
+RegisterThemeElement(Close, "TextColor3", "AccentAlt")
 
 --==================================================
 -- SIDEBAR
 --==================================================
 
 local Sidebar = Instance.new("Frame")
-Sidebar.Size = UDim2.new(0, 170, 1, -55)
-Sidebar.Position = UDim2.fromOffset(0, 55)
+Sidebar.Size = UDim2.new(0, 130, 1, -42)
+Sidebar.Position = UDim2.fromOffset(0, 42)
 Sidebar.BackgroundColor3 = CurrentTheme.Surface
 Sidebar.BorderSizePixel = 0
 Sidebar.Parent = Main
 RegisterThemeElement(Sidebar, "BackgroundColor3", "Surface")
 
 local SidePadding = Instance.new("UIPadding")
-SidePadding.PaddingTop = UDim.new(0, 15)
-SidePadding.PaddingLeft = UDim.new(0, 10)
-SidePadding.PaddingRight = UDim.new(0, 10)
+SidePadding.PaddingTop = UDim.new(0, 10)
+SidePadding.PaddingLeft = UDim.new(0, 8)
+SidePadding.PaddingRight = UDim.new(0, 8)
 SidePadding.Parent = Sidebar
 
 local SideLayout = Instance.new("UIListLayout")
-SideLayout.Padding = UDim.new(0, 8)
+SideLayout.Padding = UDim.new(0, 6)
 SideLayout.SortOrder = Enum.SortOrder.LayoutOrder
 SideLayout.Parent = Sidebar
 
@@ -363,8 +307,8 @@ SideLayout.Parent = Sidebar
 --==================================================
 
 local Content = Instance.new("Frame")
-Content.Size = UDim2.new(1, -170, 1, -55)
-Content.Position = UDim2.fromOffset(170, 55)
+Content.Size = UDim2.new(1, -130, 1, -42)
+Content.Position = UDim2.fromOffset(130, 42)
 Content.BackgroundColor3 = CurrentTheme.Background
 Content.BorderSizePixel = 0
 Content.Parent = Main
@@ -375,11 +319,11 @@ local Pages = {}
 local function CreatePage(name)
     local Page = Instance.new("ScrollingFrame")
     Page.Name = name
-    Page.Size = UDim2.new(1, -20, 1, -20)
-    Page.Position = UDim2.fromOffset(10, 10)
+    Page.Size = UDim2.new(1, -16, 1, -16)
+    Page.Position = UDim2.fromOffset(8, 8)
     Page.BackgroundTransparency = 1
     Page.BorderSizePixel = 0
-    Page.ScrollBarThickness = 3
+    Page.ScrollBarThickness = 2
     Page.ScrollBarImageColor3 = CurrentTheme.Accent
     Page.CanvasSize = UDim2.new()
     Page.AutomaticCanvasSize = Enum.AutomaticSize.Y
@@ -388,7 +332,7 @@ local function CreatePage(name)
     RegisterThemeElement(Page, "ScrollBarImageColor3", "Accent")
 
     local Layout = Instance.new("UIListLayout")
-    Layout.Padding = UDim.new(0, 10)
+    Layout.Padding = UDim.new(0, 8)
     Layout.SortOrder = Enum.SortOrder.LayoutOrder
     Layout.Parent = Page
 
@@ -403,30 +347,30 @@ local ThemesPage = CreatePage("Themes")
 local SettingsPage = CreatePage("Settings")
 
 --==================================================
--- UI HELPERS & SEARCH BAR
+-- CYBERPUNK UI HELPERS
 --==================================================
 
 local function AddSection(Page, text)
     local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, 0, 0, 30)
+    Label.Size = UDim2.new(1, 0, 0, 24)
     Label.BackgroundTransparency = 1
-    Label.Text = text
-    Label.Font = Enum.Font.GothamBold
-    Label.TextSize = 16
+    Label.Text = "// " .. text
+    Label.Font = Enum.Font.Code
+    Label.TextSize = 13
     Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.TextColor3 = CurrentTheme.Text
+    Label.TextColor3 = CurrentTheme.Accent
     Label.Parent = Page
-    RegisterThemeElement(Label, "TextColor3", "Text")
+    RegisterThemeElement(Label, "TextColor3", "Accent")
     return Label
 end
 
 local function AddInfo(Page, text)
     local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, 0, 0, 22)
+    Label.Size = UDim2.new(1, 0, 0, 18)
     Label.BackgroundTransparency = 1
     Label.Text = text
     Label.Font = Enum.Font.Gotham
-    Label.TextSize = 12
+    Label.TextSize = 11
     Label.TextXAlignment = Enum.TextXAlignment.Left
     Label.TextColor3 = CurrentTheme.Muted
     Label.Parent = Page
@@ -436,13 +380,13 @@ end
 
 local function AddSearchBar(Page)
     local SearchBox = Instance.new("TextBox")
-    SearchBox.Size = UDim2.new(1, 0, 0, 36)
+    SearchBox.Size = UDim2.new(1, 0, 0, 30)
     SearchBox.BackgroundColor3 = CurrentTheme.Surface
     SearchBox.BorderSizePixel = 0
-    SearchBox.PlaceholderText = "🔍  Search scripts..."
+    SearchBox.PlaceholderText = "> Search modules..."
     SearchBox.Text = ""
-    SearchBox.Font = Enum.Font.Gotham
-    SearchBox.TextSize = 12
+    SearchBox.Font = Enum.Font.Code
+    SearchBox.TextSize = 11
     SearchBox.TextColor3 = CurrentTheme.Text
     SearchBox.PlaceholderColor3 = CurrentTheme.Muted
     SearchBox.TextXAlignment = Enum.TextXAlignment.Left
@@ -452,11 +396,18 @@ local function AddSearchBar(Page)
     RegisterThemeElement(SearchBox, "PlaceholderColor3", "Muted")
 
     local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 8)
+    Corner.CornerRadius = UDim.new(0, 4)
     Corner.Parent = SearchBox
 
+    local Stroke = Instance.new("UIStroke")
+    Stroke.Color = CurrentTheme.Accent
+    Stroke.Transparency = 0.7
+    Stroke.Thickness = 1
+    Stroke.Parent = SearchBox
+    RegisterThemeElement(Stroke, "Color", "Accent")
+
     local Padding = Instance.new("UIPadding")
-    Padding.PaddingLeft = UDim.new(0, 12)
+    Padding.PaddingLeft = UDim.new(0, 10)
     Padding.Parent = SearchBox
 
     SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
@@ -476,7 +427,7 @@ end
 
 local function AddScriptButton(Page, name, description, url)
     local Button = Instance.new("TextButton")
-    Button.Size = UDim2.new(1, 0, 0, 68)
+    Button.Size = UDim2.new(1, 0, 0, 52)
     Button.BackgroundColor3 = CurrentTheme.Surface
     Button.BorderSizePixel = 0
     Button.Text = ""
@@ -485,40 +436,55 @@ local function AddScriptButton(Page, name, description, url)
     RegisterThemeElement(Button, "BackgroundColor3", "Surface")
 
     local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 10)
+    Corner.CornerRadius = UDim.new(0, 4)
     Corner.Parent = Button
+
+    local BtnStroke = Instance.new("UIStroke")
+    BtnStroke.Color = CurrentTheme.Accent
+    BtnStroke.Transparency = 0.8
+    BtnStroke.Thickness = 1
+    BtnStroke.Parent = Button
+    RegisterThemeElement(BtnStroke, "Color", "Accent")
+
+    local AccentBar = Instance.new("Frame")
+    AccentBar.Size = UDim2.new(0, 3, 1, 0)
+    AccentBar.BackgroundColor3 = CurrentTheme.Accent
+    AccentBar.BorderSizePixel = 0
+    AccentBar.Parent = Button
+    RegisterThemeElement(AccentBar, "BackgroundColor3", "Accent")
 
     local Name = Instance.new("TextLabel")
     Name.Name = "ScriptName"
-    Name.Size = UDim2.new(1, -25, 0, 25)
-    Name.Position = UDim2.fromOffset(15, 8)
+    Name.Size = UDim2.new(1, -20, 0, 20)
+    Name.Position = UDim2.fromOffset(12, 6)
     Name.BackgroundTransparency = 1
     Name.Text = name
     Name.Font = Enum.Font.GothamBold
-    Name.TextSize = 14
+    Name.TextSize = 12
     Name.TextXAlignment = Enum.TextXAlignment.Left
     Name.TextColor3 = CurrentTheme.Text
     Name.Parent = Button
     RegisterThemeElement(Name, "TextColor3", "Text")
 
     local Desc = Instance.new("TextLabel")
-    Desc.Size = UDim2.new(1, -25, 0, 20)
-    Desc.Position = UDim2.fromOffset(15, 34)
+    Desc.Size = UDim2.new(1, -20, 0, 18)
+    Desc.Position = UDim2.fromOffset(12, 26)
     Desc.BackgroundTransparency = 1
-    Desc.Text = description
-    Desc.Font = Enum.Font.Gotham
-    Desc.TextSize = 11
+    Desc.Text = "[ " .. description .. " ]"
+    Desc.Font = Enum.Font.Code
+    Desc.TextSize = 10
     Desc.TextXAlignment = Enum.TextXAlignment.Left
     Desc.TextColor3 = CurrentTheme.Muted
     Desc.Parent = Button
     RegisterThemeElement(Desc, "TextColor3", "Muted")
 
     Button.MouseEnter:Connect(function()
-        TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = CurrentTheme.Accent}):Play()
+        TweenService:Create(BtnStroke, TweenInfo.new(0.2), {Transparency = 0}):Play()
+        TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = CurrentTheme.Surface}):Play()
     end)
 
     Button.MouseLeave:Connect(function()
-        TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = CurrentTheme.Surface}):Play()
+        TweenService:Create(BtnStroke, TweenInfo.new(0.2), {Transparency = 0.8}):Play()
     end)
 
     Button.MouseButton1Click:Connect(function()
@@ -530,12 +496,12 @@ end
 
 local function AddComingSoon(Page, name)
     local Button = Instance.new("TextButton")
-    Button.Size = UDim2.new(1, 0, 0, 50)
+    Button.Size = UDim2.new(1, 0, 0, 42)
     Button.BackgroundColor3 = CurrentTheme.Surface
     Button.BorderSizePixel = 0
-    Button.Text = name .. "  •  COMING SOON"
-    Button.Font = Enum.Font.GothamBold
-    Button.TextSize = 12
+    Button.Text = name .. " // COMING SOON"
+    Button.Font = Enum.Font.Code
+    Button.TextSize = 10
     Button.TextColor3 = CurrentTheme.Muted
     Button.AutoButtonColor = false
     Button.Parent = Page
@@ -543,7 +509,7 @@ local function AddComingSoon(Page, name)
     RegisterThemeElement(Button, "TextColor3", "Muted")
 
     local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 10)
+    Corner.CornerRadius = UDim.new(0, 4)
     Corner.Parent = Button
 end
 
@@ -551,16 +517,16 @@ end
 -- HOME
 --==================================================
 
-AddSection(HomePage, "Welcome to CH3A5 HUB")
-AddInfo(HomePage, "Select a category from the sidebar to browse scripts.")
+AddSection(HomePage, "SYSTEM OVERVIEW")
+AddInfo(HomePage, "Select module category from sidebar.")
 AddComingSoon(HomePage, "More Scripts")
 
 --==================================================
--- KEYLESS (LOADERS - UNTOUCHED DATA)
+-- KEYLESS (UNTOUCHED DATA / LOADERS)
 --==================================================
 
-AddSection(KeylessPage, "Keyless Scripts")
-AddInfo(KeylessPage, "No key required to run these scripts.")
+AddSection(KeylessPage, "KEYLESS MODULES")
+AddInfo(KeylessPage, "Direct execution without key verification.")
 AddSearchBar(KeylessPage)
 
 AddScriptButton(
@@ -585,11 +551,11 @@ AddScriptButton(
 )
 
 --==================================================
--- KEY (LOADERS - UNTOUCHED DATA)
+-- KEY (UNTOUCHED DATA / LOADERS)
 --==================================================
 
-AddSection(KeyPage, "Key System Scripts")
-AddInfo(KeyPage, "These scripts may require an official key.")
+AddSection(KeyPage, "PROTECTED MODULES")
+AddInfo(KeyPage, "Requires key access to run.")
 AddSearchBar(KeyPage)
 
 AddScriptButton(
@@ -610,39 +576,39 @@ AddScriptButton(
 -- THEMES
 --==================================================
 
-AddSection(ThemesPage, "Themes")
-AddInfo(ThemesPage, "Choose a color theme for CH3A5 HUB.")
+AddSection(ThemesPage, "COLOR SCHEMES")
+AddInfo(ThemesPage, "Select visual palette.")
 
 for ThemeName, ThemeData in pairs(Themes) do
     local Button = Instance.new("TextButton")
-    Button.Size = UDim2.new(1, 0, 0, 46)
+    Button.Size = UDim2.new(1, 0, 0, 36)
     Button.BackgroundColor3 = ThemeData.Surface
     Button.BorderSizePixel = 0
-    Button.Text = "  " .. ThemeName
-    Button.Font = Enum.Font.GothamBold
-    Button.TextSize = 13
+    Button.Text = "  > " .. ThemeName
+    Button.Font = Enum.Font.Code
+    Button.TextSize = 11
     Button.TextColor3 = ThemeData.Text
     Button.TextXAlignment = Enum.TextXAlignment.Left
     Button.Parent = ThemesPage
 
     local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 9)
+    Corner.CornerRadius = UDim.new(0, 4)
     Corner.Parent = Button
 
-    local ColorIndicator = Instance.new("Frame")
-    ColorIndicator.Size = UDim2.fromOffset(18, 18)
-    ColorIndicator.Position = UDim2.new(1, -28, 0.5, -9)
-    ColorIndicator.BackgroundColor3 = ThemeData.Accent
-    ColorIndicator.BorderSizePixel = 0
-    ColorIndicator.Parent = Button
+    local Dot = Instance.new("Frame")
+    Dot.Size = UDim2.fromOffset(12, 12)
+    Dot.Position = UDim2.new(1, -20, 0.5, -6)
+    Dot.BackgroundColor3 = ThemeData.Accent
+    Dot.BorderSizePixel = 0
+    Dot.Parent = Button
 
-    local IndCorner = Instance.new("UICorner")
-    IndCorner.CornerRadius = UDim.new(1, 0)
-    IndCorner.Parent = ColorIndicator
+    local DotCorner = Instance.new("UICorner")
+    DotCorner.CornerRadius = UDim.new(1, 0)
+    DotCorner.Parent = Dot
 
     Button.MouseButton1Click:Connect(function()
         ApplyTheme(ThemeData)
-        Notify("Theme Updated", "Switched to " .. ThemeName .. " theme.", 2)
+        Notify("THEME", "Palette updated to " .. ThemeName, 2)
     end)
 end
 
@@ -650,52 +616,50 @@ end
 -- SETTINGS
 --==================================================
 
-AddSection(SettingsPage, "Settings & Tools")
-AddInfo(SettingsPage, "Configure interface options.")
+AddSection(SettingsPage, "SYSTEM CONTROLS")
+AddInfo(SettingsPage, "Manage GUI environment.")
 
 local RejoinBtn = Instance.new("TextButton")
-RejoinBtn.Size = UDim2.new(1, 0, 0, 48)
+RejoinBtn.Size = UDim2.new(1, 0, 0, 38)
 RejoinBtn.BackgroundColor3 = CurrentTheme.Surface
 RejoinBtn.BorderSizePixel = 0
-RejoinBtn.Text = "⚡  Rejoin Server"
-RejoinBtn.Font = Enum.Font.GothamBold
-RejoinBtn.TextSize = 13
+RejoinBtn.Text = "⚡ REJOIN SERVER"
+RejoinBtn.Font = Enum.Font.Code
+RejoinBtn.TextSize = 11
 RejoinBtn.TextColor3 = CurrentTheme.Text
 RejoinBtn.Parent = SettingsPage
 RegisterThemeElement(RejoinBtn, "BackgroundColor3", "Surface")
 RegisterThemeElement(RejoinBtn, "TextColor3", "Text")
 
 local RJCorner = Instance.new("UICorner")
-RJCorner.CornerRadius = UDim.new(0, 9)
+RJCorner.CornerRadius = UDim.new(0, 4)
 RJCorner.Parent = RejoinBtn
 
 RejoinBtn.MouseButton1Click:Connect(function()
     game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, Player)
 end)
 
-AddComingSoon(SettingsPage, "Interface Customization")
-
 --==================================================
--- SIDEBAR BUTTONS
+-- SIDEBAR NAVIGATION
 --==================================================
 
 local TabButtons = {}
 
 local function AddTab(name, page)
     local Button = Instance.new("TextButton")
-    Button.Size = UDim2.new(1, 0, 0, 42)
+    Button.Size = UDim2.new(1, 0, 0, 34)
     Button.BackgroundColor3 = CurrentTheme.Background
     Button.BorderSizePixel = 0
     Button.Text = name
-    Button.Font = Enum.Font.GothamMedium
-    Button.TextSize = 12
+    Button.Font = Enum.Font.Code
+    Button.TextSize = 11
     Button.TextColor3 = CurrentTheme.Muted
     Button.AutoButtonColor = false
     Button.Parent = Sidebar
     RegisterThemeElement(Button, "BackgroundColor3", "Background")
 
     local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 8)
+    Corner.CornerRadius = UDim.new(0, 4)
     Corner.Parent = Button
 
     TabButtons[name] = {Button = Button, Page = page}
@@ -708,21 +672,21 @@ local function AddTab(name, page)
         end
 
         page.Visible = true
-        Button.TextColor3 = CurrentTheme.Text
+        Button.TextColor3 = CurrentTheme.Accent
         TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = CurrentTheme.Surface}):Play()
     end)
 
     return Button
 end
 
-local HomeTab = AddTab("⌂  Home", HomePage)
-AddTab("⚡  Keyless", KeylessPage)
-AddTab("🔑  Key Scripts", KeyPage)
-AddTab("🎨  Themes", ThemesPage)
-AddTab("⚙  Settings", SettingsPage)
+local HomeTab = AddTab("> Home", HomePage)
+AddTab("> Keyless", KeylessPage)
+AddTab("> Keyed", KeyPage)
+AddTab("> Themes", ThemesPage)
+AddTab("> Config", SettingsPage)
 
 HomePage.Visible = true
-HomeTab.TextColor3 = CurrentTheme.Text
+HomeTab.TextColor3 = CurrentTheme.Accent
 HomeTab.BackgroundColor3 = CurrentTheme.Surface
 
 --==================================================
@@ -768,7 +732,7 @@ local OriginalSize = Main.Size
 Minimize.MouseButton1Click:Connect(function()
     Minimized = not Minimized
     if Minimized then
-        TweenService:Create(Main, TweenInfo.new(0.25), {Size = UDim2.fromOffset(720, 55)}):Play()
+        TweenService:Create(Main, TweenInfo.new(0.25), {Size = UDim2.fromOffset(520, 42)}):Play()
         Sidebar.Visible = false
         Content.Visible = false
     else
@@ -780,34 +744,34 @@ Minimize.MouseButton1Click:Connect(function()
 end)
 
 Close.MouseButton1Click:Connect(function()
-    TweenService:Create(Main, TweenInfo.new(0.25), {Size = UDim2.fromOffset(0, 0)}):Play()
-    task.wait(0.25)
+    TweenService:Create(Main, TweenInfo.new(0.2), {Size = UDim2.fromOffset(0, 0)}):Play()
+    task.wait(0.2)
     ScreenGui:Destroy()
 end)
 
--- Keybind to Hide/Show GUI (Right Control)
+-- Keybind to Hide/Show (Right Control)
 UserInputService.InputBegan:Connect(function(input, gpe)
     if not gpe and input.KeyCode == Enum.KeyCode.RightControl then
         Main.Visible = not Main.Visible
     end
 end)
 
--- Mobile Floating Toggle Button
+-- Mobile Floating Cyberpunk Button
 local MobileToggle = Instance.new("TextButton")
 MobileToggle.Name = "MobileToggle"
-MobileToggle.Size = UDim2.fromOffset(45, 45)
-MobileToggle.Position = UDim2.new(0, 15, 0.5, -22)
+MobileToggle.Size = UDim2.fromOffset(40, 40)
+MobileToggle.Position = UDim2.new(0, 12, 0.5, -20)
 MobileToggle.BackgroundColor3 = CurrentTheme.Surface
-MobileToggle.Text = "HUB"
-MobileToggle.Font = Enum.Font.GothamBold
-MobileToggle.TextSize = 12
+MobileToggle.Text = "[C]"
+MobileToggle.Font = Enum.Font.Code
+MobileToggle.TextSize = 13
 MobileToggle.TextColor3 = CurrentTheme.Accent
 MobileToggle.Parent = ScreenGui
 RegisterThemeElement(MobileToggle, "BackgroundColor3", "Surface")
 RegisterThemeElement(MobileToggle, "TextColor3", "Accent")
 
 local MCorner = Instance.new("UICorner")
-MCorner.CornerRadius = UDim.new(1, 0)
+MCorner.CornerRadius = UDim.new(0, 6)
 MCorner.Parent = MobileToggle
 
 local MStroke = Instance.new("UIStroke")
@@ -820,27 +784,4 @@ MobileToggle.MouseButton1Click:Connect(function()
     Main.Visible = not Main.Visible
 end)
 
---==================================================
--- RESPONSIVE MECHANICS
---==================================================
-
-local function UpdateResponsive()
-    local Camera = workspace.CurrentCamera
-    if not Camera then return end
-    local Viewport = Camera.ViewportSize
-
-    if Viewport.X < 650 then
-        Main.Size = UDim2.new(0.92, 0, 0, 420)
-        OriginalSize = Main.Size
-    else
-        Main.Size = UDim2.fromOffset(720, 460)
-        OriginalSize = Main.Size
-    end
-end
-
-if workspace.CurrentCamera then
-    workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateResponsive)
-    UpdateResponsive()
-end
-
-Notify("CH3A5 HUB", "Loaded successfully! Press RightCtrl to hide/show.", 4)
+Notify("CYBERHUB", "Initialized. Press RightCtrl or [C] button.", 4)
