@@ -1,5 +1,5 @@
 --// CH3A5 HUB GUI [ULTRA EDITION V6.7]
---// Added About Tab + Cyberpunk Loading Screen with Sound Effects
+--// Added About Tab + Social Links & Info + Square Corners
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
@@ -58,11 +58,11 @@ LoadSavedConfig()
 -- SOUND EFFECTS & BLUR
 --==================================================
 
-local function PlaySound(soundId, pitch, volume)
+local function PlaySound(soundId, pitch)
     task.spawn(function()
         local sound = Instance.new("Sound")
         sound.SoundId = "rbxassetid://" .. tostring(soundId)
-        sound.Volume = volume or 0.25
+        sound.Volume = 0.25
         sound.Pitch = pitch or 1
         sound.Parent = SoundService
         sound:Play()
@@ -470,7 +470,7 @@ SidePad.PaddingLeft = UDim.new(0, 5)
 SidePad.PaddingRight = UDim.new(0, 5)
 SidePad.Parent = TabHolder
 
--- PROFILE CARD
+-- PROFILE CARD (TRANSPARENT BACKGROUND)
 local ProfileCard = Instance.new("Frame")
 ProfileCard.Size = UDim2.new(1, -10, 0, 36)
 ProfileCard.Position = UDim2.new(0, 5, 1, -38)
@@ -563,70 +563,6 @@ local FavoritesPage = CreatePage("Favorites")
 local ThemesPage = CreatePage("Themes")
 local SettingsPage = CreatePage("Settings")
 local AboutPage = CreatePage("About")
-
---==================================================
--- ABOUT TAB CONTENT & SOCIAL LINKS
---==================================================
-
-local function AddAboutCard(Page, title, value, url)
-    local Frame = Instance.new("Frame")
-    Frame.Size = UDim2.new(1, 0, 0, 36)
-    Frame.BackgroundColor3 = CurrentTheme.Surface
-    Frame.BorderSizePixel = 0
-    Frame.ZIndex = 13
-    Frame.Parent = Page
-    RegisterThemeElement(Frame, "BackgroundColor3", "Surface")
-
-    local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 4)
-    Corner.Parent = Frame
-
-    local TLabel = Instance.new("TextLabel")
-    TLabel.Size = UDim2.new(0.4, 0, 1, 0)
-    TLabel.Position = UDim2.fromOffset(8, 0)
-    TLabel.BackgroundTransparency = 1
-    TLabel.Text = title
-    TLabel.Font = Enum.Font.Code
-    TLabel.TextSize = 9
-    TLabel.TextColor3 = CurrentTheme.Muted
-    TLabel.TextXAlignment = Enum.TextXAlignment.Left
-    TLabel.ZIndex = 14
-    TLabel.Parent = Frame
-    RegisterThemeElement(TLabel, "TextColor3", "Muted")
-
-    local VBtn = Instance.new("TextButton")
-    VBtn.Size = UDim2.new(0.6, -16, 1, 0)
-    VBtn.Position = UDim2.new(0.4, 0, 0, 0)
-    VBtn.BackgroundTransparency = 1
-    VBtn.Text = value
-    VBtn.Font = Enum.Font.GothamBold
-    VBtn.TextSize = 9
-    VBtn.TextColor3 = CurrentTheme.Accent
-    VBtn.TextXAlignment = Enum.TextXAlignment.Right
-    VBtn.ZIndex = 14
-    VBtn.Parent = Frame
-    RegisterThemeElement(VBtn, "TextColor3", "Accent")
-
-    if url then
-        VBtn.MouseButton1Click:Connect(function()
-            pcall(function() setclipboard(url) end)
-            Notify("ABOUT", "Copied link to clipboard!", 2)
-        end)
-    end
-end
-
-AddSection(AboutPage, "HUB INFORMATION")
-AddAboutCard(AboutPage, "Project Name", "CH3A5 HUB")
-AddAboutCard(AboutPage, "Version", "1.0")
-AddAboutCard(AboutPage, "Developer", "CH3A5")
-AddAboutCard(AboutPage, "Status", "● Online")
-AddAboutCard(AboutPage, "Release Year", "2026")
-
-AddSection(AboutPage, "SOCIAL NETWORKS")
-AddAboutCard(AboutPage, "Telegram Channel", "Open Link", "https://t.me/stealanegg_ch3a5_script")
-AddAboutCard(AboutPage, "Telegram", "Open Link", "https://t.me/ch3a5")
-AddAboutCard(AboutPage, "TikTok", "Open Link", "https://www.tiktok.com/@ch3a5smos_404")
-AddAboutCard(AboutPage, "Facebook", "Open Link", "https://www.facebook.com/share/17tbhLwQuN/?mibextid=wwXIfr")
 
 --==================================================
 -- DEDICATED PERSISTENT FAVORITES SYSTEM
@@ -835,8 +771,8 @@ local function AddScriptButton(Page, name, description, url)
     NameLabel.Font = Enum.Font.GothamBold
     NameLabel.TextSize = 10
     NameLabel.TextTruncate = Enum.TextTruncate.AtEnd
-    NameLabel.TextXAlignment = Enum.TextXAlignment.Left
     NameLabel.TextColor3 = CurrentTheme.Text
+    NameLabel.TextXAlignment = Enum.TextXAlignment.Left
     NameLabel.ZIndex = 14
     NameLabel.Parent = Frame
     RegisterThemeElement(NameLabel, "TextColor3", "Text")
@@ -1336,6 +1272,114 @@ AddToggle(SettingsPage, "Auto Show GUI on Execute", SavedConfig.AutoShowGUI, fun
 end)
 
 --==================================================
+-- ABOUT PAGE
+--==================================================
+
+AddSection(AboutPage, "HUB INFORMATION")
+
+local function AddAboutInfoCard(labelTitle, labelValue)
+    local Frame = Instance.new("Frame")
+    Frame.Size = UDim2.new(1, 0, 0, 26)
+    Frame.BackgroundColor3 = CurrentTheme.Surface
+    Frame.BorderSizePixel = 0
+    Frame.ZIndex = 13
+    Frame.Parent = AboutPage
+    RegisterThemeElement(Frame, "BackgroundColor3", "Surface")
+
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 4)
+    Corner.Parent = Frame
+
+    local TLbl = Instance.new("TextLabel")
+    TLbl.Size = UDim2.new(0.5, 0, 1, 0)
+    TLbl.Position = UDim2.fromOffset(8, 0)
+    TLbl.BackgroundTransparency = 1
+    TLbl.Text = labelTitle
+    TLbl.Font = Enum.Font.Code
+    TLbl.TextSize = 9
+    TLbl.TextColor3 = CurrentTheme.Muted
+    TLbl.TextXAlignment = Enum.TextXAlignment.Left
+    TLbl.ZIndex = 14
+    TLbl.Parent = Frame
+    RegisterThemeElement(TLbl, "TextColor3", "Muted")
+
+    local VLbl = Instance.new("TextLabel")
+    VLbl.Size = UDim2.new(0.5, -8, 1, 0)
+    VLbl.Position = UDim2.new(0.5, 0, 0, 0)
+    VLbl.BackgroundTransparency = 1
+    VLbl.Text = labelValue
+    VLbl.Font = Enum.Font.GothamBold
+    VLbl.TextSize = 9
+    VLbl.TextColor3 = CurrentTheme.Text
+    VLbl.TextXAlignment = Enum.TextXAlignment.Right
+    VLbl.ZIndex = 14
+    VLbl.Parent = Frame
+    RegisterThemeElement(VLbl, "TextColor3", "Text")
+end
+
+AddAboutInfoCard("Hub Name", "CH3A5 HUB")
+AddAboutInfoCard("Version", "1.0")
+AddAboutInfoCard("Developer", "CH3A5")
+AddAboutInfoCard("Status", "● Online")
+AddAboutInfoCard("Release", "2026")
+
+AddSection(AboutPage, "OFFICIAL LINKS")
+
+local function AddLinkButton(platformName, linkUrl)
+    local Frame = Instance.new("Frame")
+    Frame.Size = UDim2.new(1, 0, 0, 32)
+    Frame.BackgroundColor3 = CurrentTheme.Surface
+    Frame.BorderSizePixel = 0
+    Frame.ZIndex = 13
+    Frame.Parent = AboutPage
+    RegisterThemeElement(Frame, "BackgroundColor3", "Surface")
+
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 4)
+    Corner.Parent = Frame
+
+    local NameLbl = Instance.new("TextLabel")
+    NameLbl.Size = UDim2.new(1, -85, 1, 0)
+    NameLbl.Position = UDim2.fromOffset(8, 0)
+    NameLbl.BackgroundTransparency = 1
+    NameLbl.Text = "🔗 " .. platformName
+    NameLbl.Font = Enum.Font.Code
+    NameLbl.TextSize = 9
+    NameLbl.TextColor3 = CurrentTheme.Text
+    NameLbl.TextXAlignment = Enum.TextXAlignment.Left
+    NameLbl.ZIndex = 14
+    NameLbl.Parent = Frame
+    RegisterThemeElement(NameLbl, "TextColor3", "Text")
+
+    local CopyBtn = Instance.new("TextButton")
+    CopyBtn.Size = UDim2.fromOffset(72, 22)
+    CopyBtn.Position = UDim2.new(1, -76, 0.5, -11)
+    CopyBtn.BackgroundColor3 = CurrentTheme.SurfaceAlt
+    CopyBtn.Text = "📋 Copy"
+    CopyBtn.Font = Enum.Font.Code
+    CopyBtn.TextSize = 8
+    CopyBtn.TextColor3 = CurrentTheme.Accent
+    CopyBtn.ZIndex = 15
+    CopyBtn.Parent = Frame
+    RegisterThemeElement(CopyBtn, "BackgroundColor3", "SurfaceAlt")
+    RegisterThemeElement(CopyBtn, "TextColor3", "Accent")
+
+    local ECorner = Instance.new("UICorner")
+    ECorner.CornerRadius = UDim.new(0, 4)
+    ECorner.Parent = CopyBtn
+
+    CopyBtn.MouseButton1Click:Connect(function()
+        pcall(function() setclipboard(linkUrl) end)
+        Notify("COPIED", "Copied " .. platformName .. " link!", 2)
+    end)
+end
+
+AddLinkButton("Telegram Channel", "https://t.me/stealanegg_ch3a5_script")
+AddLinkButton("Telegram Chat", "https://t.me/ch3a5")
+AddLinkButton("TikTok", "https://www.tiktok.com/@ch3a5smos_404")
+AddLinkButton("Facebook", "https://www.facebook.com/share/17tbhLwQuN/?mibextid=wwXIfr")
+
+--==================================================
 -- NAVIGATION TABS
 --==================================================
 
@@ -1432,7 +1476,7 @@ MoonToggle.Text = "🌙"
 MoonToggle.Font = Enum.Font.Code
 MoonToggle.TextSize = 18
 MoonToggle.ZIndex = 500
-MoonToggle.Visible = false -- Hidden until loading completes
+MoonToggle.Visible = true
 MoonToggle.Parent = ScreenGui
 RegisterThemeElement(MoonToggle, "BackgroundColor3", "Surface")
 
@@ -1463,145 +1507,11 @@ MoonToggle.MouseButton1Click:Connect(function()
     end
 end)
 
---==================================================
--- CYBERPUNK LOADING SCREEN
---==================================================
+-- INITIAL STATE
+if SavedConfig.AutoShowGUI then
+    ToggleGUI(true)
+else
+    SetBlur(false)
+end
 
-local LoadScreen = Instance.new("Frame")
-LoadScreen.Size = UDim2.fromOffset(360, 160)
-LoadScreen.Position = UDim2.new(0.5, -180, 0.5, -80)
-LoadScreen.BackgroundColor3 = CurrentTheme.Background
-LoadScreen.BorderSizePixel = 0
-LoadScreen.ZIndex = 9999
-LoadScreen.Parent = ScreenGui
-RegisterThemeElement(LoadScreen, "BackgroundColor3", "Background")
-
-local LCorner = Instance.new("UICorner")
-LCorner.CornerRadius = UDim.new(0, 8)
-LCorner.Parent = LoadScreen
-
-local LStroke = Instance.new("UIStroke")
-LStroke.Color = CurrentTheme.Accent
-LStroke.Thickness = 1.5
-LStroke.Parent = LoadScreen
-RegisterThemeElement(LStroke, "Color", "Accent")
-
-local LTitle = Instance.new("TextLabel")
-LTitle.Size = UDim2.new(1, 0, 0, 24)
-LTitle.Position = UDim2.fromOffset(0, 16)
-LTitle.BackgroundTransparency = 1
-LTitle.Text = "[ CH3A5 // HUB ]"
-LTitle.Font = Enum.Font.GothamBold
-LTitle.TextSize = 14
-LTitle.TextColor3 = CurrentTheme.Accent
-LTitle.ZIndex = 10000
-LTitle.Parent = LoadScreen
-RegisterThemeElement(LTitle, "TextColor3", "Accent")
-
-local LStatus = Instance.new("TextLabel")
-LStatus.Size = UDim2.new(1, -32, 0, 18)
-LStatus.Position = UDim2.fromOffset(16, 55)
-LStatus.BackgroundTransparency = 1
-LStatus.Text = "Initializing..."
-LStatus.Font = Enum.Font.Code
-LStatus.TextSize = 10
-LStatus.TextColor3 = CurrentTheme.Muted
-LStatus.TextXAlignment = Enum.TextXAlignment.Left
-LStatus.ZIndex = 10000
-LStatus.Parent = LoadScreen
-RegisterThemeElement(LStatus, "TextColor3", "Muted")
-
-local LBarBg = Instance.new("Frame")
-LBarBg.Size = UDim2.new(1, -32, 0, 8)
-LBarBg.Position = UDim2.fromOffset(16, 85)
-LBarBg.BackgroundColor3 = CurrentTheme.Surface
-LBarBg.BorderSizePixel = 0
-LBarBg.ZIndex = 10000
-LBarBg.Parent = LoadScreen
-RegisterThemeElement(LBarBg, "BackgroundColor3", "Surface")
-
-local LBarBgCorner = Instance.new("UICorner")
-LBarBgCorner.CornerRadius = UDim.new(1, 0)
-LBarBgCorner.Parent = LBarBg
-
-local LBarFill = Instance.new("Frame")
-LBarFill.Size = UDim2.new(0, 0, 1, 0)
-LBarFill.BackgroundColor3 = CurrentTheme.Accent
-LBarFill.BorderSizePixel = 0
-LBarFill.ZIndex = 10001
-LBarFill.Parent = LBarBg
-RegisterThemeElement(LBarFill, "BackgroundColor3", "Accent")
-
-local LBarFillCorner = Instance.new("UICorner")
-LBarFillCorner.CornerRadius = UDim.new(1, 0)
-LBarFillCorner.Parent = LBarFill
-
-local LPercent = Instance.new("TextLabel")
-LPercent.Size = UDim2.new(1, -32, 0, 16)
-LPercent.Position = UDim2.fromOffset(16, 108)
-LPercent.BackgroundTransparency = 1
-LPercent.Text = "0%"
-LPercent.Font = Enum.Font.Code
-LPercent.TextSize = 10
-LPercent.TextColor3 = CurrentTheme.Text
-LPercent.TextXAlignment = Enum.TextXAlignment.Right
-LPercent.ZIndex = 10000
-LPercent.Parent = LoadScreen
-RegisterThemeElement(LPercent, "TextColor3", "Text")
-
--- Loading Sequence Animation & Sounds
-task.spawn(function()
-    PlaySound(9060673323, 1, 0.3) -- Loading start sound effect
-    SetBlur(true)
-
-    local steps = {
-        {progress = 0.3, text = "Loading interface...", duration = 0.4},
-        {progress = 0.7, text = "Preparing hub...", duration = 0.5},
-        {progress = 1.0, text = "Ready!", duration = 0.3}
-    }
-
-    local currentProg = 0
-    for _, step in ipairs(steps) do
-        local startTime = tick()
-        local startProg = currentProg
-        local targetProg = step.progress
-        LStatus.Text = step.text
-
-        while tick() - startTime < step.duration do
-            local alpha = (tick() - startTime) / step.duration
-            currentProg = startProg + (targetProg - startProg) * alpha
-            LBarFill.Size = UDim2.new(currentProg, 0, 1, 0)
-            LPercent.Text = math.floor(currentProg * 100) .. "%"
-            task.wait()
-        end
-        currentProg = targetProg
-        LBarFill.Size = UDim2.new(currentProg, 0, 1, 0)
-        LPercent.Text = math.floor(currentProg * 100) .. "%"
-    end
-
-    PlaySound(6042053626, 1.4, 0.3) -- Ready chime
-    task.wait(0.3)
-
-    -- Smooth Fade-out Loading Screen
-    local tweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    TweenService:Create(LoadScreen, tweenInfo, {BackgroundTransparency = 1}):Play()
-    TweenService:Create(LTitle, tweenInfo, {TextTransparency = 1}):Play()
-    TweenService:Create(LStatus, tweenInfo, {TextTransparency = 1}):Play()
-    TweenService:Create(LBarBg, tweenInfo, {BackgroundTransparency = 1}):Play()
-    TweenService:Create(LBarFill, tweenInfo, {BackgroundTransparency = 1}):Play()
-    TweenService:Create(LPercent, tweenInfo, {TextTransparency = 1}):Play()
-    TweenService:Create(LStroke, tweenInfo, {Transparency = 1}):Play()
-
-    task.wait(0.4)
-    LoadScreen:Destroy()
-
-    -- Show Moon Toggle & Trigger Main GUI if AutoShow is ON
-    MoonToggle.Visible = true
-    if SavedConfig.AutoShowGUI then
-        ToggleGUI(true)
-    else
-        SetBlur(false)
-    end
-
-    Notify("CYBERHUB", "CH3A5 HUB V6.7 Ready!", 4)
-end)
+Notify("CYBERHUB", "CH3A5 HUB V6.7 Ready!", 4)
