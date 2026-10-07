@@ -1,4 +1,4 @@
---// CH3A5 HUB GUI [CYBERPUNK ULTIMATE FIXED]
+--// CH3A5 HUB GUI [STANDARD EDITION]
 --// GUI ONLY + User-provided script loaders (Logic untouched)
 
 if not game:IsLoaded() then
@@ -199,69 +199,58 @@ local function Notify(titleText, descText, duration)
 end
 
 --==================================================
--- INSTANT UN-STICK DRAGGING SYSTEM (100% FIXED)
+-- STANDARD ROBLOX DRAGGING SYSTEM (ទូទៅ)
 --==================================================
 
-local function MakeDraggable(frame, handle)
-    handle = handle or frame
+local function MakeDraggable(gui, handle)
+    handle = handle or gui
     local dragging = false
-    local dragStart = Vector2.zero
-    local startPos = Vector2.zero
+    local dragInput, dragStart, startPos
     local hasMoved = false
+
+    local function update(input)
+        local delta = input.Position - dragStart
+        if delta.Magnitude > 5 then
+            hasMoved = true
+        end
+        gui.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
 
     handle.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             hasMoved = false
-            dragStart = Vector2.new(input.Position.X, input.Position.Y)
-            startPos = Vector2.new(frame.AbsolutePosition.X, frame.AbsolutePosition.Y)
+            dragStart = input.Position
+            startPos = gui.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
         end
     end)
 
-    handle.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = false
+    handle.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
         end
     end)
 
     UserInputService.InputChanged:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            local Camera = workspace.CurrentCamera
-            if not Camera then return end
-            local Viewport = Camera.ViewportSize
-
-            local currentMouse = Vector2.new(input.Position.X, input.Position.Y)
-            local delta = currentMouse - dragStart
-
-            if delta.Magnitude > 3 then
-                hasMoved = true
-            end
-
-            local rawX = startPos.X + delta.X
-            local rawY = startPos.Y + delta.Y
-
-            local maxX = math.max(0, Viewport.X - frame.AbsoluteSize.X)
-            local maxY = math.max(0, Viewport.Y - frame.AbsoluteSize.Y)
-
-            local clampedX = math.clamp(rawX, 0, maxX)
-            local clampedY = math.clamp(rawY, 0, maxY)
-
-            -- Recalibrate dragStart on edge impact so moving inward instantly un-sticks!
-            if rawX ~= clampedX then
-                dragStart = Vector2.new(currentMouse.X - (clampedX - startPos.X), dragStart.Y)
-            end
-            if rawY ~= clampedY then
-                dragStart = Vector2.new(dragStart.X, currentMouse.Y - (clampedY - startPos.Y))
-            end
-
-            local offsetX = clampedX + (frame.AnchorPoint.X * frame.AbsoluteSize.X)
-            local offsetY = clampedY + (frame.AnchorPoint.Y * frame.AbsoluteSize.Y)
-
-            frame.Position = UDim2.fromOffset(offsetX, offsetY)
+        if input == dragInput and dragging then
+            update(input)
         end
     end)
 
-    return function() return hasMoved end
+    return function()
+        return hasMoved
+    end
 end
 
 --==================================================
@@ -304,8 +293,7 @@ end
 local Main = Instance.new("Frame")
 Main.Name = "Main"
 Main.Size = UDim2.fromOffset(520, 340)
-Main.Position = UDim2.new(0.5, 0, 0.5, 0)
-Main.AnchorPoint = Vector2.new(0.5, 0.5)
+Main.Position = UDim2.new(0.5, -260, 0.5, -170)
 Main.BackgroundColor3 = CurrentTheme.Background
 Main.BorderSizePixel = 0
 Main.ClipsDescendants = true
@@ -322,7 +310,7 @@ MainStroke.Thickness = 1.5
 MainStroke.Parent = Main
 RegisterThemeElement(MainStroke, "Color", "Accent")
 
--- Topbar for dragging Main
+-- Topbar
 local Topbar = Instance.new("Frame")
 Topbar.Size = UDim2.new(1, 0, 0, 38)
 Topbar.BackgroundColor3 = CurrentTheme.Surface
@@ -1125,8 +1113,7 @@ end)
 local MoonToggle = Instance.new("TextButton")
 MoonToggle.Name = "MoonToggle"
 MoonToggle.Size = UDim2.fromOffset(42, 42)
-MoonToggle.Position = UDim2.fromOffset(20, 200)
-MoonToggle.AnchorPoint = Vector2.new(0.5, 0.5)
+MoonToggle.Position = UDim2.new(0, 15, 0.4, 0)
 MoonToggle.BackgroundColor3 = CurrentTheme.Surface
 MoonToggle.Text = "🌙"
 MoonToggle.TextSize = 18
@@ -1144,7 +1131,7 @@ MoonStroke.Thickness = 1.5
 MoonStroke.Parent = MoonToggle
 RegisterThemeElement(MoonStroke, "Color", "Accent")
 
--- Apply Fixed Draggable to Moon Toggle
+-- Standard Draggable for Moon Toggle
 local getMoonMoved = MakeDraggable(MoonToggle, nil)
 
 MoonToggle.MouseButton1Click:Connect(function()
@@ -1156,4 +1143,4 @@ MoonToggle.MouseButton1Click:Connect(function()
 end)
 
 SetBlur(true)
-Notify("CYBERHUB", "Initialized Master HUD. Smooth Edge-Bounds Active!", 4)
+Notify("CYBERHUB", "Initialized Standard Version. Enjoy!", 4)
