@@ -1,5 +1,5 @@
---// CH3A5 HUB GUI [FIXED & ANIMATED V5.2]
---// Smooth Animations + Corner Clipping Fix + Immediate Search Placeholder + Khmer/English
+--// CH3A5 HUB GUI [FIXED & UPGRADED V5.3]
+--// Fixed Toggle GUI Open/Close + Left-Aligned Subtitles + Dedicated Execute Buttons
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
@@ -19,7 +19,7 @@ local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
 local StartSessionTime = tick()
-local ConfigFile = "CH3A5_Config_V5_2.json"
+local ConfigFile = "CH3A5_Config_V5_3.json"
 
 --==================================================
 -- LOCAL DATA PERSISTENCE
@@ -61,7 +61,7 @@ LoadSavedConfig()
 
 local Locales = {
     EN = {
-        Title = "[ CH3A5 // HUB ] V5.2",
+        Title = "[ CH3A5 // HUB ] V5.3",
         Home = "🏠 Home",
         Keyless = "⚡ Keyless",
         Keyed = "🔑 Keyed",
@@ -79,10 +79,11 @@ local Locales = {
         Hop = "🚀 Hop",
         LowHop = "📉 Low Hop",
         CopyJob = "📋 Job ID",
-        Search = "🔍 Search modules..."
+        Search = "🔍 Search modules...",
+        RunBtn = "▶ RUN"
     },
     KH = {
-        Title = "[ CH3A5 // HUB ] V5.2",
+        Title = "[ CH3A5 // HUB ] V5.3",
         Home = "🏠 ទំព័រដើម",
         Keyless = "⚡ គ្មាន Key",
         Keyed = "🔑 គ្មាន Key",
@@ -100,7 +101,8 @@ local Locales = {
         Hop = "🚀 ប្តូរ Server",
         LowHop = "📉 Server ទំនេរ",
         CopyJob = "📋 ចម្លង Job ID",
-        Search = "🔍 ស្វែងរក Script..."
+        Search = "🔍 ស្វែងរក Script...",
+        RunBtn = "▶ រត់"
     }
 }
 
@@ -225,7 +227,7 @@ end
 --==================================================
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CH3A5_CYBER_MASTER_V5_2"
+ScreenGui.Name = "CH3A5_CYBER_MASTER_V5_3"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.DisplayOrder = 999999
@@ -384,7 +386,7 @@ local function ExecuteScript(scriptName, url)
 end
 
 --==================================================
--- MAIN FRAME (CORNER CLIPPING FIX + ANIMATIONS)
+-- MAIN FRAME & GUARANTEED TOGGLE SYSTEM
 --==================================================
 
 local Main = Instance.new("Frame")
@@ -399,7 +401,6 @@ Main.Visible = false
 Main.Parent = ScreenGui
 RegisterThemeElement(Main, "BackgroundColor3", "Background")
 
--- Clean Smooth Rounded Corners for Main
 local MainCorner = Instance.new("UICorner")
 MainCorner.CornerRadius = UDim.new(0, 8)
 MainCorner.Parent = Main
@@ -411,30 +412,43 @@ MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 MainStroke.Parent = Main
 RegisterThemeElement(MainStroke, "Color", "Accent")
 
--- Smooth Animated GUI Open/Close System
+-- Robust State Tracking for GUI Open/Close Toggle
+local isGuiOpen = false
+local isGuiAnimating = false
+
 local function ToggleGUI(visible)
+    if isGuiAnimating then return end
+    isGuiAnimating = true
+    isGuiOpen = visible
+
     if visible then
         Main.Visible = true
         Main.Size = UDim2.fromOffset(0, 0)
         Main.Position = UDim2.new(0.5, 0, 0.5, 0)
-        TweenService:Create(Main, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        SetBlur(true)
+        local tw = TweenService:Create(Main, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
             Size = UDim2.fromOffset(464, 312),
             Position = UDim2.new(0.5, -232, 0.5, -156)
-        }):Play()
+        })
+        tw:Play()
+        tw.Completed:Connect(function()
+            isGuiAnimating = false
+        end)
     else
+        SetBlur(false)
         local tw = TweenService:Create(Main, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
             Size = UDim2.fromOffset(0, 0),
             Position = UDim2.new(0.5, 0, 0.5, 0)
         })
         tw:Play()
         tw.Completed:Connect(function()
-            if not Main.Visible then Main.Visible = false end
+            Main.Visible = false
+            isGuiAnimating = false
         end)
     end
-    SetBlur(visible)
 end
 
--- TOPBAR (WITH ROUNDED CORNERS TOP FIX)
+-- TOPBAR
 local Topbar = Instance.new("Frame")
 Topbar.Size = UDim2.new(1, 0, 0, 32)
 Topbar.BackgroundColor3 = CurrentTheme.Surface
@@ -658,7 +672,7 @@ local function RefreshFavoritesUI()
         count = count + 1
         local Frame = Instance.new("Frame")
         Frame.Name = "ScriptFrame"
-        Frame.Size = UDim2.new(1, 0, 0, 42)
+        Frame.Size = UDim2.new(1, 0, 0, 44)
         Frame.BackgroundColor3 = CurrentTheme.Surface
         Frame.BorderSizePixel = 0
         Frame.ZIndex = 13
@@ -671,7 +685,7 @@ local function RefreshFavoritesUI()
 
         local Name = Instance.new("TextLabel")
         Name.Name = "ScriptName"
-        Name.Size = UDim2.new(1, -35, 0, 18)
+        Name.Size = UDim2.new(1, -125, 0, 18)
         Name.Position = UDim2.fromOffset(8, 4)
         Name.BackgroundTransparency = 1
         Name.Text = scriptData.Name
@@ -685,7 +699,7 @@ local function RefreshFavoritesUI()
         RegisterThemeElement(Name, "TextColor3", "Text")
 
         local Desc = Instance.new("TextLabel")
-        Desc.Size = UDim2.new(1, -35, 0, 14)
+        Desc.Size = UDim2.new(1, -125, 0, 16)
         Desc.Position = UDim2.fromOffset(8, 22)
         Desc.BackgroundTransparency = 1
         Desc.Text = "[ " .. scriptData.Desc .. " ]"
@@ -698,12 +712,23 @@ local function RefreshFavoritesUI()
         Desc.Parent = Frame
         RegisterThemeElement(Desc, "TextColor3", "Muted")
 
+        -- Dedicated Visible RUN Button
         local ExecBtn = Instance.new("TextButton")
-        ExecBtn.Size = UDim2.new(1, -30, 1, 0)
-        ExecBtn.BackgroundTransparency = 1
-        ExecBtn.Text = ""
+        ExecBtn.Size = UDim2.fromOffset(62, 22)
+        ExecBtn.Position = UDim2.new(1, -92, 0.5, -11)
+        ExecBtn.BackgroundColor3 = CurrentTheme.SurfaceAlt
+        ExecBtn.Font = Enum.Font.Code
+        ExecBtn.TextSize = 8
+        ExecBtn.TextColor3 = CurrentTheme.Accent
         ExecBtn.ZIndex = 15
         ExecBtn.Parent = Frame
+        RegisterThemeElement(ExecBtn, "BackgroundColor3", "SurfaceAlt")
+        RegisterThemeElement(ExecBtn, "TextColor3", "Accent")
+        RegisterTranslation(ExecBtn, "RunBtn")
+
+        local ECorner = Instance.new("UICorner")
+        ECorner.CornerRadius = UDim.new(0, 4)
+        ECorner.Parent = ExecBtn
 
         ExecBtn.MouseButton1Click:Connect(function()
             ExecuteScript(scriptData.Name, scriptData.Url)
@@ -739,7 +764,7 @@ local function RefreshFavoritesUI()
 end
 
 --==================================================
--- UI HELPERS & SEARCH PLACEHOLDER FIX
+-- UI HELPERS (PROPER LEFT-ALIGNED CARD LAYOUT)
 --==================================================
 
 local function AddSection(Page, text)
@@ -773,7 +798,6 @@ local function AddInfo(Page, textKey)
     return Label
 end
 
--- FIXED IMMEDIATE SEARCH PLACEHOLDER
 local function AddSearchBar(Page)
     local SearchBox = Instance.new("TextBox")
     SearchBox.Size = UDim2.new(1, 0, 0, 24)
@@ -819,7 +843,7 @@ end
 local function AddScriptButton(Page, name, description, url)
     local Frame = Instance.new("Frame")
     Frame.Name = "ScriptFrame"
-    Frame.Size = UDim2.new(1, 0, 0, 42)
+    Frame.Size = UDim2.new(1, 0, 0, 44)
     Frame.BackgroundColor3 = CurrentTheme.Surface
     Frame.BorderSizePixel = 0
     Frame.ZIndex = 13
@@ -830,53 +854,67 @@ local function AddScriptButton(Page, name, description, url)
     Corner.CornerRadius = UDim.new(0, 4)
     Corner.Parent = Frame
 
-    local Name = Instance.new("TextLabel")
-    Name.Name = "ScriptName"
-    Name.Size = UDim2.new(1, -35, 0, 18)
-    Name.Position = UDim2.fromOffset(8, 4)
-    Name.BackgroundTransparency = 1
-    Name.Text = name
-    Name.Font = Enum.Font.GothamBold
-    Name.TextSize = 10
-    Name.TextTruncate = Enum.TextTruncate.AtEnd
-    Name.TextXAlignment = Enum.TextXAlignment.Left
-    Name.TextColor3 = CurrentTheme.Text
-    Name.ZIndex = 14
-    Name.Parent = Frame
-    RegisterThemeElement(Name, "TextColor3", "Text")
+    -- Hub Name
+    local NameLabel = Instance.new("TextLabel")
+    NameLabel.Name = "ScriptName"
+    NameLabel.Size = UDim2.new(1, -125, 0, 18)
+    NameLabel.Position = UDim2.fromOffset(8, 4)
+    NameLabel.BackgroundTransparency = 1
+    NameLabel.Text = name
+    NameLabel.Font = Enum.Font.GothamBold
+    NameLabel.TextSize = 10
+    NameLabel.TextTruncate = Enum.TextTruncate.AtEnd
+    NameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    NameLabel.TextColor3 = CurrentTheme.Text
+    NameLabel.ZIndex = 14
+    NameLabel.Parent = Frame
+    RegisterThemeElement(NameLabel, "TextColor3", "Text")
 
-    local Desc = Instance.new("TextLabel")
-    Desc.Size = UDim2.new(1, -35, 0, 14)
-    Desc.Position = UDim2.fromOffset(8, 22)
-    Desc.BackgroundTransparency = 1
-    Desc.Text = "[ " .. description .. " ]"
-    Desc.Font = Enum.Font.Code
-    Desc.TextSize = 8
-    Desc.TextTruncate = Enum.TextTruncate.AtEnd
-    Desc.TextColor3 = CurrentTheme.Muted
-    Desc.ZIndex = 14
-    Desc.Parent = Frame
-    RegisterThemeElement(Desc, "TextColor3", "Muted")
+    -- Hub Description / Key System Tag (Left Aligned Directly Below Name)
+    local DescLabel = Instance.new("TextLabel")
+    DescLabel.Size = UDim2.new(1, -125, 0, 16)
+    DescLabel.Position = UDim2.fromOffset(8, 22)
+    DescLabel.BackgroundTransparency = 1
+    DescLabel.Text = "[ " .. description .. " ]"
+    DescLabel.Font = Enum.Font.Code
+    DescLabel.TextSize = 8
+    DescLabel.TextTruncate = Enum.TextTruncate.AtEnd
+    DescLabel.TextXAlignment = Enum.TextXAlignment.Left
+    DescLabel.TextColor3 = CurrentTheme.Muted
+    DescLabel.ZIndex = 14
+    DescLabel.Parent = Frame
+    RegisterThemeElement(DescLabel, "TextColor3", "Muted")
 
+    -- Dedicated Visible Execute Button
     local ExecBtn = Instance.new("TextButton")
-    ExecBtn.Size = UDim2.new(1, -30, 1, 0)
-    ExecBtn.BackgroundTransparency = 1
-    ExecBtn.Text = ""
+    ExecBtn.Size = UDim2.fromOffset(62, 22)
+    ExecBtn.Position = UDim2.new(1, -92, 0.5, -11)
+    ExecBtn.BackgroundColor3 = CurrentTheme.SurfaceAlt
+    ExecBtn.Font = Enum.Font.Code
+    ExecBtn.TextSize = 8
+    ExecBtn.TextColor3 = CurrentTheme.Accent
     ExecBtn.ZIndex = 15
     ExecBtn.Parent = Frame
+    RegisterThemeElement(ExecBtn, "BackgroundColor3", "SurfaceAlt")
+    RegisterThemeElement(ExecBtn, "TextColor3", "Accent")
+    RegisterTranslation(ExecBtn, "RunBtn")
 
-    -- Hover Animation for Script Cards
+    local ECorner = Instance.new("UICorner")
+    ECorner.CornerRadius = UDim.new(0, 4)
+    ECorner.Parent = ExecBtn
+
     ExecBtn.MouseEnter:Connect(function()
-        TweenService:Create(Frame, TweenInfo.new(0.2), {BackgroundColor3 = CurrentTheme.SurfaceAlt}):Play()
+        TweenService:Create(ExecBtn, TweenInfo.new(0.2), {BackgroundColor3 = CurrentTheme.Accent, TextColor3 = CurrentTheme.Background}):Play()
     end)
     ExecBtn.MouseLeave:Connect(function()
-        TweenService:Create(Frame, TweenInfo.new(0.2), {BackgroundColor3 = CurrentTheme.Surface}):Play()
+        TweenService:Create(ExecBtn, TweenInfo.new(0.2), {BackgroundColor3 = CurrentTheme.SurfaceAlt, TextColor3 = CurrentTheme.Accent}):Play()
     end)
 
     ExecBtn.MouseButton1Click:Connect(function()
         ExecuteScript(name, url)
     end)
 
+    -- Favorite Star Button
     local StarBtn = Instance.new("TextButton")
     StarBtn.Size = UDim2.fromOffset(22, 22)
     StarBtn.Position = UDim2.new(1, -26, 0.5, -11)
@@ -1371,7 +1409,7 @@ LangBtn.MouseButton1Click:Connect(function()
 end)
 
 --==================================================
--- NAVIGATION TABS (WITH SLIDE ANIMATIONS)
+-- NAVIGATION TABS
 --==================================================
 
 local TabButtons = {}
@@ -1404,7 +1442,6 @@ local function AddTab(textKey, page)
             TweenService:Create(tabData.Button, TweenInfo.new(0.2), {BackgroundColor3 = CurrentTheme.Background}):Play()
         end
 
-        -- Page Slide Animation
         page.Position = UDim2.fromOffset(16, 6)
         page.Visible = true
         TweenService:Create(page, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
@@ -1436,7 +1473,7 @@ CloseBtn.MouseButton1Click:Connect(function()
 end)
 
 --==================================================
--- ALWAYS VISIBLE MOON TOGGLE BUTTON (🌙 WITH ANIMATIONS)
+-- ALWAYS VISIBLE MOON TOGGLE BUTTON
 --==================================================
 
 local MoonToggle = Instance.new("TextButton")
@@ -1462,7 +1499,6 @@ MoonStroke.Thickness = 1.2
 MoonStroke.Parent = MoonToggle
 RegisterThemeElement(MoonStroke, "Color", "Accent")
 
--- Hover Animations for Moon Toggle
 MoonToggle.MouseEnter:Connect(function()
     TweenService:Create(MoonToggle, TweenInfo.new(0.2), {Size = UDim2.fromOffset(40, 40)}):Play()
 end)
@@ -1476,7 +1512,7 @@ local getMoonMoved = MakeDraggable(MoonToggle, nil)
 MoonToggle.MouseButton1Click:Connect(function()
     if not getMoonMoved() then
         PlaySound(6042053626, 1.2)
-        ToggleGUI(not Main.Visible)
+        ToggleGUI(not isGuiOpen)
     end
 end)
 
@@ -1487,4 +1523,4 @@ else
     SetBlur(false)
 end
 
-Notify("CYBERHUB", "CH3A5 HUB V5.2 Fixed & Animated!", 4)
+Notify("CYBERHUB", "CH3A5 HUB V5.3 Ready!", 4)
