@@ -1,5 +1,5 @@
---// CH3A5 HUB GUI [ULTRA EDITION V6.4]
---// Bottom Corners Straight + Optimized High-Contrast Themes + Polished Profile Card
+--// CH3A5 HUB GUI [ULTRA EDITION V6.5]
+--// Sharp 90-Degree Bottom Corners + Transparent Profile Card
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
@@ -19,7 +19,7 @@ local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
 local StartSessionTime = tick()
-local ConfigFile = "CH3A5_Config_V6_4.json"
+local ConfigFile = "CH3A5_Config_V6_5.json"
 
 --==================================================
 -- LOCAL DATA PERSISTENCE
@@ -80,7 +80,7 @@ local function SetBlur(enabled)
 end
 
 --==================================================
--- OPTIMIZED HIGH-CONTRAST THEMES (20+ THEMES)
+-- OPTIMIZED HIGH-CONTRAST THEMES
 --==================================================
 
 local Themes = {
@@ -91,7 +91,6 @@ local Themes = {
     ["Void Purple"] = { Background = Color3.fromRGB(14, 10, 22), Surface = Color3.fromRGB(22, 16, 36), SurfaceAlt = Color3.fromRGB(38, 26, 58), Accent = Color3.fromRGB(170, 0, 255), AccentAlt = Color3.fromRGB(0, 240, 255), Text = Color3.fromRGB(245, 235, 255), Muted = Color3.fromRGB(150, 120, 180) },
     ["Red Alert"] = { Background = Color3.fromRGB(20, 10, 12), Surface = Color3.fromRGB(32, 15, 18), SurfaceAlt = Color3.fromRGB(52, 24, 28), Accent = Color3.fromRGB(255, 35, 60), AccentAlt = Color3.fromRGB(255, 170, 0), Text = Color3.fromRGB(255, 235, 238), Muted = Color3.fromRGB(180, 130, 135) },
 
-    -- Social Media Themes (Optimized Contrast)
     ["Discord Dark"] = { Background = Color3.fromRGB(40, 43, 48), Surface = Color3.fromRGB(54, 57, 63), SurfaceAlt = Color3.fromRGB(72, 76, 85), Accent = Color3.fromRGB(114, 137, 218), AccentAlt = Color3.fromRGB(235, 69, 158), Text = Color3.fromRGB(255, 255, 255), Muted = Color3.fromRGB(190, 195, 200) },
     ["TikTok Dark"] = { Background = Color3.fromRGB(22, 22, 22), Surface = Color3.fromRGB(34, 34, 34), SurfaceAlt = Color3.fromRGB(52, 52, 52), Accent = Color3.fromRGB(254, 44, 85), AccentAlt = Color3.fromRGB(37, 244, 238), Text = Color3.fromRGB(255, 255, 255), Muted = Color3.fromRGB(170, 170, 170) },
     ["YouTube Dark"] = { Background = Color3.fromRGB(18, 18, 18), Surface = Color3.fromRGB(38, 38, 38), SurfaceAlt = Color3.fromRGB(56, 56, 56), Accent = Color3.fromRGB(255, 0, 0), AccentAlt = Color3.fromRGB(62, 166, 255), Text = Color3.fromRGB(255, 255, 255), Muted = Color3.fromRGB(180, 180, 180) },
@@ -130,7 +129,7 @@ end
 --==================================================
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CH3A5_CYBER_MASTER_V6_4"
+ScreenGui.Name = "CH3A5_CYBER_MASTER_V6_5"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.DisplayOrder = 999999
@@ -289,7 +288,7 @@ local function ExecuteScript(scriptName, url)
 end
 
 --==================================================
--- MAIN FRAME (TOP CORNERS ROUNDED ONLY, BOTTOM STRAIGHT)
+-- MAIN FRAME (EXACT SQUARE 90° BOTTOM CORNERS)
 --==================================================
 
 local Main = Instance.new("Frame")
@@ -298,7 +297,7 @@ Main.Size = UDim2.fromOffset(464, 312)
 Main.Position = UDim2.new(0.5, -232, 0.5, -156)
 Main.BackgroundColor3 = CurrentTheme.Background
 Main.BorderSizePixel = 0
-Main.ClipsDescendants = true
+Main.ClipsDescendants = false
 Main.ZIndex = 10
 Main.Visible = false
 Main.Parent = ScreenGui
@@ -307,16 +306,6 @@ RegisterThemeElement(Main, "BackgroundColor3", "Background")
 local MainCorner = Instance.new("UICorner")
 MainCorner.CornerRadius = UDim.new(0, 8)
 MainCorner.Parent = Main
-
--- Straight Bottom Cover to remove bottom rounding completely
-local StraightBottomCover = Instance.new("Frame")
-StraightBottomCover.Size = UDim2.new(1, 0, 0, 10)
-StraightBottomCover.Position = UDim2.new(0, 0, 1, -10)
-StraightBottomCover.BackgroundColor3 = CurrentTheme.Background
-StraightBottomCover.BorderSizePixel = 0
-StraightBottomCover.ZIndex = 10
-StraightBottomCover.Parent = Main
-RegisterThemeElement(StraightBottomCover, "BackgroundColor3", "Background")
 
 local MainStroke = Instance.new("UIStroke")
 MainStroke.Color = CurrentTheme.Accent
@@ -373,22 +362,13 @@ local TopbarCorner = Instance.new("UICorner")
 TopbarCorner.CornerRadius = UDim.new(0, 8)
 TopbarCorner.Parent = Topbar
 
-local TopbarBottomCover = Instance.new("Frame")
-TopbarBottomCover.Size = UDim2.new(1, 0, 0, 6)
-TopbarBottomCover.Position = UDim2.new(0, 0, 1, -6)
-TopbarBottomCover.BackgroundColor3 = CurrentTheme.Surface
-TopbarBottomCover.BorderSizePixel = 0
-TopbarBottomCover.ZIndex = 11
-TopbarBottomCover.Parent = Topbar
-RegisterThemeElement(TopbarBottomCover, "BackgroundColor3", "Surface")
-
 MakeDraggable(Main, Topbar)
 
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, -140, 1, 0)
 Title.Position = UDim2.fromOffset(10, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "[ CH3A5 // HUB ] V6.4"
+Title.Text = "[ CH3A5 // HUB ] V6.5"
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 12
 Title.TextXAlignment = Enum.TextXAlignment.Left
@@ -485,19 +465,14 @@ SidePad.PaddingLeft = UDim.new(0, 5)
 SidePad.PaddingRight = UDim.new(0, 5)
 SidePad.Parent = TabHolder
 
--- PROFILE CARD (BOTTOM-LEFT)
+-- PROFILE CARD (TRANSPARENT BACKGROUND)
 local ProfileCard = Instance.new("Frame")
 ProfileCard.Size = UDim2.new(1, -10, 0, 36)
 ProfileCard.Position = UDim2.new(0, 5, 1, -38)
-ProfileCard.BackgroundColor3 = CurrentTheme.Background
+ProfileCard.BackgroundTransparency = 1
 ProfileCard.BorderSizePixel = 0
 ProfileCard.ZIndex = 12
 ProfileCard.Parent = Sidebar
-RegisterThemeElement(ProfileCard, "BackgroundColor3", "Background")
-
-local PCorner = Instance.new("UICorner")
-PCorner.CornerRadius = UDim.new(0, 4)
-PCorner.Parent = ProfileCard
 
 local PAvatar = Instance.new("ImageLabel")
 PAvatar.Size = UDim2.fromOffset(24, 24)
@@ -790,8 +765,8 @@ local function AddScriptButton(Page, name, description, url)
     NameLabel.Font = Enum.Font.GothamBold
     NameLabel.TextSize = 10
     NameLabel.TextTruncate = Enum.TextTruncate.AtEnd
-    NameLabel.TextColor3 = CurrentTheme.Text
     NameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    NameLabel.TextColor3 = CurrentTheme.Text
     NameLabel.ZIndex = 14
     NameLabel.Parent = Frame
     RegisterThemeElement(NameLabel, "TextColor3", "Text")
@@ -938,7 +913,7 @@ local HomeTitle = Instance.new("TextLabel")
 HomeTitle.Size = UDim2.new(1, 0, 0, 18)
 HomeTitle.Position = UDim2.fromOffset(0, 0)
 HomeTitle.BackgroundTransparency = 1
-HomeTitle.Text = "[ CH3A5 // HUB ] V6.4"
+HomeTitle.Text = "[ CH3A5 // HUB ] V6.5"
 HomeTitle.Font = Enum.Font.GothamBold
 HomeTitle.TextSize = 13
 HomeTitle.TextColor3 = CurrentTheme.Text
@@ -1424,4 +1399,4 @@ else
     SetBlur(false)
 end
 
-Notify("CYBERHUB", "CH3A5 HUB V6.4 Ready!", 4)
+Notify("CYBERHUB", "CH3A5 HUB V6.5 Ready!", 4)
