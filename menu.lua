@@ -1434,6 +1434,12 @@ AddScriptButton(
     "Keyless",
     "https://pastefy.app/Lk0vDMmN/raw"
 )
+AddScriptButton(
+    KeylessPage,
+    "CH3A5 Hub",
+    "Keyless",
+    "https://pastefy.app/Lk0vDMmN/raw"
+)
 
 AddScriptButton(
     KeylessPage,
