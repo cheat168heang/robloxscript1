@@ -1,4 +1,4 @@
---// CH3A5 HUB GUI [CYBERPUNK ULTIMATE EDITION]
+--// CH3A5 HUB GUI [CYBERPUNK MASTER EDITION]
 --// GUI ONLY + User-provided script loaders (Logic untouched)
 
 if not game:IsLoaded() then
@@ -10,9 +10,36 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Stats = game:GetService("Stats")
+local Lighting = game:GetService("Lighting")
+local SoundService = game:GetService("SoundService")
 
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
+
+--==================================================
+-- SOUND EFFECTS & BLUR SYSTEM
+--==================================================
+
+local function PlaySound(soundId, pitch)
+    task.spawn(function()
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://" .. tostring(soundId)
+        sound.Volume = 0.25
+        sound.Pitch = pitch or 1
+        sound.Parent = SoundService
+        sound:Play()
+        sound.Ended:Connect(function() sound:Destroy() end)
+    end)
+end
+
+local Blur = Lighting:FindFirstChild("CH3A5_CyberBlur") or Instance.new("BlurEffect")
+Blur.Name = "CH3A5_CyberBlur"
+Blur.Size = 0
+Blur.Parent = Lighting
+
+local function SetBlur(enabled)
+    TweenService:Create(Blur, TweenInfo.new(0.3), {Size = enabled and 10 or 0}):Play()
+end
 
 --==================================================
 -- CYBERPUNK THEMES
@@ -93,7 +120,7 @@ end
 --==================================================
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CH3A5_CYBER_HUB"
+ScreenGui.Name = "CH3A5_CYBER_MASTER"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.Parent = PlayerGui
@@ -111,6 +138,7 @@ NotifLayout.Parent = NotifContainer
 
 local function Notify(titleText, descText, duration)
     duration = duration or 3
+    PlaySound(6042053626, 1.2)
 
     local Toast = Instance.new("Frame")
     Toast.Size = UDim2.new(1, 0, 0, 48)
@@ -171,6 +199,60 @@ local function Notify(titleText, descText, duration)
 end
 
 --==================================================
+-- PERFECT PER-FRAME BOUNDED DRAG SYSTEM (UN-STICKABLE)
+--==================================================
+
+local function MakeDraggable(frame, handle)
+    handle = handle or frame
+    local dragging = false
+    local lastInputPos = nil
+    local hasMoved = false
+
+    handle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            hasMoved = false
+            lastInputPos = input.Position
+        end
+    end)
+
+    handle.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local currentPos = input.Position
+            local delta = currentPos - lastInputPos
+            lastInputPos = currentPos
+
+            if delta.Magnitude > 0.5 then
+                hasMoved = true
+            end
+
+            local Camera = workspace.CurrentCamera
+            if not Camera then return end
+            local Viewport = Camera.ViewportSize
+
+            local halfW = frame.AbsoluteSize.X * frame.AnchorPoint.X
+            local halfH = frame.AbsoluteSize.Y * frame.AnchorPoint.Y
+
+            local curX = frame.AbsolutePosition.X + halfW
+            local curY = frame.AbsolutePosition.Y + halfH
+
+            local newX = math.clamp(curX + delta.X, halfW, Viewport.X - (frame.AbsoluteSize.X - halfW))
+            local newY = math.clamp(curY + delta.Y, halfH, Viewport.Y - (frame.AbsoluteSize.Y - halfH))
+
+            frame.Position = UDim2.fromOffset(newX, newY)
+        end
+    end)
+
+    return function() return hasMoved end
+end
+
+--==================================================
 -- SCRIPT LOADER (UNTOUCHED LOGIC)
 --==================================================
 
@@ -228,6 +310,9 @@ MainStroke.Thickness = 1.5
 MainStroke.Parent = Main
 RegisterThemeElement(MainStroke, "Color", "Accent")
 
+-- Apply Bounded Drag to Main GUI
+MakeDraggable(Main, nil)
+
 --==================================================
 -- TOPBAR
 --==================================================
@@ -251,7 +336,7 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, -100, 1, 0)
 Title.Position = UDim2.fromOffset(12, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "[ CH3A5 // HUB ] v2.5 HUD"
+Title.Text = "[ CH3A5 // HUB ] MASTER HUD"
 Title.Font = Enum.Font.Code
 Title.TextSize = 13
 Title.TextXAlignment = Enum.TextXAlignment.Left
@@ -312,7 +397,6 @@ FooterLabel.TextXAlignment = Enum.TextXAlignment.Left
 FooterLabel.Parent = Footer
 RegisterThemeElement(FooterLabel, "TextColor3", "Muted")
 
--- Live FPS & Ping Calculator
 local FrameCount = 0
 local LastFPSUpdate = os.clock()
 
@@ -401,7 +485,7 @@ local ThemesPage = CreatePage("Themes")
 local SettingsPage = CreatePage("Settings")
 
 --==================================================
--- CYBERPUNK UI HELPERS
+-- CYBERPUNK UI HELPERS (WITH COPY & FAVORITES)
 --==================================================
 
 local function AddSection(Page, text)
@@ -467,7 +551,7 @@ local function AddSearchBar(Page)
     SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
         local query = string.lower(SearchBox.Text)
         for _, child in ipairs(Page:GetChildren()) do
-            if child:IsA("TextButton") and child:FindFirstChild("ScriptName") then
+            if child:IsA("Frame") and child:FindFirstChild("ScriptName") then
                 local scriptName = string.lower(child.ScriptName.Text)
                 if query == "" or string.find(scriptName, query, 1, true) then
                     child.Visible = true
@@ -480,36 +564,34 @@ local function AddSearchBar(Page)
 end
 
 local function AddScriptButton(Page, name, description, url)
-    local Button = Instance.new("TextButton")
-    Button.Size = UDim2.new(1, 0, 0, 50)
-    Button.BackgroundColor3 = CurrentTheme.Surface
-    Button.BorderSizePixel = 0
-    Button.Text = ""
-    Button.AutoButtonColor = false
-    Button.Parent = Page
-    RegisterThemeElement(Button, "BackgroundColor3", "Surface")
+    local Frame = Instance.new("Frame")
+    Frame.Size = UDim2.new(1, 0, 0, 50)
+    Frame.BackgroundColor3 = CurrentTheme.Surface
+    Frame.BorderSizePixel = 0
+    Frame.Parent = Page
+    RegisterThemeElement(Frame, "BackgroundColor3", "Surface")
 
     local Corner = Instance.new("UICorner")
     Corner.CornerRadius = UDim.new(0, 4)
-    Corner.Parent = Button
+    Corner.Parent = Frame
 
     local BtnStroke = Instance.new("UIStroke")
     BtnStroke.Color = CurrentTheme.Accent
     BtnStroke.Transparency = 0.8
     BtnStroke.Thickness = 1
-    BtnStroke.Parent = Button
+    BtnStroke.Parent = Frame
     RegisterThemeElement(BtnStroke, "Color", "Accent")
 
     local AccentBar = Instance.new("Frame")
     AccentBar.Size = UDim2.new(0, 3, 1, 0)
     AccentBar.BackgroundColor3 = CurrentTheme.Accent
     AccentBar.BorderSizePixel = 0
-    AccentBar.Parent = Button
+    AccentBar.Parent = Frame
     RegisterThemeElement(AccentBar, "BackgroundColor3", "Accent")
 
     local Name = Instance.new("TextLabel")
     Name.Name = "ScriptName"
-    Name.Size = UDim2.new(1, -20, 0, 20)
+    Name.Size = UDim2.new(1, -75, 0, 20)
     Name.Position = UDim2.fromOffset(12, 5)
     Name.BackgroundTransparency = 1
     Name.Text = name
@@ -517,11 +599,11 @@ local function AddScriptButton(Page, name, description, url)
     Name.TextSize = 12
     Name.TextXAlignment = Enum.TextXAlignment.Left
     Name.TextColor3 = CurrentTheme.Text
-    Name.Parent = Button
+    Name.Parent = Frame
     RegisterThemeElement(Name, "TextColor3", "Text")
 
     local Desc = Instance.new("TextLabel")
-    Desc.Size = UDim2.new(1, -20, 0, 18)
+    Desc.Size = UDim2.new(1, -75, 0, 18)
     Desc.Position = UDim2.fromOffset(12, 25)
     Desc.BackgroundTransparency = 1
     Desc.Text = "[ " .. description .. " ]"
@@ -529,29 +611,78 @@ local function AddScriptButton(Page, name, description, url)
     Desc.TextSize = 10
     Desc.TextXAlignment = Enum.TextXAlignment.Left
     Desc.TextColor3 = CurrentTheme.Muted
-    Desc.Parent = Button
+    Desc.Parent = Frame
     RegisterThemeElement(Desc, "TextColor3", "Muted")
 
-    Button.MouseEnter:Connect(function()
+    -- Click Area to Execute
+    local ExecBtn = Instance.new("TextButton")
+    ExecBtn.Size = UDim2.new(1, -65, 1, 0)
+    ExecBtn.BackgroundTransparency = 1
+    ExecBtn.Text = ""
+    ExecBtn.Parent = Frame
+
+    ExecBtn.MouseEnter:Connect(function()
+        PlaySound(6895079853, 1.2)
         TweenService:Create(BtnStroke, TweenInfo.new(0.2), {Transparency = 0}):Play()
     end)
 
-    Button.MouseLeave:Connect(function()
+    ExecBtn.MouseLeave:Connect(function()
         TweenService:Create(BtnStroke, TweenInfo.new(0.2), {Transparency = 0.8}):Play()
     end)
 
-    Button.MouseButton1Click:Connect(function()
+    ExecBtn.MouseButton1Click:Connect(function()
         ExecuteScript(name, url)
     end)
 
-    return Button
+    -- Copy Link Button
+    local CopyBtn = Instance.new("TextButton")
+    CopyBtn.Size = UDim2.fromOffset(26, 26)
+    CopyBtn.Position = UDim2.new(1, -58, 0.5, -13)
+    CopyBtn.BackgroundColor3 = CurrentTheme.Background
+    CopyBtn.Text = "📋"
+    CopyBtn.TextSize = 12
+    CopyBtn.Parent = Frame
+    RegisterThemeElement(CopyBtn, "BackgroundColor3", "Background")
+
+    local CCorner = Instance.new("UICorner")
+    CCorner.CornerRadius = UDim.new(0, 4)
+    CCorner.Parent = CopyBtn
+
+    CopyBtn.MouseButton1Click:Connect(function()
+        pcall(function() setclipboard(url) end)
+        Notify("CLIPBOARD", "Copied URL for " .. name, 2)
+    end)
+
+    -- Favorite Button
+    local FavBtn = Instance.new("TextButton")
+    FavBtn.Size = UDim2.fromOffset(26, 26)
+    FavBtn.Position = UDim2.new(1, -28, 0.5, -13)
+    FavBtn.BackgroundColor3 = CurrentTheme.Background
+    FavBtn.Text = "⭐"
+    FavBtn.TextSize = 12
+    FavBtn.TextColor3 = CurrentTheme.Muted
+    FavBtn.Parent = Frame
+    RegisterThemeElement(FavBtn, "BackgroundColor3", "Background")
+
+    local FCorner = Instance.new("UICorner")
+    FCorner.CornerRadius = UDim.new(0, 4)
+    FCorner.Parent = FavBtn
+
+    local isFav = false
+    FavBtn.MouseButton1Click:Connect(function()
+        isFav = not isFav
+        FavBtn.TextColor3 = isFav and CurrentTheme.Accent or CurrentTheme.Muted
+        Notify("FAVORITE", isFav and ("Added " .. name .. " to favorites") or ("Removed " .. name), 2)
+    end)
+
+    return Frame
 end
 
 local function AddToggle(Page, text, defaultState, callback)
     local state = defaultState or false
 
     local ToggleFrame = Instance.new("Frame")
-    ToggleFrame.Size = UDim2.new(1, 0, 0, 36)
+    ToggleFrame.Size = UDim2.new(1, 0, 0, 34)
     ToggleFrame.BackgroundColor3 = CurrentTheme.Surface
     ToggleFrame.BorderSizePixel = 0
     ToggleFrame.Parent = Page
@@ -574,8 +705,8 @@ local function AddToggle(Page, text, defaultState, callback)
     RegisterThemeElement(Label, "TextColor3", "Text")
 
     local SwitchBtn = Instance.new("TextButton")
-    SwitchBtn.Size = UDim2.fromOffset(42, 22)
-    SwitchBtn.Position = UDim2.new(1, -50, 0.5, -11)
+    SwitchBtn.Size = UDim2.fromOffset(42, 20)
+    SwitchBtn.Position = UDim2.new(1, -50, 0.5, -10)
     SwitchBtn.BackgroundColor3 = state and CurrentTheme.Accent or CurrentTheme.Background
     SwitchBtn.Text = state and "ON" or "OFF"
     SwitchBtn.Font = Enum.Font.Code
@@ -588,6 +719,7 @@ local function AddToggle(Page, text, defaultState, callback)
     SwitchCorner.Parent = SwitchBtn
 
     SwitchBtn.MouseButton1Click:Connect(function()
+        PlaySound(6042053626, 1.1)
         state = not state
         SwitchBtn.Text = state and "ON" or "OFF"
         TweenService:Create(SwitchBtn, TweenInfo.new(0.2), {
@@ -597,6 +729,94 @@ local function AddToggle(Page, text, defaultState, callback)
 
         if callback then
             callback(state)
+        end
+    end)
+end
+
+local function AddSlider(Page, text, minVal, maxVal, defaultVal, callback)
+    local SliderFrame = Instance.new("Frame")
+    SliderFrame.Size = UDim2.new(1, 0, 0, 42)
+    SliderFrame.BackgroundColor3 = CurrentTheme.Surface
+    SliderFrame.BorderSizePixel = 0
+    SliderFrame.Parent = Page
+    RegisterThemeElement(SliderFrame, "BackgroundColor3", "Surface")
+
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 4)
+    Corner.Parent = SliderFrame
+
+    local Label = Instance.new("TextLabel")
+    Label.Size = UDim2.new(1, -60, 0, 18)
+    Label.Position = UDim2.fromOffset(10, 4)
+    Label.BackgroundTransparency = 1
+    Label.Text = text
+    Label.Font = Enum.Font.Code
+    Label.TextSize = 11
+    Label.TextColor3 = CurrentTheme.Text
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+    Label.Parent = SliderFrame
+    RegisterThemeElement(Label, "TextColor3", "Text")
+
+    local ValLabel = Instance.new("TextLabel")
+    ValLabel.Size = UDim2.fromOffset(50, 18)
+    ValLabel.Position = UDim2.new(1, -55, 0, 4)
+    ValLabel.BackgroundTransparency = 1
+    ValLabel.Text = tostring(defaultVal)
+    ValLabel.Font = Enum.Font.Code
+    ValLabel.TextSize = 11
+    ValLabel.TextColor3 = CurrentTheme.Accent
+    ValLabel.TextXAlignment = Enum.TextXAlignment.Right
+    ValLabel.Parent = SliderFrame
+    RegisterThemeElement(ValLabel, "TextColor3", "Accent")
+
+    local Track = Instance.new("Frame")
+    Track.Size = UDim2.new(1, -20, 0, 6)
+    Track.Position = UDim2.fromOffset(10, 26)
+    Track.BackgroundColor3 = CurrentTheme.Background
+    Track.BorderSizePixel = 0
+    Track.Parent = SliderFrame
+    RegisterThemeElement(Track, "BackgroundColor3", "Background")
+
+    local TrackCorner = Instance.new("UICorner")
+    TrackCorner.CornerRadius = UDim.new(1, 0)
+    TrackCorner.Parent = Track
+
+    local Fill = Instance.new("Frame")
+    Fill.Size = UDim2.new((defaultVal - minVal)/(maxVal - minVal), 0, 1, 0)
+    Fill.BackgroundColor3 = CurrentTheme.Accent
+    Fill.BorderSizePixel = 0
+    Fill.Parent = Track
+    RegisterThemeElement(Fill, "BackgroundColor3", "Accent")
+
+    local FillCorner = Instance.new("UICorner")
+    FillCorner.CornerRadius = UDim.new(1, 0)
+    FillCorner.Parent = Fill
+
+    local isDragging = false
+    local function UpdateSlider(input)
+        local pos = math.clamp((input.Position.X - Track.AbsolutePosition.X) / Track.AbsoluteSize.X, 0, 1)
+        local val = math.floor(minVal + (maxVal - minVal) * pos)
+        Fill.Size = UDim2.new(pos, 0, 1, 0)
+        ValLabel.Text = tostring(val)
+        if callback then callback(val) end
+    end
+
+    Track.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isDragging = true
+            UpdateSlider(input)
+        end
+    end)
+
+    Track.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isDragging = false
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            UpdateSlider(input)
         end
     end)
 end
@@ -688,7 +908,7 @@ AddInfo(ThemesPage, "Select visual palette.")
 
 for ThemeName, ThemeData in pairs(Themes) do
     local Button = Instance.new("TextButton")
-    Button.Size = UDim2.new(1, 0, 0, 36)
+    Button.Size = UDim2.new(1, 0, 0, 34)
     Button.BackgroundColor3 = ThemeData.Surface
     Button.BorderSizePixel = 0
     Button.Text = "  > " .. ThemeName
@@ -714,24 +934,73 @@ for ThemeName, ThemeData in pairs(Themes) do
     DotCorner.Parent = Dot
 
     Button.MouseButton1Click:Connect(function()
+        PlaySound(6042053626, 1)
         ApplyTheme(ThemeData)
         Notify("THEME", "Palette updated to " .. ThemeName, 2)
     end)
 end
 
 --==================================================
--- SETTINGS
+-- SETTINGS & KEYBIND CHANGER
 --==================================================
 
 AddSection(SettingsPage, "SYSTEM CONTROLS")
 AddInfo(SettingsPage, "Manage GUI environment.")
 
-AddToggle(SettingsPage, "Toggle Notification System", true, function(enabled)
+AddToggle(SettingsPage, "Notifications System", true, function(enabled)
     NotifContainer.Visible = enabled
 end)
 
+AddToggle(SettingsPage, "Background Blur Effect", true, function(enabled)
+    SetBlur(enabled and Main.Visible)
+end)
+
+AddSlider(SettingsPage, "UI Transparency", 0, 50, 0, function(val)
+    Main.BackgroundTransparency = val / 100
+end)
+
+-- Dynamic Keybind Picker
+local CurrentKeybind = Enum.KeyCode.RightControl
+
+local KeybindBtn = Instance.new("TextButton")
+KeybindBtn.Size = UDim2.new(1, 0, 0, 34)
+KeybindBtn.BackgroundColor3 = CurrentTheme.Surface
+KeybindBtn.BorderSizePixel = 0
+KeybindBtn.Text = "  Keybind: [ " .. CurrentKeybind.Name .. " ]"
+KeybindBtn.Font = Enum.Font.Code
+KeybindBtn.TextSize = 11
+KeybindBtn.TextColor3 = CurrentTheme.Text
+KeybindBtn.TextXAlignment = Enum.TextXAlignment.Left
+KeybindBtn.Parent = SettingsPage
+RegisterThemeElement(KeybindBtn, "BackgroundColor3", "Surface")
+RegisterThemeElement(KeybindBtn, "TextColor3", "Text")
+
+local KBCorner = Instance.new("UICorner")
+KBCorner.CornerRadius = UDim.new(0, 4)
+KBCorner.Parent = KeybindBtn
+
+local listeningForKey = false
+KeybindBtn.MouseButton1Click:Connect(function()
+    listeningForKey = true
+    KeybindBtn.Text = "  > Press Any Key..."
+    KeybindBtn.TextColor3 = CurrentTheme.Accent
+end)
+
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if listeningForKey and input.UserInputType == Enum.UserInputType.Keyboard then
+        listeningForKey = false
+        CurrentKeybind = input.KeyCode
+        KeybindBtn.Text = "  Keybind: [ " .. CurrentKeybind.Name .. " ]"
+        KeybindBtn.TextColor3 = CurrentTheme.Text
+        Notify("KEYBIND", "Set toggle key to " .. CurrentKeybind.Name, 2)
+    elseif not gpe and input.KeyCode == CurrentKeybind then
+        Main.Visible = not Main.Visible
+        SetBlur(Main.Visible)
+    end
+end)
+
 local RejoinBtn = Instance.new("TextButton")
-RejoinBtn.Size = UDim2.new(1, 0, 0, 36)
+RejoinBtn.Size = UDim2.new(1, 0, 0, 34)
 RejoinBtn.BackgroundColor3 = CurrentTheme.Surface
 RejoinBtn.BorderSizePixel = 0
 RejoinBtn.Text = "⚡ REJOIN SERVER"
@@ -775,7 +1044,12 @@ local function AddTab(name, page)
 
     TabButtons[name] = {Button = Button, Page = page}
 
+    Button.MouseEnter:Connect(function()
+        PlaySound(6895079853, 1.4)
+    end)
+
     Button.MouseButton1Click:Connect(function()
+        PlaySound(6042053626, 1)
         for _, tabData in pairs(TabButtons) do
             tabData.Page.Visible = false
             tabData.Button.TextColor3 = CurrentTheme.Muted
@@ -806,157 +1080,75 @@ HomeTab.TextColor3 = CurrentTheme.Accent
 HomeTab.BackgroundColor3 = CurrentTheme.Surface
 
 --==================================================
--- FIXED BOUNDED DRAGGING MECHANIC (NO MORE DISAPPEARING)
---==================================================
-
-local Dragging = false
-local DragStart = Vector2.zero
-local StartCenterPos = Vector2.zero
-
-Topbar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        Dragging = true
-        DragStart = Vector2.new(input.Position.X, input.Position.Y)
-        StartCenterPos = Vector2.new(Main.AbsolutePosition.X + Main.AbsoluteSize.X/2, Main.AbsolutePosition.Y + Main.AbsoluteSize.Y/2)
-    end
-end)
-
-Topbar.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        Dragging = false
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if Dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        local Camera = workspace.CurrentCamera
-        if not Camera then return end
-
-        local Delta = Vector2.new(input.Position.X, input.Position.Y) - DragStart
-        local TargetPos = StartCenterPos + Delta
-
-        local Viewport = Camera.ViewportSize
-        local HalfW = Main.AbsoluteSize.X / 2
-        local HalfH = Main.AbsoluteSize.Y / 2
-
-        -- Clamp position within screen bounds so it never disappears!
-        local ClampedX = math.clamp(TargetPos.X, HalfW, Viewport.X - HalfW)
-        local ClampedY = math.clamp(TargetPos.Y, HalfH, Viewport.Y - HalfH)
-
-        Main.Position = UDim2.fromOffset(ClampedX, ClampedY)
-    end
-end)
-
---==================================================
--- MINIMIZE / CLOSE / TOGGLE
+-- MINIMIZE / CLOSE
 --==================================================
 
 local Minimized = false
 local OriginalSize = Main.Size
 
 Minimize.MouseButton1Click:Connect(function()
+    PlaySound(6042053626, 0.9)
     Minimized = not Minimized
     if Minimized then
         TweenService:Create(Main, TweenInfo.new(0.25), {Size = UDim2.fromOffset(520, 38)}):Play()
         Sidebar.Visible = false
         Content.Visible = false
         Footer.Visible = false
+        SetBlur(false)
     else
         TweenService:Create(Main, TweenInfo.new(0.25), {Size = OriginalSize}):Play()
         task.wait(0.15)
         Sidebar.Visible = true
         Content.Visible = true
         Footer.Visible = true
+        SetBlur(true)
     end
 end)
 
 Close.MouseButton1Click:Connect(function()
+    PlaySound(6042053626, 0.8)
     TweenService:Create(Main, TweenInfo.new(0.2), {Size = UDim2.fromOffset(0, 0)}):Play()
+    SetBlur(false)
     task.wait(0.2)
-    ScreenGui:Destroy()
-end)
-
--- Keybind to Hide/Show (Right Control)
-UserInputService.InputBegan:Connect(function(input, gpe)
-    if not gpe and input.KeyCode == Enum.KeyCode.RightControl then
-        Main.Visible = not Main.Visible
-    end
+    Main.Visible = false
+    Main.Size = OriginalSize
 end)
 
 --==================================================
--- DRAGGABLE MOBILE TOGGLE BUTTON
+-- ALWAYS VISIBLE MOON TOGGLE BUTTON (🌙)
 --==================================================
 
-local MobileToggle = Instance.new("TextButton")
-MobileToggle.Name = "MobileToggle"
-MobileToggle.Size = UDim2.fromOffset(38, 38)
-MobileToggle.Position = UDim2.new(0, 15, 0.5, -19)
-MobileToggle.BackgroundColor3 = CurrentTheme.Surface
-MobileToggle.Text = "[C]"
-MobileToggle.Font = Enum.Font.Code
-MobileToggle.TextSize = 12
-MobileToggle.TextColor3 = CurrentTheme.Accent
-MobileToggle.Parent = ScreenGui
-RegisterThemeElement(MobileToggle, "BackgroundColor3", "Surface")
-RegisterThemeElement(MobileToggle, "TextColor3", "Accent")
+local MoonToggle = Instance.new("TextButton")
+MoonToggle.Name = "MoonToggle"
+MoonToggle.Size = UDim2.fromOffset(42, 42)
+MoonToggle.Position = UDim2.new(0, 20, 0.5, -21)
+MoonToggle.BackgroundColor3 = CurrentTheme.Surface
+MoonToggle.Text = "🌙"
+MoonToggle.TextSize = 18
+MoonToggle.ZIndex = 100
+MoonToggle.Parent = ScreenGui
+RegisterThemeElement(MoonToggle, "BackgroundColor3", "Surface")
 
-local MCorner = Instance.new("UICorner")
-MCorner.CornerRadius = UDim.new(0, 6)
-MCorner.Parent = MobileToggle
+local MoonCorner = Instance.new("UICorner")
+MoonCorner.CornerRadius = UDim.new(1, 0)
+MoonCorner.Parent = MoonToggle
 
-local MStroke = Instance.new("UIStroke")
-MStroke.Color = CurrentTheme.Accent
-MStroke.Thickness = 1.5
-MStroke.Parent = MobileToggle
-RegisterThemeElement(MStroke, "Color", "Accent")
+local MoonStroke = Instance.new("UIStroke")
+MoonStroke.Color = CurrentTheme.Accent
+MoonStroke.Thickness = 1.5
+MoonStroke.Parent = MoonToggle
+RegisterThemeElement(MoonStroke, "Color", "Accent")
 
--- Mobile Button Drag & Clamp System
-local MDragging = false
-local MDragStart = Vector2.zero
-local MStartPos = Vector2.zero
-local MHasMoved = false
+-- Apply Bounded Drag to Moon Toggle
+local getMoonMoved = MakeDraggable(MoonToggle, nil)
 
-MobileToggle.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        MDragging = true
-        MHasMoved = false
-        MDragStart = Vector2.new(input.Position.X, input.Position.Y)
-        MStartPos = Vector2.new(MobileToggle.AbsolutePosition.X + MobileToggle.AbsoluteSize.X/2, MobileToggle.AbsolutePosition.Y + MobileToggle.AbsoluteSize.Y/2)
-    end
-end)
-
-MobileToggle.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        MDragging = false
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if MDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        local Delta = Vector2.new(input.Position.X, input.Position.Y) - MDragStart
-        if Delta.Magnitude > 5 then
-            MHasMoved = true
-        end
-
-        local TargetPos = MStartPos + Delta
-        local Camera = workspace.CurrentCamera
-        if Camera then
-            local Viewport = Camera.ViewportSize
-            local HalfW = MobileToggle.AbsoluteSize.X / 2
-            local HalfH = MobileToggle.AbsoluteSize.Y / 2
-
-            local ClampedX = math.clamp(TargetPos.X, HalfW, Viewport.X - HalfW)
-            local ClampedY = math.clamp(TargetPos.Y, HalfH, Viewport.Y - HalfH)
-
-            MobileToggle.Position = UDim2.fromOffset(ClampedX, ClampedY)
-        end
-    end
-end)
-
-MobileToggle.MouseButton1Click:Connect(function()
-    if not MHasMoved then
+MoonToggle.MouseButton1Click:Connect(function()
+    if not getMoonMoved() then
+        PlaySound(6042053626, 1.2)
         Main.Visible = not Main.Visible
+        SetBlur(Main.Visible)
     end
 end)
 
-Notify("CYBERHUB", "Initialized. Drag supported without losing bounds.", 4)
+SetBlur(true)
+Notify("CYBERHUB", "Initialized Master HUD. Moon Toggle Ready!", 4)
