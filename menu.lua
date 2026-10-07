@@ -1168,9 +1168,10 @@ end)
 AddSection(KeylessPage, "KEYLESS MODULES")
 AddSearchBar(KeylessPage)
 
-AddScriptButton(KeylessPage, "Sources Hub", "Keyless", "https://pastefy.app/Lk0vDMmN/raw")
-AddScriptButton(KeylessPage, "Limbo Hub", "Keyless", "https://limbohub.my.id/loader.lua")
-AddScriptButton(KeylessPage, "Virexx", "Keyless", "https://gist.githubusercontent.com/virexx55/b4e8b16201904da5ab7b554aa71c378f/raw/b9524b701b35ec97603ff0a32227b24461479c5c/virex.lua")
+AddScriptButton(KeylessPage, "Chilli Hub", "Keyless", "https://raw.githubusercontent.com/tienkhanh1/spicy/main/Chilli.lua") 
+AddScriptButton(KeylessPage, "Miranda Hub Script", "Keyless", "https://raw.githubusercontent.com/miirandahub/loader/refs/heads/main/stealaegg") 
+AddScriptButton(KeylessPage, "Pluse Hub", "Keyless", "https://raw.githubusercontent.com/PulseZax/Loader/refs/heads/main/.lua") 
+AddScriptButton(KeylessPage, "CloutHub", "Keyless", "https://raw.githubusercontent.com/ClouthubOnTop/Loader/main/main.lua%0A%0ASource:%20https://cheater.fun/hacks_roblox/72265-steal-an-egg-script.html")
 
 AddSection(KeyPage, "PROTECTED MODULES")
 AddSearchBar(KeyPage)
