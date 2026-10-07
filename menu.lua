@@ -1,5 +1,5 @@
---// CH3A5 HUB GUI [FIXED & UPGRADED V4.6]
---// DisplayOrder Priority Fix + Notifications On Top + Moon Toggle Restored + Text Bounds Fix
+--// CH3A5 HUB GUI [ULTRA EDITION V5.0]
+--// Reduced Size 20% + Persistent Theme/Favs + Auto-Load + Khmer/English + Asset Icons
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
@@ -20,26 +20,90 @@ local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
 local StartSessionTime = tick()
-
--- Fetch Game Info
-local GameInfo = {Name = "Loading...", Creator = "Loading...", Icon = "rbxassetid://0"}
-task.spawn(function()
-    local success, info = pcall(function()
-        return MarketplaceService:GetProductInfo(game.PlaceId)
-    end)
-    if success and info then
-        GameInfo.Name = info.Name or "Roblox Game"
-        if info.Creator then
-            GameInfo.Creator = info.Creator.Name or "Unknown"
-        end
-        if info.IconImageAssetId and info.IconImageAssetId > 0 then
-            GameInfo.Icon = "rbxassetid://" .. tostring(info.IconImageAssetId)
-        end
-    end
-end)
+local ConfigFile = "CH3A5_Config_V5.json"
 
 --==================================================
--- SOUND EFFECTS & BLUR SYSTEM
+-- LOCAL DATA PERSISTENCE (WRITEFILE / READFILE)
+--==================================================
+
+local SavedConfig = {
+    Theme = "Neon Cyan",
+    Language = "EN", -- "EN" or "KH"
+    AutoLoad = false,
+    AutoLoadUrl = "",
+    Favorites = {}
+}
+
+local function LoadSavedConfig()
+    pcall(function()
+        if readfile and isfile and isfile(ConfigFile) then
+            local decoded = HttpService:JSONDecode(readfile(ConfigFile))
+            if type(decoded) == "table" then
+                for k, v in pairs(decoded) do
+                    SavedConfig[k] = v
+                end
+            end
+        end
+    end)
+end
+
+local function SaveConfig()
+    pcall(function()
+        if writefile then
+            writefile(ConfigFile, HttpService:JSONEncode(SavedConfig))
+        end
+    end)
+end
+
+LoadSavedConfig()
+
+--==================================================
+-- TRANSLATION LOCALES
+--==================================================
+
+local Locales = {
+    EN = {
+        Title = "[ CH3A5 // HUB ] V5.0",
+        Home = "Home",
+        Keyless = "Keyless",
+        Keyed = "Keyed",
+        Favorites = "Favorites",
+        Themes = "Themes",
+        Config = "Config",
+        Welcome = "WELCOME BACK",
+        Overview = "System Overview",
+        NoFav = "[ NO FAVORITE MODULES ]",
+        AutoLoadLabel = "Auto Load Script on Launch",
+        LangLabel = "Language: English",
+        Rejoin = "Rejoin",
+        Hop = "Server Hop",
+        LowHop = "Low Hop",
+        CopyJob = "Job ID"
+    },
+    KH = {
+        Title = "[ CH3A5 // HUB ] V5.0",
+        Home = "ទំព័រដើម",
+        Keyless = "គ្មាន Key",
+        Keyed = "មាន Key",
+        Favorites = "ចូលចិត្ត",
+        Themes = "ពណ៌ GUI",
+        Config = "ការកំណត់",
+        Welcome = "ស្វាគមន៍ត្រឡប់មកវិញ",
+        Overview = "ព័ត៌មានប្រព័ន្ធ",
+        NoFav = "[ គ្មាន Script ចូលចិត្តទេ ]",
+        AutoLoadLabel = "Auto រត់ Script ពេលបើក",
+        LangLabel = "ភាសា: ភាសាខ្មែរ",
+        Rejoin = "ចូលឡើងវិញ",
+        Hop = "ប្តូរ Server",
+        LowHop = "Server ទំនេរ",
+        CopyJob = "ចម្លង Job ID"
+    }
+}
+
+local CurrentLang = SavedConfig.Language or "EN"
+
+--==================================================
+-- SOUND EFFECTS & BLUR
 --==================================================
 
 local function PlaySound(soundId, pitch)
@@ -124,7 +188,7 @@ local Themes = {
     }
 }
 
-local CurrentTheme = Themes["Neon Cyan"]
+local CurrentTheme = Themes[SavedConfig.Theme] or Themes["Neon Cyan"]
 local RegisteredElements = {}
 
 local function RegisterThemeElement(instance, property, themeKey)
@@ -132,8 +196,12 @@ local function RegisterThemeElement(instance, property, themeKey)
     instance[property] = CurrentTheme[themeKey]
 end
 
-local function ApplyTheme(newTheme)
+local function ApplyTheme(newTheme, name)
     CurrentTheme = newTheme
+    if name then
+        SavedConfig.Theme = name
+        SaveConfig()
+    end
     for _, item in ipairs(RegisteredElements) do
         if item.Instance and item.Instance.Parent then
             TweenService:Create(item.Instance, TweenInfo.new(0.3), {
@@ -144,27 +212,22 @@ local function ApplyTheme(newTheme)
 end
 
 --==================================================
--- SCREEN GUI (HIGH DISPLAY ORDER FOR ON-TOP PRIORITY)
+-- SCREEN GUI (20% REDUCED SIZE & DISPLAY ORDER FIX)
 --==================================================
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CH3A5_CYBER_MASTER_V4_6"
+ScreenGui.Name = "CH3A5_CYBER_MASTER_V5"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
-ScreenGui.DisplayOrder = 999999 -- Top priority over all game jump/move buttons
+ScreenGui.DisplayOrder = 999999
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = PlayerGui
 
---==================================================
--- NOTIFICATIONS CONTAINER (PRIORITY Z-INDEX ON TOP OF GUI)
---==================================================
-
 local NotifContainer = Instance.new("Frame")
-NotifContainer.Name = "NotifContainer"
-NotifContainer.Size = UDim2.new(0, 240, 1, -30)
-NotifContainer.Position = UDim2.new(1, -250, 0, 10)
+NotifContainer.Size = UDim2.new(0, 210, 1, -30)
+NotifContainer.Position = UDim2.new(1, -220, 0, 10)
 NotifContainer.BackgroundTransparency = 1
-NotifContainer.ZIndex = 100 -- Higher than Main GUI
+NotifContainer.ZIndex = 100
 NotifContainer.Parent = ScreenGui
 
 local NotifLayout = Instance.new("UIListLayout")
@@ -177,11 +240,11 @@ local function Notify(titleText, descText, duration)
     PlaySound(6042053626, 1.2)
 
     local Toast = Instance.new("Frame")
-    Toast.Size = UDim2.new(1, 0, 0, 48)
+    Toast.Size = UDim2.new(1, 0, 0, 42)
     Toast.BackgroundColor3 = CurrentTheme.Surface
     Toast.BorderSizePixel = 0
     Toast.BackgroundTransparency = 1
-    Toast.ZIndex = 101 -- Higher than Main GUI ZIndex
+    Toast.ZIndex = 101
     Toast.Parent = NotifContainer
     RegisterThemeElement(Toast, "BackgroundColor3", "Surface")
 
@@ -204,12 +267,12 @@ local function Notify(titleText, descText, duration)
     RegisterThemeElement(AccentBar, "BackgroundColor3", "Accent")
 
     local TTitle = Instance.new("TextLabel")
-    TTitle.Size = UDim2.new(1, -15, 0, 18)
-    TTitle.Position = UDim2.fromOffset(10, 4)
+    TTitle.Size = UDim2.new(1, -12, 0, 16)
+    TTitle.Position = UDim2.fromOffset(8, 3)
     TTitle.BackgroundTransparency = 1
     TTitle.Text = "// " .. titleText
     TTitle.Font = Enum.Font.Code
-    TTitle.TextSize = 11
+    TTitle.TextSize = 10
     TTitle.TextColor3 = CurrentTheme.Accent
     TTitle.TextXAlignment = Enum.TextXAlignment.Left
     TTitle.ZIndex = 102
@@ -217,12 +280,12 @@ local function Notify(titleText, descText, duration)
     RegisterThemeElement(TTitle, "TextColor3", "Accent")
 
     local TDesc = Instance.new("TextLabel")
-    TDesc.Size = UDim2.new(1, -15, 0, 20)
-    TDesc.Position = UDim2.fromOffset(10, 22)
+    TDesc.Size = UDim2.new(1, -12, 0, 18)
+    TDesc.Position = UDim2.fromOffset(8, 19)
     TDesc.BackgroundTransparency = 1
     TDesc.Text = descText
     TDesc.Font = Enum.Font.Gotham
-    TDesc.TextSize = 10
+    TDesc.TextSize = 9
     TDesc.TextColor3 = CurrentTheme.Text
     TDesc.TextXAlignment = Enum.TextXAlignment.Left
     TDesc.ZIndex = 102
@@ -238,10 +301,7 @@ local function Notify(titleText, descText, duration)
     end)
 end
 
---==================================================
--- STANDARD DRAGGING SYSTEM
---==================================================
-
+-- DRAGGING
 local function MakeDraggable(gui, handle)
     handle = handle or gui
     local dragging = false
@@ -293,33 +353,21 @@ local function MakeDraggable(gui, handle)
     end
 end
 
---==================================================
--- SCRIPT LOADER (UNTOUCHED LOGIC)
---==================================================
-
+-- SCRIPT EXECUTOR
 local function ExecuteScript(scriptName, url)
     Notify("EXECUTE", "Downloading " .. scriptName .. "...", 2)
     task.spawn(function()
-        local success, source = pcall(function()
-            return game:HttpGet(url)
-        end)
-
+        local success, source = pcall(function() return game:HttpGet(url) end)
         if not success or not source then
-            warn("[CH3A5 HUB] Failed to download script")
-            Notify("ERROR", "Failed to download " .. scriptName, 3)
+            Notify("ERROR", "Failed download: " .. scriptName, 3)
             return
         end
-
         local runSuccess, err = pcall(function()
             local fn = loadstring(source)
-            if fn then
-                fn()
-            end
+            if fn then fn() end
         end)
-
         if not runSuccess then
-            warn("[CH3A5 HUB] Script Error:", err)
-            Notify("ERROR", "Script Error in " .. scriptName, 3)
+            Notify("ERROR", "Error in " .. scriptName, 3)
         else
             Notify("SYSTEM", scriptName .. " Executed!", 3)
         end
@@ -327,13 +375,13 @@ local function ExecuteScript(scriptName, url)
 end
 
 --==================================================
--- MAIN FRAME
+-- MAIN FRAME (REDUCED 20%: 464 x 312)
 --==================================================
 
 local Main = Instance.new("Frame")
 Main.Name = "Main"
-Main.Size = UDim2.fromOffset(580, 390)
-Main.Position = UDim2.new(0.5, -290, 0.5, -195)
+Main.Size = UDim2.fromOffset(464, 312)
+Main.Position = UDim2.new(0.5, -232, 0.5, -156)
 Main.BackgroundColor3 = CurrentTheme.Background
 Main.BorderSizePixel = 0
 Main.ClipsDescendants = true
@@ -342,18 +390,18 @@ Main.Parent = ScreenGui
 RegisterThemeElement(Main, "BackgroundColor3", "Background")
 
 local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 8)
+MainCorner.CornerRadius = UDim.new(0, 6)
 MainCorner.Parent = Main
 
 local MainStroke = Instance.new("UIStroke")
 MainStroke.Color = CurrentTheme.Accent
-MainStroke.Thickness = 1.5
+MainStroke.Thickness = 1.2
 MainStroke.Parent = Main
 RegisterThemeElement(MainStroke, "Color", "Accent")
 
--- TOPBAR & STATUS BADGE
+-- TOPBAR
 local Topbar = Instance.new("Frame")
-Topbar.Size = UDim2.new(1, 0, 0, 38)
+Topbar.Size = UDim2.new(1, 0, 0, 32)
 Topbar.BackgroundColor3 = CurrentTheme.Surface
 Topbar.BorderSizePixel = 0
 Topbar.ZIndex = 11
@@ -362,22 +410,13 @@ RegisterThemeElement(Topbar, "BackgroundColor3", "Surface")
 
 MakeDraggable(Main, Topbar)
 
-local CyberLine = Instance.new("Frame")
-CyberLine.Size = UDim2.new(1, 0, 0, 1)
-CyberLine.Position = UDim2.new(0, 0, 1, -1)
-CyberLine.BackgroundColor3 = CurrentTheme.Accent
-CyberLine.BorderSizePixel = 0
-CyberLine.ZIndex = 12
-CyberLine.Parent = Topbar
-RegisterThemeElement(CyberLine, "BackgroundColor3", "Accent")
-
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, -180, 1, 0)
-Title.Position = UDim2.fromOffset(12, 0)
+Title.Size = UDim2.new(1, -140, 1, 0)
+Title.Position = UDim2.fromOffset(10, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "[ CH3A5 // HUB ] PRO HUD"
+Title.Text = Locales[CurrentLang].Title
 Title.Font = Enum.Font.Code
-Title.TextSize = 13
+Title.TextSize = 11
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.TextColor3 = CurrentTheme.Accent
 Title.ZIndex = 12
@@ -385,8 +424,8 @@ Title.Parent = Topbar
 RegisterThemeElement(Title, "TextColor3", "Accent")
 
 local StatusBadge = Instance.new("Frame")
-StatusBadge.Size = UDim2.fromOffset(72, 20)
-StatusBadge.Position = UDim2.new(1, -150, 0.5, -10)
+StatusBadge.Size = UDim2.fromOffset(60, 16)
+StatusBadge.Position = UDim2.new(1, -120, 0.5, -8)
 StatusBadge.BackgroundColor3 = CurrentTheme.Background
 StatusBadge.BorderSizePixel = 0
 StatusBadge.ZIndex = 12
@@ -398,8 +437,8 @@ SCorner.CornerRadius = UDim.new(0, 4)
 SCorner.Parent = StatusBadge
 
 local SDot = Instance.new("Frame")
-SDot.Size = UDim2.fromOffset(6, 6)
-SDot.Position = UDim2.fromOffset(8, 7)
+SDot.Size = UDim2.fromOffset(5, 5)
+SDot.Position = UDim2.fromOffset(6, 6)
 SDot.BackgroundColor3 = Color3.fromRGB(0, 255, 128)
 SDot.BorderSizePixel = 0
 SDot.ZIndex = 13
@@ -410,49 +449,32 @@ SDotCorner.CornerRadius = UDim.new(1, 0)
 SDotCorner.Parent = SDot
 
 local SText = Instance.new("TextLabel")
-SText.Size = UDim2.new(1, -20, 1, 0)
-SText.Position = UDim2.fromOffset(18, 0)
+SText.Size = UDim2.new(1, -15, 1, 0)
+SText.Position = UDim2.fromOffset(14, 0)
 SText.BackgroundTransparency = 1
 SText.Text = "ONLINE"
 SText.Font = Enum.Font.Code
-SText.TextSize = 9
+SText.TextSize = 8
 SText.TextColor3 = CurrentTheme.Text
 SText.TextXAlignment = Enum.TextXAlignment.Left
 SText.ZIndex = 13
 SText.Parent = StatusBadge
 RegisterThemeElement(SText, "TextColor3", "Text")
 
-local Minimize = Instance.new("TextButton")
-Minimize.Size = UDim2.fromOffset(30, 30)
-Minimize.Position = UDim2.new(1, -66, 0, 4)
-Minimize.BackgroundTransparency = 1
-Minimize.Text = "—"
-Minimize.TextSize = 13
-Minimize.TextColor3 = CurrentTheme.Text
-Minimize.Font = Enum.Font.Code
-Minimize.ZIndex = 13
-Minimize.Parent = Topbar
-RegisterThemeElement(Minimize, "TextColor3", "Text")
+local CloseBtnIcon = Instance.new("ImageButton")
+CloseBtnIcon.Size = UDim2.fromOffset(16, 16)
+CloseBtnIcon.Position = UDim2.new(1, -24, 0.5, -8)
+CloseBtnIcon.BackgroundTransparency = 1
+CloseBtnIcon.Image = "rbxassetid://6031094678"
+CloseBtnIcon.ImageColor3 = CurrentTheme.AccentAlt
+CloseBtnIcon.ZIndex = 13
+CloseBtnIcon.Parent = Topbar
+RegisterThemeElement(CloseBtnIcon, "ImageColor3", "AccentAlt")
 
-local Close = Instance.new("TextButton")
-Close.Size = UDim2.fromOffset(30, 30)
-Close.Position = UDim2.new(1, -34, 0, 4)
-Close.BackgroundTransparency = 1
-Close.Text = "✕"
-Close.TextSize = 13
-Close.TextColor3 = CurrentTheme.AccentAlt
-Close.Font = Enum.Font.Code
-Close.ZIndex = 13
-Close.Parent = Topbar
-RegisterThemeElement(Close, "TextColor3", "AccentAlt")
-
---==================================================
--- SIDEBAR & FIX TAB OVERFLOW (SCROLLABLE)
---==================================================
-
+-- SIDEBAR & FIXED SCROLLING TABS
 local Sidebar = Instance.new("Frame")
-Sidebar.Size = UDim2.new(0, 145, 1, -38)
-Sidebar.Position = UDim2.fromOffset(0, 38)
+Sidebar.Size = UDim2.new(0, 115, 1, -32)
+Sidebar.Position = UDim2.fromOffset(0, 32)
 Sidebar.BackgroundColor3 = CurrentTheme.Surface
 Sidebar.BorderSizePixel = 0
 Sidebar.ZIndex = 11
@@ -460,33 +482,29 @@ Sidebar.Parent = Main
 RegisterThemeElement(Sidebar, "BackgroundColor3", "Surface")
 
 local TabHolder = Instance.new("ScrollingFrame")
-TabHolder.Size = UDim2.new(1, 0, 1, -55)
-TabHolder.Position = UDim2.fromOffset(0, 0)
+TabHolder.Size = UDim2.new(1, 0, 1, -42)
 TabHolder.BackgroundTransparency = 1
 TabHolder.BorderSizePixel = 0
-TabHolder.ScrollBarThickness = 2
-TabHolder.ScrollBarImageColor3 = CurrentTheme.Accent
+TabHolder.ScrollBarThickness = 1
 TabHolder.CanvasSize = UDim2.new()
 TabHolder.AutomaticCanvasSize = Enum.AutomaticSize.Y
 TabHolder.ZIndex = 12
 TabHolder.Parent = Sidebar
-RegisterThemeElement(TabHolder, "ScrollBarImageColor3", "Accent")
-
-local SidePadding = Instance.new("UIPadding")
-SidePadding.PaddingTop = UDim.new(0, 8)
-SidePadding.PaddingLeft = UDim.new(0, 6)
-SidePadding.PaddingRight = UDim.new(0, 6)
-SidePadding.Parent = TabHolder
 
 local SideLayout = Instance.new("UIListLayout")
-SideLayout.Padding = UDim.new(0, 6)
-SideLayout.SortOrder = Enum.SortOrder.LayoutOrder
+SideLayout.Padding = UDim.new(0, 4)
 SideLayout.Parent = TabHolder
 
--- SIDEBAR PROFILE CARD
+local SidePad = Instance.new("UIPadding")
+SidePad.PaddingTop = UDim.new(0, 6)
+SidePad.PaddingLeft = UDim.new(0, 5)
+SidePad.PaddingRight = UDim.new(0, 5)
+SidePad.Parent = TabHolder
+
+-- PROFILE CARD AT BOTTOM SIDEBAR
 local ProfileCard = Instance.new("Frame")
-ProfileCard.Size = UDim2.new(1, -12, 0, 46)
-ProfileCard.Position = UDim2.new(0, 6, 1, -50)
+ProfileCard.Size = UDim2.new(1, -10, 0, 36)
+ProfileCard.Position = UDim2.new(0, 5, 1, -38)
 ProfileCard.BackgroundColor3 = CurrentTheme.Background
 ProfileCard.BorderSizePixel = 0
 ProfileCard.ZIndex = 12
@@ -494,19 +512,12 @@ ProfileCard.Parent = Sidebar
 RegisterThemeElement(ProfileCard, "BackgroundColor3", "Background")
 
 local PCorner = Instance.new("UICorner")
-PCorner.CornerRadius = UDim.new(0, 6)
+PCorner.CornerRadius = UDim.new(0, 4)
 PCorner.Parent = ProfileCard
 
-local PStroke = Instance.new("UIStroke")
-PStroke.Color = CurrentTheme.Accent
-PStroke.Transparency = 0.7
-PStroke.Thickness = 1
-PStroke.Parent = ProfileCard
-RegisterThemeElement(PStroke, "Color", "Accent")
-
 local PAvatar = Instance.new("ImageLabel")
-PAvatar.Size = UDim2.fromOffset(32, 32)
-PAvatar.Position = UDim2.fromOffset(7, 7)
+PAvatar.Size = UDim2.fromOffset(24, 24)
+PAvatar.Position = UDim2.fromOffset(6, 6)
 PAvatar.BackgroundTransparency = 1
 PAvatar.Image = "rbxthumb://type=AvatarHeadShot&id=" .. Player.UserId .. "&w=150&h=150"
 PAvatar.ZIndex = 13
@@ -516,25 +527,13 @@ local PACorner = Instance.new("UICorner")
 PACorner.CornerRadius = UDim.new(1, 0)
 PACorner.Parent = PAvatar
 
-local POnlineDot = Instance.new("Frame")
-POnlineDot.Size = UDim2.fromOffset(8, 8)
-POnlineDot.Position = UDim2.fromOffset(29, 29)
-POnlineDot.BackgroundColor3 = Color3.fromRGB(0, 255, 128)
-POnlineDot.BorderSizePixel = 0
-POnlineDot.ZIndex = 14
-POnlineDot.Parent = ProfileCard
-
-local PODCorner = Instance.new("UICorner")
-PODCorner.CornerRadius = UDim.new(1, 0)
-PODCorner.Parent = POnlineDot
-
 local PName = Instance.new("TextLabel")
-PName.Size = UDim2.new(1, -70, 0, 16)
-PName.Position = UDim2.fromOffset(44, 7)
+PName.Size = UDim2.new(1, -38, 0, 14)
+PName.Position = UDim2.fromOffset(34, 5)
 PName.BackgroundTransparency = 1
 PName.Text = Player.DisplayName
 PName.Font = Enum.Font.GothamBold
-PName.TextSize = 11
+PName.TextSize = 9
 PName.TextTruncate = Enum.TextTruncate.AtEnd
 PName.TextColor3 = CurrentTheme.Text
 PName.TextXAlignment = Enum.TextXAlignment.Left
@@ -543,12 +542,12 @@ PName.Parent = ProfileCard
 RegisterThemeElement(PName, "TextColor3", "Text")
 
 local PUser = Instance.new("TextLabel")
-PUser.Size = UDim2.new(1, -70, 0, 14)
-PUser.Position = UDim2.fromOffset(44, 23)
+PUser.Size = UDim2.new(1, -38, 0, 12)
+PUser.Position = UDim2.fromOffset(34, 18)
 PUser.BackgroundTransparency = 1
 PUser.Text = "@" .. Player.Name
 PUser.Font = Enum.Font.Code
-PUser.TextSize = 9
+PUser.TextSize = 8
 PUser.TextTruncate = Enum.TextTruncate.AtEnd
 PUser.TextColor3 = CurrentTheme.Muted
 PUser.TextXAlignment = Enum.TextXAlignment.Left
@@ -556,25 +555,10 @@ PUser.ZIndex = 13
 PUser.Parent = ProfileCard
 RegisterThemeElement(PUser, "TextColor3", "Muted")
 
-local GearBtn = Instance.new("TextButton")
-GearBtn.Size = UDim2.fromOffset(20, 20)
-GearBtn.Position = UDim2.new(1, -24, 0.5, -10)
-GearBtn.BackgroundTransparency = 1
-GearBtn.Text = "⚙"
-GearBtn.Font = Enum.Font.GothamBold
-GearBtn.TextSize = 12
-GearBtn.TextColor3 = CurrentTheme.Muted
-GearBtn.ZIndex = 14
-GearBtn.Parent = ProfileCard
-RegisterThemeElement(GearBtn, "TextColor3", "Muted")
-
---==================================================
 -- CONTENT & PAGES
---==================================================
-
 local Content = Instance.new("Frame")
-Content.Size = UDim2.new(1, -145, 1, -38)
-Content.Position = UDim2.fromOffset(145, 38)
+Content.Size = UDim2.new(1, -115, 1, -32)
+Content.Position = UDim2.fromOffset(115, 32)
 Content.BackgroundColor3 = CurrentTheme.Background
 Content.BorderSizePixel = 0
 Content.ZIndex = 11
@@ -586,8 +570,8 @@ local Pages = {}
 local function CreatePage(name)
     local Page = Instance.new("ScrollingFrame")
     Page.Name = name
-    Page.Size = UDim2.new(1, -16, 1, -16)
-    Page.Position = UDim2.fromOffset(8, 8)
+    Page.Size = UDim2.new(1, -12, 1, -12)
+    Page.Position = UDim2.fromOffset(6, 6)
     Page.BackgroundTransparency = 1
     Page.BorderSizePixel = 0
     Page.ScrollBarThickness = 2
@@ -600,7 +584,7 @@ local function CreatePage(name)
     RegisterThemeElement(Page, "ScrollBarImageColor3", "Accent")
 
     local Layout = Instance.new("UIListLayout")
-    Layout.Padding = UDim.new(0, 8)
+    Layout.Padding = UDim.new(0, 6)
     Layout.SortOrder = Enum.SortOrder.LayoutOrder
     Layout.Parent = Page
 
@@ -615,16 +599,10 @@ local FavoritesPage = CreatePage("Favorites")
 local ThemesPage = CreatePage("Themes")
 local SettingsPage = CreatePage("Settings")
 
-GearBtn.MouseButton1Click:Connect(function()
-    for _, page in pairs(Pages) do page.Visible = false end
-    SettingsPage.Visible = true
-end)
-
 --==================================================
--- DEDICATED FAVORITES SYSTEM
+-- DEDICATED PERSISTENT FAVORITES SYSTEM
 --==================================================
 
-local FavoritedData = {}
 local RegisteredStarBtns = {}
 
 local function RefreshFavoritesUI()
@@ -635,11 +613,11 @@ local function RefreshFavoritesUI()
     end
 
     local count = 0
-    for _, scriptData in pairs(FavoritedData) do
+    for scriptName, scriptData in pairs(SavedConfig.Favorites) do
         count = count + 1
         local Frame = Instance.new("Frame")
         Frame.Name = "ScriptFrame"
-        Frame.Size = UDim2.new(1, 0, 0, 50)
+        Frame.Size = UDim2.new(1, 0, 0, 42)
         Frame.BackgroundColor3 = CurrentTheme.Surface
         Frame.BorderSizePixel = 0
         Frame.ZIndex = 13
@@ -650,52 +628,37 @@ local function RefreshFavoritesUI()
         Corner.CornerRadius = UDim.new(0, 4)
         Corner.Parent = Frame
 
-        local BtnStroke = Instance.new("UIStroke")
-        BtnStroke.Color = CurrentTheme.Accent
-        BtnStroke.Transparency = 0.8
-        BtnStroke.Thickness = 1
-        BtnStroke.Parent = Frame
-        RegisterThemeElement(BtnStroke, "Color", "Accent")
-
-        local AccentBar = Instance.new("Frame")
-        AccentBar.Size = UDim2.new(0, 3, 1, 0)
-        AccentBar.BackgroundColor3 = CurrentTheme.Accent
-        AccentBar.BorderSizePixel = 0
-        AccentBar.ZIndex = 14
-        AccentBar.Parent = Frame
-        RegisterThemeElement(AccentBar, "BackgroundColor3", "Accent")
-
         local Name = Instance.new("TextLabel")
         Name.Name = "ScriptName"
-        Name.Size = UDim2.new(1, -45, 0, 20)
-        Name.Position = UDim2.fromOffset(12, 5)
+        Name.Size = UDim2.new(1, -35, 0, 18)
+        Name.Position = UDim2.fromOffset(8, 4)
         Name.BackgroundTransparency = 1
         Name.Text = scriptData.Name
         Name.Font = Enum.Font.GothamBold
-        Name.TextSize = 12
+        Name.TextSize = 10
         Name.TextTruncate = Enum.TextTruncate.AtEnd
-        Name.TextXAlignment = Enum.TextXAlignment.Left
         Name.TextColor3 = CurrentTheme.Text
+        Name.TextXAlignment = Enum.TextXAlignment.Left
         Name.ZIndex = 14
         Name.Parent = Frame
         RegisterThemeElement(Name, "TextColor3", "Text")
 
         local Desc = Instance.new("TextLabel")
-        Desc.Size = UDim2.new(1, -45, 0, 18)
-        Desc.Position = UDim2.fromOffset(12, 25)
+        Desc.Size = UDim2.new(1, -35, 0, 14)
+        Desc.Position = UDim2.fromOffset(8, 22)
         Desc.BackgroundTransparency = 1
         Desc.Text = "[ " .. scriptData.Desc .. " ]"
         Desc.Font = Enum.Font.Code
-        Desc.TextSize = 10
+        Desc.TextSize = 8
         Desc.TextTruncate = Enum.TextTruncate.AtEnd
-        Desc.TextXAlignment = Enum.TextXAlignment.Left
         Desc.TextColor3 = CurrentTheme.Muted
+        Desc.TextXAlignment = Enum.TextXAlignment.Left
         Desc.ZIndex = 14
         Desc.Parent = Frame
         RegisterThemeElement(Desc, "TextColor3", "Muted")
 
         local ExecBtn = Instance.new("TextButton")
-        ExecBtn.Size = UDim2.new(1, -35, 1, 0)
+        ExecBtn.Size = UDim2.new(1, -30, 1, 0)
         ExecBtn.BackgroundTransparency = 1
         ExecBtn.Text = ""
         ExecBtn.ZIndex = 15
@@ -705,28 +668,23 @@ local function RefreshFavoritesUI()
             ExecuteScript(scriptData.Name, scriptData.Url)
         end)
 
-        local UnfavBtn = Instance.new("TextButton")
-        UnfavBtn.Size = UDim2.fromOffset(26, 26)
-        UnfavBtn.Position = UDim2.new(1, -28, 0.5, -13)
-        UnfavBtn.BackgroundColor3 = CurrentTheme.Background
-        UnfavBtn.Text = "⭐"
-        UnfavBtn.TextSize = 12
-        UnfavBtn.TextColor3 = CurrentTheme.Accent
-        UnfavBtn.ZIndex = 15
-        UnfavBtn.Parent = Frame
-        RegisterThemeElement(UnfavBtn, "BackgroundColor3", "Background")
+        local UnfavIcon = Instance.new("ImageButton")
+        UnfavIcon.Size = UDim2.fromOffset(18, 18)
+        UnfavIcon.Position = UDim2.new(1, -22, 0.5, -9)
+        UnfavIcon.BackgroundTransparency = 1
+        UnfavIcon.Image = "rbxassetid://6031094678"
+        UnfavIcon.ImageColor3 = CurrentTheme.Accent
+        UnfavIcon.ZIndex = 15
+        UnfavIcon.Parent = Frame
 
-        local FCorner = Instance.new("UICorner")
-        FCorner.CornerRadius = UDim.new(0, 4)
-        FCorner.Parent = UnfavBtn
-
-        UnfavBtn.MouseButton1Click:Connect(function()
-            FavoritedData[scriptData.Name] = nil
-            if RegisteredStarBtns[scriptData.Name] then
-                RegisteredStarBtns[scriptData.Name].TextColor3 = CurrentTheme.Muted
+        UnfavIcon.MouseButton1Click:Connect(function()
+            SavedConfig.Favorites[scriptName] = nil
+            SaveConfig()
+            if RegisteredStarBtns[scriptName] then
+                RegisteredStarBtns[scriptName].ImageColor3 = CurrentTheme.Muted
             end
             RefreshFavoritesUI()
-            Notify("FAVORITE", "Removed " .. scriptData.Name, 2)
+            Notify("FAVORITE", "Removed " .. scriptName, 2)
         end)
     end
 
@@ -737,16 +695,16 @@ local function RefreshFavoritesUI()
 end
 
 --==================================================
--- CYBERPUNK UI HELPERS
+-- UI HELPERS
 --==================================================
 
 local function AddSection(Page, text)
     local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, 0, 0, 22)
+    Label.Size = UDim2.new(1, 0, 0, 18)
     Label.BackgroundTransparency = 1
     Label.Text = "// " .. text
     Label.Font = Enum.Font.Code
-    Label.TextSize = 12
+    Label.TextSize = 10
     Label.TextXAlignment = Enum.TextXAlignment.Left
     Label.TextColor3 = CurrentTheme.Accent
     Label.ZIndex = 13
@@ -758,11 +716,11 @@ end
 local function AddInfo(Page, text, nameKey)
     local Label = Instance.new("TextLabel")
     if nameKey then Label.Name = nameKey end
-    Label.Size = UDim2.new(1, 0, 0, 18)
+    Label.Size = UDim2.new(1, 0, 0, 14)
     Label.BackgroundTransparency = 1
     Label.Text = text
     Label.Font = Enum.Font.Gotham
-    Label.TextSize = 11
+    Label.TextSize = 9
     Label.TextXAlignment = Enum.TextXAlignment.Left
     Label.TextColor3 = CurrentTheme.Muted
     Label.ZIndex = 13
@@ -773,13 +731,13 @@ end
 
 local function AddSearchBar(Page)
     local SearchBox = Instance.new("TextBox")
-    SearchBox.Size = UDim2.new(1, 0, 0, 28)
+    SearchBox.Size = UDim2.new(1, 0, 0, 24)
     SearchBox.BackgroundColor3 = CurrentTheme.Surface
     SearchBox.BorderSizePixel = 0
-    SearchBox.PlaceholderText = "> Search modules..."
+    SearchBox.PlaceholderText = "Search..."
     SearchBox.Text = ""
     SearchBox.Font = Enum.Font.Code
-    SearchBox.TextSize = 11
+    SearchBox.TextSize = 9
     SearchBox.TextColor3 = CurrentTheme.Text
     SearchBox.PlaceholderColor3 = CurrentTheme.Muted
     SearchBox.TextXAlignment = Enum.TextXAlignment.Left
@@ -793,15 +751,8 @@ local function AddSearchBar(Page)
     Corner.CornerRadius = UDim.new(0, 4)
     Corner.Parent = SearchBox
 
-    local Stroke = Instance.new("UIStroke")
-    Stroke.Color = CurrentTheme.Accent
-    Stroke.Transparency = 0.7
-    Stroke.Thickness = 1
-    Stroke.Parent = SearchBox
-    RegisterThemeElement(Stroke, "Color", "Accent")
-
     local Padding = Instance.new("UIPadding")
-    Padding.PaddingLeft = UDim.new(0, 10)
+    Padding.PaddingLeft = UDim.new(0, 8)
     Padding.Parent = SearchBox
 
     SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
@@ -822,7 +773,7 @@ end
 local function AddScriptButton(Page, name, description, url)
     local Frame = Instance.new("Frame")
     Frame.Name = "ScriptFrame"
-    Frame.Size = UDim2.new(1, 0, 0, 50)
+    Frame.Size = UDim2.new(1, 0, 0, 42)
     Frame.BackgroundColor3 = CurrentTheme.Surface
     Frame.BorderSizePixel = 0
     Frame.ZIndex = 13
@@ -833,29 +784,14 @@ local function AddScriptButton(Page, name, description, url)
     Corner.CornerRadius = UDim.new(0, 4)
     Corner.Parent = Frame
 
-    local BtnStroke = Instance.new("UIStroke")
-    BtnStroke.Color = CurrentTheme.Accent
-    BtnStroke.Transparency = 0.8
-    BtnStroke.Thickness = 1
-    BtnStroke.Parent = Frame
-    RegisterThemeElement(BtnStroke, "Color", "Accent")
-
-    local AccentBar = Instance.new("Frame")
-    AccentBar.Size = UDim2.new(0, 3, 1, 0)
-    AccentBar.BackgroundColor3 = CurrentTheme.Accent
-    AccentBar.BorderSizePixel = 0
-    AccentBar.ZIndex = 14
-    AccentBar.Parent = Frame
-    RegisterThemeElement(AccentBar, "BackgroundColor3", "Accent")
-
     local Name = Instance.new("TextLabel")
     Name.Name = "ScriptName"
-    Name.Size = UDim2.new(1, -45, 0, 20)
-    Name.Position = UDim2.fromOffset(12, 5)
+    Name.Size = UDim2.new(1, -35, 0, 18)
+    Name.Position = UDim2.fromOffset(8, 4)
     Name.BackgroundTransparency = 1
     Name.Text = name
     Name.Font = Enum.Font.GothamBold
-    Name.TextSize = 12
+    Name.TextSize = 10
     Name.TextTruncate = Enum.TextTruncate.AtEnd
     Name.TextXAlignment = Enum.TextXAlignment.Left
     Name.TextColor3 = CurrentTheme.Text
@@ -864,66 +800,52 @@ local function AddScriptButton(Page, name, description, url)
     RegisterThemeElement(Name, "TextColor3", "Text")
 
     local Desc = Instance.new("TextLabel")
-    Desc.Size = UDim2.new(1, -45, 0, 18)
-    Desc.Position = UDim2.fromOffset(12, 25)
+    Desc.Size = UDim2.new(1, -35, 0, 14)
+    Desc.Position = UDim2.fromOffset(8, 22)
     Desc.BackgroundTransparency = 1
     Desc.Text = "[ " .. description .. " ]"
     Desc.Font = Enum.Font.Code
-    Desc.TextSize = 10
+    Desc.TextSize = 8
     Desc.TextTruncate = Enum.TextTruncate.AtEnd
-    Desc.TextXAlignment = Enum.TextXAlignment.Left
     Desc.TextColor3 = CurrentTheme.Muted
+    Desc.TextXAlignment = Enum.TextXAlignment.Left
     Desc.ZIndex = 14
     Desc.Parent = Frame
     RegisterThemeElement(Desc, "TextColor3", "Muted")
 
     local ExecBtn = Instance.new("TextButton")
-    ExecBtn.Size = UDim2.new(1, -35, 1, 0)
+    ExecBtn.Size = UDim2.new(1, -30, 1, 0)
     ExecBtn.BackgroundTransparency = 1
     ExecBtn.Text = ""
     ExecBtn.ZIndex = 15
     ExecBtn.Parent = Frame
 
-    ExecBtn.MouseEnter:Connect(function()
-        PlaySound(6895079853, 1.2)
-        TweenService:Create(BtnStroke, TweenInfo.new(0.2), {Transparency = 0}):Play()
-    end)
-
-    ExecBtn.MouseLeave:Connect(function()
-        TweenService:Create(BtnStroke, TweenInfo.new(0.2), {Transparency = 0.8}):Play()
-    end)
-
     ExecBtn.MouseButton1Click:Connect(function()
         ExecuteScript(name, url)
     end)
 
-    local FavBtn = Instance.new("TextButton")
-    FavBtn.Size = UDim2.fromOffset(26, 26)
-    FavBtn.Position = UDim2.new(1, -28, 0.5, -13)
-    FavBtn.BackgroundColor3 = CurrentTheme.Background
-    FavBtn.Text = "⭐"
-    FavBtn.TextSize = 12
-    FavBtn.TextColor3 = FavoritedData[name] and CurrentTheme.Accent or CurrentTheme.Muted
-    FavBtn.ZIndex = 15
-    FavBtn.Parent = Frame
-    RegisterThemeElement(FavBtn, "BackgroundColor3", "Background")
+    local FavIcon = Instance.new("ImageButton")
+    FavIcon.Size = UDim2.fromOffset(18, 18)
+    FavIcon.Position = UDim2.new(1, -22, 0.5, -9)
+    FavIcon.BackgroundTransparency = 1
+    FavIcon.Image = "rbxassetid://6031094678"
+    FavIcon.ImageColor3 = SavedConfig.Favorites[name] and CurrentTheme.Accent or CurrentTheme.Muted
+    FavIcon.ZIndex = 15
+    FavIcon.Parent = Frame
 
-    local FCorner = Instance.new("UICorner")
-    FCorner.CornerRadius = UDim.new(0, 4)
-    FCorner.Parent = FavBtn
+    RegisteredStarBtns[name] = FavIcon
 
-    RegisteredStarBtns[name] = FavBtn
-
-    FavBtn.MouseButton1Click:Connect(function()
-        if FavoritedData[name] then
-            FavoritedData[name] = nil
-            FavBtn.TextColor3 = CurrentTheme.Muted
-            Notify("FAVORITE", "Removed " .. name .. " from favorites", 2)
+    FavIcon.MouseButton1Click:Connect(function()
+        if SavedConfig.Favorites[name] then
+            SavedConfig.Favorites[name] = nil
+            FavIcon.ImageColor3 = CurrentTheme.Muted
+            Notify("FAVORITE", "Removed " .. name, 2)
         else
-            FavoritedData[name] = {Name = name, Desc = description, Url = url}
-            FavBtn.TextColor3 = CurrentTheme.Accent
-            Notify("FAVORITE", "Added " .. name .. " to favorites", 2)
+            SavedConfig.Favorites[name] = {Name = name, Desc = description, Url = url}
+            FavIcon.ImageColor3 = CurrentTheme.Accent
+            Notify("FAVORITE", "Added " .. name, 2)
         end
+        SaveConfig()
         RefreshFavoritesUI()
     end)
 
@@ -934,7 +856,7 @@ local function AddToggle(Page, text, defaultState, callback)
     local state = defaultState or false
 
     local ToggleFrame = Instance.new("Frame")
-    ToggleFrame.Size = UDim2.new(1, 0, 0, 34)
+    ToggleFrame.Size = UDim2.new(1, 0, 0, 28)
     ToggleFrame.BackgroundColor3 = CurrentTheme.Surface
     ToggleFrame.BorderSizePixel = 0
     ToggleFrame.ZIndex = 13
@@ -946,12 +868,12 @@ local function AddToggle(Page, text, defaultState, callback)
     Corner.Parent = ToggleFrame
 
     local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, -60, 1, 0)
-    Label.Position = UDim2.fromOffset(10, 0)
+    Label.Size = UDim2.new(1, -50, 1, 0)
+    Label.Position = UDim2.fromOffset(8, 0)
     Label.BackgroundTransparency = 1
     Label.Text = text
     Label.Font = Enum.Font.Code
-    Label.TextSize = 11
+    Label.TextSize = 9
     Label.TextColor3 = CurrentTheme.Text
     Label.TextXAlignment = Enum.TextXAlignment.Left
     Label.ZIndex = 14
@@ -959,12 +881,12 @@ local function AddToggle(Page, text, defaultState, callback)
     RegisterThemeElement(Label, "TextColor3", "Text")
 
     local SwitchBtn = Instance.new("TextButton")
-    SwitchBtn.Size = UDim2.fromOffset(42, 20)
-    SwitchBtn.Position = UDim2.new(1, -50, 0.5, -10)
+    SwitchBtn.Size = UDim2.fromOffset(36, 16)
+    SwitchBtn.Position = UDim2.new(1, -42, 0.5, -8)
     SwitchBtn.BackgroundColor3 = state and CurrentTheme.Accent or CurrentTheme.Background
     SwitchBtn.Text = state and "ON" or "OFF"
     SwitchBtn.Font = Enum.Font.Code
-    SwitchBtn.TextSize = 10
+    SwitchBtn.TextSize = 8
     SwitchBtn.TextColor3 = state and CurrentTheme.Background or CurrentTheme.Muted
     SwitchBtn.ZIndex = 14
     SwitchBtn.Parent = ToggleFrame
@@ -982,164 +904,46 @@ local function AddToggle(Page, text, defaultState, callback)
             TextColor3 = state and CurrentTheme.Background or CurrentTheme.Muted
         }):Play()
 
-        if callback then
-            callback(state)
-        end
-    end)
-end
-
-local function AddSlider(Page, text, minVal, maxVal, defaultVal, callback)
-    local SliderFrame = Instance.new("Frame")
-    SliderFrame.Size = UDim2.new(1, 0, 0, 42)
-    SliderFrame.BackgroundColor3 = CurrentTheme.Surface
-    SliderFrame.BorderSizePixel = 0
-    SliderFrame.ZIndex = 13
-    SliderFrame.Parent = Page
-    RegisterThemeElement(SliderFrame, "BackgroundColor3", "Surface")
-
-    local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 4)
-    Corner.Parent = SliderFrame
-
-    local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, -60, 0, 18)
-    Label.Position = UDim2.fromOffset(10, 4)
-    Label.BackgroundTransparency = 1
-    Label.Text = text
-    Label.Font = Enum.Font.Code
-    Label.TextSize = 11
-    Label.TextColor3 = CurrentTheme.Text
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.ZIndex = 14
-    Label.Parent = SliderFrame
-    RegisterThemeElement(Label, "TextColor3", "Text")
-
-    local ValLabel = Instance.new("TextLabel")
-    ValLabel.Size = UDim2.fromOffset(50, 18)
-    ValLabel.Position = UDim2.new(1, -55, 0, 4)
-    ValLabel.BackgroundTransparency = 1
-    ValLabel.Text = tostring(defaultVal)
-    ValLabel.Font = Enum.Font.Code
-    ValLabel.TextSize = 11
-    ValLabel.TextColor3 = CurrentTheme.Accent
-    ValLabel.TextXAlignment = Enum.TextXAlignment.Right
-    ValLabel.ZIndex = 14
-    ValLabel.Parent = SliderFrame
-    RegisterThemeElement(ValLabel, "TextColor3", "Accent")
-
-    local Track = Instance.new("Frame")
-    Track.Size = UDim2.new(1, -20, 0, 6)
-    Track.Position = UDim2.fromOffset(10, 26)
-    Track.BackgroundColor3 = CurrentTheme.Background
-    Track.BorderSizePixel = 0
-    Track.ZIndex = 14
-    Track.Parent = SliderFrame
-    RegisterThemeElement(Track, "BackgroundColor3", "Background")
-
-    local TrackCorner = Instance.new("UICorner")
-    TrackCorner.CornerRadius = UDim.new(1, 0)
-    TrackCorner.Parent = Track
-
-    local Fill = Instance.new("Frame")
-    Fill.Size = UDim2.new((defaultVal - minVal)/(maxVal - minVal), 0, 1, 0)
-    Fill.BackgroundColor3 = CurrentTheme.Accent
-    Fill.BorderSizePixel = 0
-    Fill.ZIndex = 15
-    Fill.Parent = Track
-    RegisterThemeElement(Fill, "BackgroundColor3", "Accent")
-
-    local FillCorner = Instance.new("UICorner")
-    FillCorner.CornerRadius = UDim.new(1, 0)
-    FillCorner.Parent = Fill
-
-    local isDragging = false
-    local function UpdateSlider(input)
-        local pos = math.clamp((input.Position.X - Track.AbsolutePosition.X) / Track.AbsoluteSize.X, 0, 1)
-        local val = math.floor(minVal + (maxVal - minVal) * pos)
-        Fill.Size = UDim2.new(pos, 0, 1, 0)
-        ValLabel.Text = tostring(val)
-        if callback then callback(val) end
-    end
-
-    Track.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            isDragging = true
-            UpdateSlider(input)
-        end
-    end)
-
-    Track.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            isDragging = false
-        end
-    end)
-
-    UserInputService.InputChanged:Connect(function(input)
-        if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            UpdateSlider(input)
-        end
+        if callback then callback(state) end
     end)
 end
 
 --==================================================
--- PREMIUM HOME PAGE (WITH BOUNDS FIX)
+-- REDESIGNED HOME DASHBOARD
 --==================================================
 
 local HomeHeader = Instance.new("Frame")
-HomeHeader.Size = UDim2.new(1, 0, 0, 40)
+HomeHeader.Size = UDim2.new(1, 0, 0, 32)
 HomeHeader.BackgroundTransparency = 1
 HomeHeader.ZIndex = 13
 HomeHeader.Parent = HomePage
 
-local HomeIcon = Instance.new("TextLabel")
-HomeIcon.Size = UDim2.fromOffset(24, 24)
-HomeIcon.Position = UDim2.fromOffset(0, 0)
-HomeIcon.BackgroundTransparency = 1
-HomeIcon.Text = "🏠"
-HomeIcon.TextSize = 16
-HomeIcon.ZIndex = 14
-HomeIcon.Parent = HomeHeader
+local HomeIconImg = Instance.new("ImageLabel")
+HomeIconImg.Size = UDim2.fromOffset(16, 16)
+HomeIconImg.Position = UDim2.fromOffset(0, 2)
+HomeIconImg.BackgroundTransparency = 1
+HomeIconImg.Image = "rbxassetid://6031075931"
+HomeIconImg.ImageColor3 = CurrentTheme.Accent
+HomeIconImg.ZIndex = 14
+HomeIconImg.Parent = HomeHeader
+RegisterThemeElement(HomeIconImg, "ImageColor3", "Accent")
 
 local HomeTitle = Instance.new("TextLabel")
-HomeTitle.Size = UDim2.new(1, -30, 0, 20)
-HomeTitle.Position = UDim2.fromOffset(28, 0)
+HomeTitle.Size = UDim2.new(1, -24, 0, 16)
+HomeTitle.Position = UDim2.fromOffset(22, 0)
 HomeTitle.BackgroundTransparency = 1
-HomeTitle.Text = "Welcome to CH3A5 HUB"
+HomeTitle.Text = Locales[CurrentLang].Title
 HomeTitle.Font = Enum.Font.GothamBold
-HomeTitle.TextSize = 15
-HomeTitle.TextTruncate = Enum.TextTruncate.AtEnd
+HomeTitle.TextSize = 12
 HomeTitle.TextColor3 = CurrentTheme.Text
 HomeTitle.TextXAlignment = Enum.TextXAlignment.Left
 HomeTitle.ZIndex = 14
 HomeTitle.Parent = HomeHeader
 RegisterThemeElement(HomeTitle, "TextColor3", "Text")
 
-local HomeSub = Instance.new("TextLabel")
-HomeSub.Size = UDim2.new(1, -30, 0, 14)
-HomeSub.Position = UDim2.fromOffset(28, 20)
-HomeSub.BackgroundTransparency = 1
-HomeSub.Text = "Premium Cyberpunk Execution Environment"
-HomeSub.Font = Enum.Font.Code
-HomeSub.TextSize = 9
-HomeSub.TextTruncate = Enum.TextTruncate.AtEnd
-HomeSub.TextColor3 = CurrentTheme.Muted
-HomeSub.TextXAlignment = Enum.TextXAlignment.Left
-HomeSub.ZIndex = 14
-HomeSub.Parent = HomeHeader
-RegisterThemeElement(HomeSub, "TextColor3", "Muted")
-
-local HeaderDivider = Instance.new("Frame")
-HeaderDivider.Size = UDim2.new(1, 0, 0, 1)
-HeaderDivider.Position = UDim2.fromOffset(0, 38)
-HeaderDivider.BackgroundColor3 = CurrentTheme.Accent
-HeaderDivider.BorderSizePixel = 0
-HeaderDivider.ZIndex = 14
-HeaderDivider.Parent = HomeHeader
-RegisterThemeElement(HeaderDivider, "BackgroundColor3", "Accent")
-
--- WELCOME CARD (FIXED NAME BOUNDS)
+-- WELCOME CARD
 local WelcomeCard = Instance.new("Frame")
-WelcomeCard.Size = UDim2.new(1, 0, 0, 80)
+WelcomeCard.Size = UDim2.new(1, 0, 0, 64)
 WelcomeCard.BackgroundColor3 = CurrentTheme.Surface
 WelcomeCard.BorderSizePixel = 0
 WelcomeCard.ZIndex = 13
@@ -1147,19 +951,12 @@ WelcomeCard.Parent = HomePage
 RegisterThemeElement(WelcomeCard, "BackgroundColor3", "Surface")
 
 local WCorner = Instance.new("UICorner")
-WCorner.CornerRadius = UDim.new(0, 6)
+WCorner.CornerRadius = UDim.new(0, 4)
 WCorner.Parent = WelcomeCard
 
-local WStroke = Instance.new("UIStroke")
-WStroke.Color = CurrentTheme.Accent
-WStroke.Transparency = 0.8
-WStroke.Thickness = 1
-WStroke.Parent = WelcomeCard
-RegisterThemeElement(WStroke, "Color", "Accent")
-
 local WAvatar = Instance.new("ImageLabel")
-WAvatar.Size = UDim2.fromOffset(56, 56)
-WAvatar.Position = UDim2.fromOffset(12, 12)
+WAvatar.Size = UDim2.fromOffset(44, 44)
+WAvatar.Position = UDim2.fromOffset(10, 10)
 WAvatar.BackgroundTransparency = 1
 WAvatar.Image = "rbxthumb://type=AvatarHeadShot&id=" .. Player.UserId .. "&w=150&h=150"
 WAvatar.ZIndex = 14
@@ -1170,13 +967,12 @@ WACorner.CornerRadius = UDim.new(1, 0)
 WACorner.Parent = WAvatar
 
 local WTag = Instance.new("TextLabel")
-WTag.Size = UDim2.new(1, -170, 0, 14)
-WTag.Position = UDim2.fromOffset(78, 12)
+WTag.Size = UDim2.new(1, -120, 0, 12)
+WTag.Position = UDim2.fromOffset(62, 10)
 WTag.BackgroundTransparency = 1
-WTag.Text = "WELCOME BACK"
+WTag.Text = Locales[CurrentLang].Welcome
 WTag.Font = Enum.Font.Code
-WTag.TextSize = 10
-WTag.TextTruncate = Enum.TextTruncate.AtEnd
+WTag.TextSize = 8
 WTag.TextColor3 = CurrentTheme.Accent
 WTag.TextXAlignment = Enum.TextXAlignment.Left
 WTag.ZIndex = 14
@@ -1184,12 +980,12 @@ WTag.Parent = WelcomeCard
 RegisterThemeElement(WTag, "TextColor3", "Accent")
 
 local WName = Instance.new("TextLabel")
-WName.Size = UDim2.new(1, -170, 0, 20)
-WName.Position = UDim2.fromOffset(78, 26)
+WName.Size = UDim2.new(1, -120, 0, 16)
+WName.Position = UDim2.fromOffset(62, 22)
 WName.BackgroundTransparency = 1
 WName.Text = Player.DisplayName
 WName.Font = Enum.Font.GothamBold
-WName.TextSize = 14
+WName.TextSize = 11
 WName.TextTruncate = Enum.TextTruncate.AtEnd
 WName.TextColor3 = CurrentTheme.Text
 WName.TextXAlignment = Enum.TextXAlignment.Left
@@ -1198,12 +994,12 @@ WName.Parent = WelcomeCard
 RegisterThemeElement(WName, "TextColor3", "Text")
 
 local WUser = Instance.new("TextLabel")
-WUser.Size = UDim2.new(1, -170, 0, 16)
-WUser.Position = UDim2.fromOffset(78, 48)
+WUser.Size = UDim2.new(1, -120, 0, 14)
+WUser.Position = UDim2.fromOffset(62, 38)
 WUser.BackgroundTransparency = 1
 WUser.Text = "@" .. Player.Name
 WUser.Font = Enum.Font.Code
-WUser.TextSize = 10
+WUser.TextSize = 8
 WUser.TextTruncate = Enum.TextTruncate.AtEnd
 WUser.TextColor3 = CurrentTheme.Muted
 WUser.TextXAlignment = Enum.TextXAlignment.Left
@@ -1211,26 +1007,9 @@ WUser.ZIndex = 14
 WUser.Parent = WelcomeCard
 RegisterThemeElement(WUser, "TextColor3", "Muted")
 
-local VerBadge = Instance.new("TextLabel")
-VerBadge.Size = UDim2.fromOffset(75, 22)
-VerBadge.Position = UDim2.new(1, -85, 0.5, -11)
-VerBadge.BackgroundColor3 = CurrentTheme.Background
-VerBadge.Text = "v4.6 PRO"
-VerBadge.Font = Enum.Font.Code
-VerBadge.TextSize = 10
-VerBadge.TextColor3 = CurrentTheme.Accent
-VerBadge.ZIndex = 14
-VerBadge.Parent = WelcomeCard
-RegisterThemeElement(VerBadge, "BackgroundColor3", "Background")
-RegisterThemeElement(VerBadge, "TextColor3", "Accent")
-
-local VBCorner = Instance.new("UICorner")
-VBCorner.CornerRadius = UDim.new(0, 4)
-VBCorner.Parent = VerBadge
-
--- PERFORMANCE DASHBOARD CARD
+-- PERFORMANCE STATS
 local PerfCard = Instance.new("Frame")
-PerfCard.Size = UDim2.new(1, 0, 0, 85)
+PerfCard.Size = UDim2.new(1, 0, 0, 60)
 PerfCard.BackgroundColor3 = CurrentTheme.Surface
 PerfCard.BorderSizePixel = 0
 PerfCard.ZIndex = 13
@@ -1238,22 +1017,21 @@ PerfCard.Parent = HomePage
 RegisterThemeElement(PerfCard, "BackgroundColor3", "Surface")
 
 local PCorner2 = Instance.new("UICorner")
-PCorner2.CornerRadius = UDim.new(0, 6)
+PCorner2.CornerRadius = UDim.new(0, 4)
 PCorner2.Parent = PerfCard
 
 local PGrid = Instance.new("UIGridLayout")
-PGrid.CellSize = UDim2.new(0.25, -6, 1, -12)
-PGrid.CellPadding = UDim2.fromOffset(8, 0)
-PGrid.SortOrder = Enum.SortOrder.LayoutOrder
+PGrid.CellSize = UDim2.new(0.25, -5, 1, -8)
+PGrid.CellPadding = UDim2.fromOffset(6, 0)
 PGrid.Parent = PerfCard
 
 local PPad = Instance.new("UIPadding")
-PPad.PaddingTop = UDim.new(0, 6)
-PPad.PaddingLeft = UDim.new(0, 8)
-PPad.PaddingRight = UDim.new(0, 8)
+PPad.PaddingTop = UDim.new(0, 4)
+PPad.PaddingLeft = UDim.new(0, 6)
+PPad.PaddingRight = UDim.new(0, 6)
 PPad.Parent = PerfCard
 
-local function CreatePerfItem(title, initialValue, hasBar)
+local function CreatePerfItem(title, initialValue)
     local Item = Instance.new("Frame")
     Item.BackgroundColor3 = CurrentTheme.Background
     Item.BorderSizePixel = 0
@@ -1266,12 +1044,12 @@ local function CreatePerfItem(title, initialValue, hasBar)
     ICorner.Parent = Item
 
     local ITitle = Instance.new("TextLabel")
-    ITitle.Size = UDim2.new(1, -10, 0, 16)
-    ITitle.Position = UDim2.fromOffset(8, 6)
+    ITitle.Size = UDim2.new(1, -8, 0, 14)
+    ITitle.Position = UDim2.fromOffset(6, 4)
     ITitle.BackgroundTransparency = 1
     ITitle.Text = title
     ITitle.Font = Enum.Font.Code
-    ITitle.TextSize = 9
+    ITitle.TextSize = 8
     ITitle.TextColor3 = CurrentTheme.Muted
     ITitle.TextXAlignment = Enum.TextXAlignment.Left
     ITitle.ZIndex = 15
@@ -1279,58 +1057,29 @@ local function CreatePerfItem(title, initialValue, hasBar)
     RegisterThemeElement(ITitle, "TextColor3", "Muted")
 
     local IVal = Instance.new("TextLabel")
-    IVal.Size = UDim2.new(1, -10, 0, 22)
-    IVal.Position = UDim2.fromOffset(8, 22)
+    IVal.Size = UDim2.new(1, -8, 0, 18)
+    IVal.Position = UDim2.fromOffset(6, 18)
     IVal.BackgroundTransparency = 1
     IVal.Text = initialValue
     IVal.Font = Enum.Font.Code
-    IVal.TextSize = 14
+    IVal.TextSize = 11
     IVal.TextColor3 = CurrentTheme.Text
     IVal.TextXAlignment = Enum.TextXAlignment.Left
     IVal.ZIndex = 15
     IVal.Parent = Item
     RegisterThemeElement(IVal, "TextColor3", "Text")
 
-    local FillBar
-    if hasBar then
-        local BarTrack = Instance.new("Frame")
-        BarTrack.Size = UDim2.new(1, -16, 0, 4)
-        BarTrack.Position = UDim2.fromOffset(8, 52)
-        BarTrack.BackgroundColor3 = CurrentTheme.Surface
-        BarTrack.BorderSizePixel = 0
-        BarTrack.ZIndex = 15
-        BarTrack.Parent = Item
-        RegisterThemeElement(BarTrack, "BackgroundColor3", "Surface")
-
-        local BTCorner = Instance.new("UICorner")
-        BTCorner.CornerRadius = UDim.new(1, 0)
-        BTCorner.Parent = BarTrack
-
-        FillBar = Instance.new("Frame")
-        FillBar.Size = UDim2.new(0.5, 0, 1, 0)
-        FillBar.BackgroundColor3 = CurrentTheme.Accent
-        FillBar.BorderSizePixel = 0
-        FillBar.ZIndex = 16
-        FillBar.Parent = BarTrack
-        RegisterThemeElement(FillBar, "BackgroundColor3", "Accent")
-
-        local FBCorner = Instance.new("UICorner")
-        FBCorner.CornerRadius = UDim.new(1, 0)
-        FBCorner.Parent = FillBar
-    end
-
-    return IVal, FillBar
+    return IVal
 end
 
-local FPSVal, FPSBar = CreatePerfItem("FPS", "60", true)
-local PingVal, PingBar = CreatePerfItem("PING", "0ms", true)
-local PlayersVal = CreatePerfItem("PLAYERS", "1/1", false)
-local SessionVal = CreatePerfItem("SESSION", "00m 00s", false)
+local FPSVal = CreatePerfItem("FPS", "60")
+local PingVal = CreatePerfItem("PING", "0ms")
+local PlayersVal = CreatePerfItem("PLAYERS", "1/1")
+local SessionVal = CreatePerfItem("SESSION", "00m 00s")
 
 task.spawn(function()
     local frameCount = 0
     local lastCheck = os.clock()
-
     RunService.RenderStepped:Connect(function()
         frameCount = frameCount + 1
         local now = os.clock()
@@ -1338,31 +1087,20 @@ task.spawn(function()
             local fps = math.floor(frameCount / (now - lastCheck))
             frameCount = 0
             lastCheck = now
-
             local ping = 0
-            pcall(function()
-                ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
-            end)
-
+            pcall(function() ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue()) end)
             FPSVal.Text = tostring(fps)
             PingVal.Text = tostring(ping) .. "ms"
-
-            if FPSBar then FPSBar.Size = UDim2.new(math.clamp(fps / 60, 0, 1), 0, 1, 0) end
-            if PingBar then PingBar.Size = UDim2.new(math.clamp(1 - (ping / 250), 0.1, 1), 0, 1, 0) end
-
             PlayersVal.Text = tostring(#Players:GetPlayers()) .. "/" .. tostring(Players.MaxPlayers)
-
             local elapsed = math.floor(tick() - StartSessionTime)
-            local mins = math.floor(elapsed / 60)
-            local secs = elapsed % 60
-            SessionVal.Text = string.format("%02dm %02ds", mins, secs)
+            SessionVal.Text = string.format("%02dm %02ds", math.floor(elapsed/60), elapsed%60)
         end
     end)
 end)
 
--- CURRENT GAME / SERVER CARD
+-- SERVER ACTIONS
 local GameCard = Instance.new("Frame")
-GameCard.Size = UDim2.new(1, 0, 0, 130)
+GameCard.Size = UDim2.new(1, 0, 0, 48)
 GameCard.BackgroundColor3 = CurrentTheme.Surface
 GameCard.BorderSizePixel = 0
 GameCard.ZIndex = 13
@@ -1370,78 +1108,27 @@ GameCard.Parent = HomePage
 RegisterThemeElement(GameCard, "BackgroundColor3", "Surface")
 
 local GCorner = Instance.new("UICorner")
-GCorner.CornerRadius = UDim.new(0, 6)
+GCorner.CornerRadius = UDim.new(0, 4)
 GCorner.Parent = GameCard
 
-local GIcon = Instance.new("ImageLabel")
-GIcon.Size = UDim2.fromOffset(48, 48)
-GIcon.Position = UDim2.fromOffset(12, 12)
-GIcon.BackgroundTransparency = 1
-GIcon.Image = "rbxassetid://0"
-GIcon.ZIndex = 14
-GIcon.Parent = GameCard
-
-local GICorner = Instance.new("UICorner")
-GICorner.CornerRadius = UDim.new(0, 6)
-GICorner.Parent = GIcon
-
-local GName = Instance.new("TextLabel")
-GName.Size = UDim2.new(1, -75, 0, 20)
-GName.Position = UDim2.fromOffset(68, 12)
-GName.BackgroundTransparency = 1
-GName.Text = "Loading Game..."
-GName.Font = Enum.Font.GothamBold
-GName.TextSize = 14
-GName.TextTruncate = Enum.TextTruncate.AtEnd
-GName.TextColor3 = CurrentTheme.Text
-GName.TextXAlignment = Enum.TextXAlignment.Left
-GName.ZIndex = 14
-GName.Parent = GameCard
-RegisterThemeElement(GName, "TextColor3", "Text")
-
-local GDev = Instance.new("TextLabel")
-GDev.Size = UDim2.new(1, -75, 0, 16)
-GDev.Position = UDim2.fromOffset(68, 32)
-GDev.BackgroundTransparency = 1
-GDev.Text = "By Developer"
-GDev.Font = Enum.Font.Code
-GDev.TextSize = 10
-GDev.TextTruncate = Enum.TextTruncate.AtEnd
-GDev.TextColor3 = CurrentTheme.Muted
-GDev.TextXAlignment = Enum.TextXAlignment.Left
-GDev.ZIndex = 14
-GDev.Parent = GameCard
-RegisterThemeElement(GDev, "TextColor3", "Muted")
-
-task.spawn(function()
-    while task.wait(1) do
-        if GameInfo.Name ~= "Loading..." then
-            GName.Text = GameInfo.Name
-            GDev.Text = "By " .. GameInfo.Creator
-            GIcon.Image = GameInfo.Icon
-            break
-        end
-    end
-end)
-
 local ActGrid = Instance.new("Frame")
-ActGrid.Size = UDim2.new(1, -24, 0, 36)
-ActGrid.Position = UDim2.fromOffset(12, 80)
+ActGrid.Size = UDim2.new(1, -12, 0, 28)
+ActGrid.Position = UDim2.fromOffset(6, 10)
 ActGrid.BackgroundTransparency = 1
 ActGrid.ZIndex = 14
 ActGrid.Parent = GameCard
 
 local ALayout = Instance.new("UIGridLayout")
-ALayout.CellSize = UDim2.new(0.25, -6, 1, 0)
-ALayout.CellPadding = UDim2.fromOffset(8, 0)
+ALayout.CellSize = UDim2.new(0.25, -5, 1, 0)
+ALayout.CellPadding = UDim2.fromOffset(6, 0)
 ALayout.Parent = ActGrid
 
-local function CreateActionButton(text, callback)
+local function CreateActionButton(textKey, callback)
     local Btn = Instance.new("TextButton")
     Btn.BackgroundColor3 = CurrentTheme.Background
-    Btn.Text = text
+    Btn.Text = Locales[CurrentLang][textKey] or textKey
     Btn.Font = Enum.Font.Code
-    Btn.TextSize = 10
+    Btn.TextSize = 8
     Btn.TextColor3 = CurrentTheme.Text
     Btn.ZIndex = 15
     Btn.Parent = ActGrid
@@ -1452,29 +1139,16 @@ local function CreateActionButton(text, callback)
     BCorner.CornerRadius = UDim.new(0, 4)
     BCorner.Parent = Btn
 
-    local BStroke = Instance.new("UIStroke")
-    BStroke.Color = CurrentTheme.Accent
-    BStroke.Transparency = 0.8
-    BStroke.Thickness = 1
-    BStroke.Parent = Btn
-    RegisterThemeElement(BStroke, "Color", "Accent")
-
-    Btn.MouseEnter:Connect(function()
-        TweenService:Create(BStroke, TweenInfo.new(0.2), {Transparency = 0}):Play()
-    end)
-    Btn.MouseLeave:Connect(function()
-        TweenService:Create(BStroke, TweenInfo.new(0.2), {Transparency = 0.8}):Play()
-    end)
-
     Btn.MouseButton1Click:Connect(callback)
+    return Btn
 end
 
-CreateActionButton("⚡ Rejoin", function()
+CreateActionButton("Rejoin", function()
     TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, Player)
 end)
 
 local function ServerHop(lowest)
-    Notify("SERVER", "Searching for server...", 3)
+    Notify("SERVER", "Searching...", 3)
     task.spawn(function()
         local url = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=" .. (lowest and "Asc" or "Desc") .. "&limit=100"
         local success, result = pcall(function() return game:HttpGet(url) end)
@@ -1489,91 +1163,56 @@ local function ServerHop(lowest)
                 end
             end
         end
-        Notify("SERVER", "No alternate server found!", 3)
+        Notify("SERVER", "No server found!", 3)
     end)
 end
 
-CreateActionButton("🚀 Hop", function() ServerHop(false) end)
-CreateActionButton("📉 Low Hop", function() ServerHop(true) end)
-CreateActionButton("📋 Job ID", function()
+CreateActionButton("Hop", function() ServerHop(false) end)
+CreateActionButton("LowHop", function() ServerHop(true) end)
+CreateActionButton("CopyJob", function()
     pcall(function() setclipboard(game.JobId) end)
-    Notify("SERVER", "Copied Job ID to clipboard", 2)
+    Notify("SERVER", "Copied Job ID", 2)
 end)
 
 --==================================================
--- KEYLESS PAGE (UNTOUCHED LOADERS)
+-- KEYLESS & KEYED LOADERS
 --==================================================
 
 AddSection(KeylessPage, "KEYLESS MODULES")
 AddInfo(KeylessPage, "Direct execution without key verification.")
 AddSearchBar(KeylessPage)
 
-AddScriptButton(
-    KeylessPage,
-    "Sources Hub",
-    "Keyless",
-    "https://pastefy.app/Lk0vDMmN/raw"
-)
-
-AddScriptButton(
-    KeylessPage,
-    "Limbo Hub",
-    "Keyless",
-    "https://limbohub.my.id/loader.lua"
-)
-
-AddScriptButton(
-    KeylessPage,
-    "Virexx",
-    "Keyless",
-    "https://gist.githubusercontent.com/virexx55/b4e8b16201904da5ab7b554aa71c378f/raw/b9524b701b35ec97603ff0a32227b24461479c5c/virex.lua"
-)
-
---==================================================
--- KEY PAGE (UNTOUCHED LOADERS)
---==================================================
+AddScriptButton(KeylessPage, "Sources Hub", "Keyless", "https://pastefy.app/Lk0vDMmN/raw")
+AddScriptButton(KeylessPage, "Limbo Hub", "Keyless", "https://limbohub.my.id/loader.lua")
+AddScriptButton(KeylessPage, "Virexx", "Keyless", "https://gist.githubusercontent.com/virexx55/b4e8b16201904da5ab7b554aa71c378f/raw/b9524b701b35ec97603ff0a32227b24461479c5c/virex.lua")
 
 AddSection(KeyPage, "PROTECTED MODULES")
 AddInfo(KeyPage, "Requires key access to run.")
 AddSearchBar(KeyPage)
 
-AddScriptButton(
-    KeyPage,
-    "Wzeus Hub",
-    "Key System",
-    "https://raw.githubusercontent.com/Wzeus-NTH/Wzeusno1/main/Wzeus/nthzz"
-)
-
-AddScriptButton(
-    KeyPage,
-    "Pulse Hub",
-    "Key System",
-    "https://raw.githubusercontent.com/PulseZax/Loader/refs/heads/main/.lua"
-)
-
---==================================================
--- FAVORITES PAGE
---==================================================
+AddScriptButton(KeyPage, "Wzeus Hub", "Key System", "https://raw.githubusercontent.com/Wzeus-NTH/Wzeusno1/main/Wzeus/nthzz")
+AddScriptButton(KeyPage, "Pulse Hub", "Key System", "https://raw.githubusercontent.com/PulseZax/Loader/refs/heads/main/.lua")
 
 AddSection(FavoritesPage, "FAVORITED MODULES")
-AddInfo(FavoritesPage, "[ NO FAVORITE MODULES ]", "NoFavLabel")
+AddInfo(FavoritesPage, Locales[CurrentLang].NoFav, "NoFavLabel")
 AddSearchBar(FavoritesPage)
+RefreshFavoritesUI()
 
 --==================================================
--- THEMES PAGE
+-- THEMES PAGE (PERSISTENT AUTO-SAVE)
 --==================================================
 
 AddSection(ThemesPage, "COLOR SCHEMES")
-AddInfo(ThemesPage, "Select visual palette.")
+AddInfo(ThemesPage, "Select theme to save automatically.")
 
 for ThemeName, ThemeData in pairs(Themes) do
     local Button = Instance.new("TextButton")
-    Button.Size = UDim2.new(1, 0, 0, 34)
+    Button.Size = UDim2.new(1, 0, 0, 28)
     Button.BackgroundColor3 = ThemeData.Surface
     Button.BorderSizePixel = 0
     Button.Text = "  > " .. ThemeName
     Button.Font = Enum.Font.Code
-    Button.TextSize = 11
+    Button.TextSize = 9
     Button.TextColor3 = ThemeData.Text
     Button.TextXAlignment = Enum.TextXAlignment.Left
     Button.ZIndex = 13
@@ -1583,98 +1222,66 @@ for ThemeName, ThemeData in pairs(Themes) do
     Corner.CornerRadius = UDim.new(0, 4)
     Corner.Parent = Button
 
-    local Dot = Instance.new("Frame")
-    Dot.Size = UDim2.fromOffset(12, 12)
-    Dot.Position = UDim2.new(1, -20, 0.5, -6)
-    Dot.BackgroundColor3 = ThemeData.Accent
-    Dot.BorderSizePixel = 0
-    Dot.ZIndex = 14
-    Dot.Parent = Button
-
-    local DotCorner = Instance.new("UICorner")
-    DotCorner.CornerRadius = UDim.new(1, 0)
-    DotCorner.Parent = Dot
-
     Button.MouseButton1Click:Connect(function()
         PlaySound(6042053626, 1)
-        ApplyTheme(ThemeData)
-        Notify("THEME", "Palette updated to " .. ThemeName, 2)
+        ApplyTheme(ThemeData, ThemeName)
+        Notify("THEME", "Saved & set: " .. ThemeName, 2)
     end)
 end
 
 --==================================================
--- SETTINGS PAGE
+-- CONFIG & LANGUAGE SETTINGS
 --==================================================
 
 AddSection(SettingsPage, "SYSTEM CONTROLS")
-AddInfo(SettingsPage, "Manage GUI environment.")
 
-AddToggle(SettingsPage, "Notifications System", true, function(enabled)
-    NotifContainer.Visible = enabled
+AddToggle(SettingsPage, Locales[CurrentLang].AutoLoadLabel, SavedConfig.AutoLoad, function(enabled)
+    SavedConfig.AutoLoad = enabled
+    SaveConfig()
+    Notify("SETTINGS", "Auto Load: " .. (enabled and "ON" or "OFF"), 2)
 end)
 
-AddToggle(SettingsPage, "Background Blur Effect", true, function(enabled)
-    SetBlur(enabled and Main.Visible)
-end)
+local LangBtn = Instance.new("TextButton")
+LangBtn.Size = UDim2.new(1, 0, 0, 28)
+LangBtn.BackgroundColor3 = CurrentTheme.Surface
+LangBtn.BorderSizePixel = 0
+LangBtn.Text = "  " .. Locales[CurrentLang].LangLabel
+LangBtn.Font = Enum.Font.Code
+LangBtn.TextSize = 9
+LangBtn.TextColor3 = CurrentTheme.Text
+LangBtn.TextXAlignment = Enum.TextXAlignment.Left
+LangBtn.ZIndex = 13
+LangBtn.Parent = SettingsPage
+RegisterThemeElement(LangBtn, "BackgroundColor3", "Surface")
+RegisterThemeElement(LangBtn, "TextColor3", "Text")
 
-AddSlider(SettingsPage, "UI Transparency", 0, 50, 0, function(val)
-    Main.BackgroundTransparency = val / 100
-end)
+local LCorner = Instance.new("UICorner")
+LCorner.CornerRadius = UDim.new(0, 4)
+LCorner.Parent = LangBtn
 
-local CurrentKeybind = Enum.KeyCode.RightControl
-
-local KeybindBtn = Instance.new("TextButton")
-KeybindBtn.Size = UDim2.new(1, 0, 0, 34)
-KeybindBtn.BackgroundColor3 = CurrentTheme.Surface
-KeybindBtn.BorderSizePixel = 0
-KeybindBtn.Text = "  Keybind: [ " .. CurrentKeybind.Name .. " ]"
-KeybindBtn.Font = Enum.Font.Code
-KeybindBtn.TextSize = 11
-KeybindBtn.TextColor3 = CurrentTheme.Text
-KeybindBtn.TextXAlignment = Enum.TextXAlignment.Left
-KeybindBtn.ZIndex = 13
-KeybindBtn.Parent = SettingsPage
-RegisterThemeElement(KeybindBtn, "BackgroundColor3", "Surface")
-RegisterThemeElement(KeybindBtn, "TextColor3", "Text")
-
-local KBCorner = Instance.new("UICorner")
-KBCorner.CornerRadius = UDim.new(0, 4)
-KBCorner.Parent = KeybindBtn
-
-local listeningForKey = false
-KeybindBtn.MouseButton1Click:Connect(function()
-    listeningForKey = true
-    KeybindBtn.Text = "  > Press Any Key..."
-    KeybindBtn.TextColor3 = CurrentTheme.Accent
-end)
-
-UserInputService.InputBegan:Connect(function(input, gpe)
-    if listeningForKey and input.UserInputType == Enum.UserInputType.Keyboard then
-        listeningForKey = false
-        CurrentKeybind = input.KeyCode
-        KeybindBtn.Text = "  Keybind: [ " .. CurrentKeybind.Name .. " ]"
-        KeybindBtn.TextColor3 = CurrentTheme.Text
-        Notify("KEYBIND", "Set toggle key to " .. CurrentKeybind.Name, 2)
-    elseif not gpe and input.KeyCode == CurrentKeybind then
-        Main.Visible = not Main.Visible
-        SetBlur(Main.Visible)
-    end
+LangBtn.MouseButton1Click:Connect(function()
+    CurrentLang = (CurrentLang == "EN") and "KH" or "EN"
+    SavedConfig.Language = CurrentLang
+    SaveConfig()
+    LangBtn.Text = "  " .. Locales[CurrentLang].LangLabel
+    Title.Text = Locales[CurrentLang].Title
+    Notify("LANGUAGE", "Updated to " .. CurrentLang, 2)
 end)
 
 --==================================================
--- SIDEBAR NAVIGATION & ANIMATION
+-- NAVIGATION TABS
 --==================================================
 
 local TabButtons = {}
 
-local function AddTab(name, page)
+local function AddTab(textKey, page)
     local Button = Instance.new("TextButton")
-    Button.Size = UDim2.new(1, 0, 0, 32)
+    Button.Size = UDim2.new(1, 0, 0, 26)
     Button.BackgroundColor3 = CurrentTheme.Background
     Button.BorderSizePixel = 0
-    Button.Text = name
+    Button.Text = Locales[CurrentLang][textKey] or textKey
     Button.Font = Enum.Font.Code
-    Button.TextSize = 11
+    Button.TextSize = 9
     Button.TextColor3 = CurrentTheme.Muted
     Button.AutoButtonColor = false
     Button.ZIndex = 13
@@ -1685,11 +1292,7 @@ local function AddTab(name, page)
     Corner.CornerRadius = UDim.new(0, 4)
     Corner.Parent = Button
 
-    TabButtons[name] = {Button = Button, Page = page}
-
-    Button.MouseEnter:Connect(function()
-        PlaySound(6895079853, 1.4)
-    end)
+    TabButtons[textKey] = {Button = Button, Page = page}
 
     Button.MouseButton1Click:Connect(function()
         PlaySound(6042053626, 1)
@@ -1698,13 +1301,7 @@ local function AddTab(name, page)
             tabData.Button.TextColor3 = CurrentTheme.Muted
             TweenService:Create(tabData.Button, TweenInfo.new(0.2), {BackgroundColor3 = CurrentTheme.Background}):Play()
         end
-
-        page.Position = UDim2.fromOffset(8, 18)
         page.Visible = true
-        TweenService:Create(page, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-            Position = UDim2.fromOffset(8, 8)
-        }):Play()
-
         Button.TextColor3 = CurrentTheme.Accent
         TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = CurrentTheme.Surface}):Play()
     end)
@@ -1712,65 +1309,39 @@ local function AddTab(name, page)
     return Button
 end
 
-local HomeTab = AddTab("> Home", HomePage)
-AddTab("> Keyless", KeylessPage)
-AddTab("> Keyed", KeyPage)
-AddTab("> Favorites", FavoritesPage)
-AddTab("> Themes", ThemesPage)
-AddTab("> Config", SettingsPage)
+local HomeTab = AddTab("Home", HomePage)
+AddTab("Keyless", KeylessPage)
+AddTab("Keyed", KeyPage)
+AddTab("Favorites", FavoritesPage)
+AddTab("Themes", ThemesPage)
+AddTab("Config", SettingsPage)
 
 HomePage.Visible = true
 HomeTab.TextColor3 = CurrentTheme.Accent
 HomeTab.BackgroundColor3 = CurrentTheme.Surface
 
---==================================================
--- MINIMIZE / CLOSE
---==================================================
-
-local Minimized = false
-local OriginalSize = Main.Size
-
-Minimize.MouseButton1Click:Connect(function()
-    PlaySound(6042053626, 0.9)
-    Minimized = not Minimized
-    if Minimized then
-        TweenService:Create(Main, TweenInfo.new(0.25), {Size = UDim2.fromOffset(580, 38)}):Play()
-        Sidebar.Visible = false
-        Content.Visible = false
-        SetBlur(false)
-    else
-        TweenService:Create(Main, TweenInfo.new(0.25), {Size = OriginalSize}):Play()
-        task.wait(0.15)
-        Sidebar.Visible = true
-        Content.Visible = true
-        SetBlur(true)
-    end
-end)
-
-Close.MouseButton1Click:Connect(function()
+-- CLOSE BUTTON LOGIC
+CloseBtnIcon.MouseButton1Click:Connect(function()
     PlaySound(6042053626, 0.8)
-    TweenService:Create(Main, TweenInfo.new(0.2), {Size = UDim2.fromOffset(0, 0)}):Play()
-    SetBlur(false)
-    task.wait(0.2)
     Main.Visible = false
-    Main.Size = OriginalSize
+    SetBlur(false)
 end)
 
 --==================================================
--- ALWAYS VISIBLE MOON TOGGLE BUTTON (🌙) RESTORED
+-- ALWAYS VISIBLE MOON TOGGLE ICON (🌙 REPLACED WITH ASSET)
 --==================================================
 
-local MoonToggle = Instance.new("TextButton")
+local MoonToggle = Instance.new("ImageButton")
 MoonToggle.Name = "MoonToggle"
-MoonToggle.Size = UDim2.fromOffset(44, 44)
+MoonToggle.Size = UDim2.fromOffset(36, 36)
 MoonToggle.Position = UDim2.new(0, 15, 0.4, 0)
 MoonToggle.BackgroundColor3 = CurrentTheme.Surface
-MoonToggle.Text = "C"
-MoonToggle.TextSize = 20
-MoonToggle.ZIndex = 500 -- Top Priority floating above all
-MoonToggle.Visible = true
+MoonToggle.Image = "rbxassetid://6031068421" -- Clean Night/Moon Icon
+MoonToggle.ImageColor3 = CurrentTheme.Accent
+MoonToggle.ZIndex = 500
 MoonToggle.Parent = ScreenGui
 RegisterThemeElement(MoonToggle, "BackgroundColor3", "Surface")
+RegisterThemeElement(MoonToggle, "ImageColor3", "Accent")
 
 local MoonCorner = Instance.new("UICorner")
 MoonCorner.CornerRadius = UDim.new(1, 0)
@@ -1778,7 +1349,7 @@ MoonCorner.Parent = MoonToggle
 
 local MoonStroke = Instance.new("UIStroke")
 MoonStroke.Color = CurrentTheme.Accent
-MoonStroke.Thickness = 1.5
+MoonStroke.Thickness = 1.2
 MoonStroke.Parent = MoonToggle
 RegisterThemeElement(MoonStroke, "Color", "Accent")
 
@@ -1793,4 +1364,4 @@ MoonToggle.MouseButton1Click:Connect(function()
 end)
 
 SetBlur(true)
-Notify("CYBERHUB", "Initialized V4.6 PRO Dashboard!", 4)
+Notify("CYBERHUB", "CH3A5 HUB V5.0 Loaded Successfully!", 4)
