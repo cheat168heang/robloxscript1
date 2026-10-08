@@ -1488,7 +1488,7 @@ MoonToggle.Name = "MoonToggle"
 MoonToggle.Size = UDim2.fromOffset(42, 42)
 MoonToggle.Position = UDim2.new(0, 15, 0.4, 0)
 MoonToggle.BackgroundColor3 = CurrentTheme.Surface
-MoonToggle.Text = "🌙"
+MoonToggle.Text = "C"
 MoonToggle.Font = Enum.Font.Code
 MoonToggle.TextSize = 18
 MoonToggle.ZIndex = 500
@@ -1530,4 +1530,4 @@ else
     SetBlur(false)
 end
 
-Notify("CYBERHUB", "CH3A5 HUB V6.8 Ready!", 4)
+Notify("CYBERHUB", "CH3A5 HUB V1.0 Ready!", 4)
