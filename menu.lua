@@ -1483,17 +1483,18 @@ end)
 -- MOON TOGGLE BUTTON
 --==================================================
 
-local MoonToggle = Instance.new("TextButton")
+local MoonToggle = Instance.new("ImageButton")
 MoonToggle.Name = "MoonToggle"
 MoonToggle.Size = UDim2.fromOffset(42, 42)
 MoonToggle.Position = UDim2.new(0, 15, 0.4, 0)
 MoonToggle.BackgroundColor3 = CurrentTheme.Surface
-MoonToggle.Text = "C"
-MoonToggle.Font = Enum.Font.Code
-MoonToggle.TextSize = 18
+MoonToggle.Image = "rbxassetid://70921884708188"
+MoonToggle.ImageTransparency = 0
+MoonToggle.ScaleType = Enum.ScaleType.Fit
 MoonToggle.ZIndex = 500
 MoonToggle.Visible = true
 MoonToggle.Parent = ScreenGui
+
 RegisterThemeElement(MoonToggle, "BackgroundColor3", "Surface")
 
 local MoonCorner = Instance.new("UICorner")
@@ -1504,14 +1505,23 @@ local MoonStroke = Instance.new("UIStroke")
 MoonStroke.Color = CurrentTheme.Accent
 MoonStroke.Thickness = 1.2
 MoonStroke.Parent = MoonToggle
+
 RegisterThemeElement(MoonStroke, "Color", "Accent")
 
 MoonToggle.MouseEnter:Connect(function()
-    TweenService:Create(MoonToggle, TweenInfo.new(0.2), {Size = UDim2.fromOffset(46, 46)}):Play()
+    TweenService:Create(
+        MoonToggle,
+        TweenInfo.new(0.2),
+        {Size = UDim2.fromOffset(46, 46)}
+    ):Play()
 end)
 
 MoonToggle.MouseLeave:Connect(function()
-    TweenService:Create(MoonToggle, TweenInfo.new(0.2), {Size = UDim2.fromOffset(42, 42)}):Play()
+    TweenService:Create(
+        MoonToggle,
+        TweenInfo.new(0.2),
+        {Size = UDim2.fromOffset(42, 42)}
+    ):Play()
 end)
 
 local getMoonMoved = MakeDraggable(MoonToggle, nil)
