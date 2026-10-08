@@ -1,5 +1,5 @@
---// CH3A5 HUB GUI [ULTRA EDITION V6.7]
---// Added About Tab + Social Links & Info + Square Corners
+--// CH3A5 HUB GUI [ULTRA EDITION V6.8]
+--// Added Trending Hub Tab + Key System Rename + Square Main Frame & Rounded Bottom Edge
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
@@ -19,7 +19,7 @@ local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
 local StartSessionTime = tick()
-local ConfigFile = "CH3A5_Config_V6_7.json"
+local ConfigFile = "CH3A5_Config_V6_8.json"
 
 --==================================================
 -- LOCAL DATA PERSISTENCE
@@ -129,7 +129,7 @@ end
 --==================================================
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CH3A5_CYBER_MASTER_V6_7"
+ScreenGui.Name = "CH3A5_CYBER_MASTER_V6_8"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.DisplayOrder = 999999
@@ -373,7 +373,7 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, -140, 1, 0)
 Title.Position = UDim2.fromOffset(10, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "[ CH3A5 // HUB ] V6.7"
+Title.Text = "[ CH3A5 // HUB ] V6.8"
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 12
 Title.TextXAlignment = Enum.TextXAlignment.Left
@@ -557,6 +557,7 @@ local function CreatePage(name)
 end
 
 local HomePage = CreatePage("Home")
+local TrendingPage = CreatePage("Trending")
 local KeylessPage = CreatePage("Keyless")
 local KeyPage = CreatePage("Key")
 local FavoritesPage = CreatePage("Favorites")
@@ -771,8 +772,8 @@ local function AddScriptButton(Page, name, description, url)
     NameLabel.Font = Enum.Font.GothamBold
     NameLabel.TextSize = 10
     NameLabel.TextTruncate = Enum.TextTruncate.AtEnd
-    NameLabel.TextColor3 = CurrentTheme.Text
     NameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    NameLabel.TextColor3 = CurrentTheme.Text
     NameLabel.ZIndex = 14
     NameLabel.Parent = Frame
     RegisterThemeElement(NameLabel, "TextColor3", "Text")
@@ -919,7 +920,7 @@ local HomeTitle = Instance.new("TextLabel")
 HomeTitle.Size = UDim2.new(1, 0, 0, 18)
 HomeTitle.Position = UDim2.fromOffset(0, 0)
 HomeTitle.BackgroundTransparency = 1
-HomeTitle.Text = "[ CH3A5 // HUB ] V6.7"
+HomeTitle.Text = "[ CH3A5 // HUB ] V6.8"
 HomeTitle.Font = Enum.Font.GothamBold
 HomeTitle.TextSize = 13
 HomeTitle.TextColor3 = CurrentTheme.Text
@@ -1162,23 +1163,22 @@ CreateActionButton("📋 Job ID", function()
 end)
 
 --==================================================
--- KEYLESS & KEYED LOADERS
+-- TRENDING, KEYLESS & KEYED LOADERS
 --==================================================
+
+AddSection(TrendingPage, "TRENDING MODULES")
+AddSearchBar(TrendingPage)
+AddScriptButton(TrendingPage, "CHILLY HUB", "Keyless", "https://raw.githubusercontent.com/tienkhanh1/spicy/main/Chilli.lua")
+AddScriptButton(TrendingPage, "Forge Hub", "Key System", "https://cdn.forgehub.store/loade")
 
 AddSection(KeylessPage, "KEYLESS MODULES")
 AddSearchBar(KeylessPage)
-
-AddScriptButton(KeylessPage, "SourcesHub New", "Keyless", "https://gist.githubusercontent.com/sourceshubs/1737c14cdba5c6fb472a995d555a50f1/raw/SourcesHubInstantStealNew") 
-AddScriptButton(KeylessPage, "SourcesHub", "Keyless", "https://gist.githubusercontent.com/sourceshubs/9c70c7c483019f2de5d7119ae05ba3f8/raw/SourcesHubStealAnEgg") 
-AddScriptButton(KeylessPage, "SKRR HUB", "Keyless", "https://flowauth.net/v1/loaders/52aa9854f4fad5068bbead01ce10c7a6.lua") 
-AddScriptButton(KeylessPage, "CHILLI HUB", "Keyless", "https://raw.githubusercontent.com/tienkhanh1/spicy/main/Chilli.lua") 
-AddScriptButton(KeylessPage, "SOURCES HUB", "Keyless", "https://gist.githubusercontent.com/sourceshubs/df6e17b3672213791b47a0a8c5398b6e/raw/SourcesHubAntiHitNewest") 
-AddScriptButton(KeylessPage, "REALKID HUB", "Keyless", "https://raw.githubusercontent.com/realkidhub/realkid/refs/heads/main/main.lua") 
-AddScriptButton(KeylessPage, "MIRANDA HUB", "Keyless", "https://raw.githubusercontent.com/kadit9999/stealanegg/refs/heads/main/kaitunmirage.lua")
+AddScriptButton(KeylessPage, "Sources Hub", "Keyless", "https://pastefy.app/Lk0vDMmN/raw")
+AddScriptButton(KeylessPage, "Limbo Hub", "Keyless", "https://limbohub.my.id/loader.lua")
+AddScriptButton(KeylessPage, "Virexx", "Keyless", "https://gist.githubusercontent.com/virexx55/b4e8b16201904da5ab7b554aa71c378f/raw/b9524b701b35ec97603ff0a32227b24461479c5c/virex.lua")
 
 AddSection(KeyPage, "PROTECTED MODULES")
 AddSearchBar(KeyPage)
-
 AddScriptButton(KeyPage, "Wzeus Hub", "Key System", "https://raw.githubusercontent.com/Wzeus-NTH/Wzeusno1/main/Wzeus/nthzz")
 AddScriptButton(KeyPage, "Pulse Hub", "Key System", "https://raw.githubusercontent.com/PulseZax/Loader/refs/heads/main/.lua")
 
@@ -1324,7 +1324,7 @@ end
 AddAboutInfoCard("Hub Name", "CH3A5 HUB")
 AddAboutInfoCard("Version", "1.0")
 AddAboutInfoCard("Developer", "CH3A5")
-AddAboutInfoCard("Status", "● Online")
+AddAboutInfoCard("Status", "🟢 Online")
 AddAboutInfoCard("Release", "2026")
 
 AddSection(AboutPage, "OFFICIAL LINKS")
@@ -1447,8 +1447,9 @@ local function AddTab(titleText, page)
 end
 
 local HomeTab = AddTab("🏠 Home", HomePage)
+AddTab("🔥 Trending", TrendingPage)
 AddTab("⚡ Keyless", KeylessPage)
-AddTab("🔑 Keyed", KeyPage)
+AddTab("🔑 Key System", KeyPage)
 AddTab("⭐ Favorites", FavoritesPage)
 AddTab("🎨 Themes", ThemesPage)
 AddTab("⚙️ Config", SettingsPage)
@@ -1518,4 +1519,4 @@ else
     SetBlur(false)
 end
 
-Notify("CYBERHUB", "CH3A5 HUB V6.7 Ready!", 4)
+Notify("CYBERHUB", "CH3A5 HUB V6.8 Ready!", 4)
