@@ -1,915 +1,838 @@
 --[================================================================]--
--- CH3A5 HUB | V1.0 - Modern Dark Glass Roblox Executor GUI
--- Designed for Desktop & Mobile responsiveness with Glassmorphism
+--  CH3A5 HUB - Dark Luxury + Futuristic UI Edition
+--  All original game logic, remotes, and hooks preserved.
 --[================================================================]--
 
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
-local CoreGui = game:GetService("CoreGui")
-local UserInputService = game:GetService("UserInputService")
-
-local LocalPlayer = Players.LocalPlayer
-
--- Prevent duplicate GUIs
-if CoreGui:FindFirstChild("CH3A5Hub") then
-	CoreGui.CH3A5Hub:Destroy()
+local e=game:GetService( "Players" )
+local r=game:GetService( "Workspace" )
+local y=game:GetService( "RunService" )
+local u=game:GetService( "TweenService" )
+local w=game:GetService( "UserInputService" )
+local j=game:GetService( "ReplicatedStorage" )
+local k=game:GetService( "ProximityPromptService" )
+local a=game:GetService( "HttpService" )
+local TeleportService=game:GetService( "TeleportService" )
+local o=e.LocalPlayer
+local Window=nil
+local currentLang="EN"
+local executorCheckCaller=typeof(checkcaller)=="function" and checkcaller or function() return false end
+local safeNewCClosure=typeof(newcclosure)=="function" and newcclosure or function(fn) return fn end
+local V=game:GetService( "ProximityPromptService" )pcall(function(...) V.PromptButtonHoldBegan :Connect(function(e,...) pcall(function(...)
+            if typeof(fireproximityprompt)== "function" then
+                fireproximityprompt(e)
+            end
+        end
+        )
+    end
+    )
+end
+)
+local H=function(...)
+end
+local t=function(...)
+end
+local s=nil pcall(function(...) s=require((j:WaitForChild( "Client" , 5 )):WaitForChild( "EggState" , 5 ))
+end
+)
+if not s then
+    pcall(function(...) s=require(j.Client.EggState )
+    end
+    )
+end
+local p=nil pcall(function(...) p=require(((j:WaitForChild( "Shared" , 5 )):WaitForChild( "Util" , 5 )):WaitForChild( "AssetItems" , 5 ))
+end
+)
+if not p then
+    pcall(function(...) p=require(j.Shared.Util .AssetItems )
+    end
+    )
+end
+local B=nil pcall(function(...) B=require((j:WaitForChild( "Shared" , 5 )):WaitForChild( "Remotes" , 5 ))
+end
+)
+if not B then
+    pcall(function(...) B=require(j.Shared.Remotes )
+    end
+    )
+end
+local function J(e,r,...)
+    local y=(j:FindFirstChild( "Packages" )and j.Packages :FindFirstChild( "Networking" ))or j:FindFirstChild( "Network" )or j
+    local u=y:FindFirstChild(e)or j:FindFirstChild(e)
+    if u then
+        return u
+    end
+    local w=y:FindFirstChild(e, true )or j:FindFirstChild(e, true )
+    if w then
+        return w
+    end
+    if r then
+        local e=y:FindFirstChild(r)or j:FindFirstChild(r)
+        if e then
+            return e
+        end
+        local u=y:FindFirstChild(r, true )or j:FindFirstChild(r, true )
+        if u then
+            return u
+        end
+    end
+    local k=string.match (e, "[^/]+$" )
+    if k then
+        local e=y:FindFirstChild(k, true )or j:FindFirstChild(k, true )
+        if e then
+            return e
+        end
+    end
+    return nil
 end
 
--- ScreenGui Setup
+local K=J( "RF/EggWorld/AskPlaceEgg" , "AskPlaceEgg" ) 
+local c=J( "RF/EggWorld/AskLiveSnapshot" , "AskLiveSnapshot" ) 
+local v=J( "RF/Homestead/AskState" , "RF/Plots/AskState" )or J( "AskState" )
+local i=J( "RF/EggWorld/AskFieldEggCarry" , "AskFieldEggCarry" ) 
+local R=J( "RF/EggWorld/AskFieldEggSnapshot" , "AskFieldEggSnapshot" )or J( "Eggs: RequestAreaEggSnapshot" , "RequestAreaEggSnapshot" )
+local g=J( "RF/EggWorld/AskHatch" , "AskHatch" )or J( "Eggs: RequestHatchEgg" )
+local Q=J( "RF/EggWorld/AskFinishHatch" , "AskFinishHatch" )or J( "Eggs: RequestCompleteHatchEgg" )
+local P=J( "RE/GuardPatrol/ForestStrike" , "ForestStrike" )or(B and(B.GuardPatrol and B.GuardPatrol.ForestStrike ))
+local N=J( "SpeedTollOffer" , "RE/GuardPatrol/SpeedTollOffer" )or(B and(B.GuardPatrol and B.GuardPatrol.SpeedTollOffer ))
+local U=J( "RF/Treadmill/AskDoff" , "AskDoff" )
+local l=J( "RF/Treadmill/AskDon" , "AskDon" )or J( "RF/Treadmill/AskMount" , "AskMount" )
+local D=J( "RF/Treadmill/AskTierRaise" , "Treadmills: RequestUpgrade" , "AskTierRaise" )
+local C=J( "RF/Trailwear/AskPurchase" , "Trailwear: RequestPurchase" , "AskPurchase" )
+local q=J( "RF/Trailwear/AskChoose" , "Trailwear: RequestEquip" , "AskChoose" )
+local n=J( "RF/Trailwear/AskDoff" , "Trailwear: RequestUnequip" , "AskDoff" )
+
+local f={[ "Light Dark" ]= 1300 ,[ "LightDark" ]= 1300 ;
+[ "Titan Temple" ]= 1100 ,[ "Cherry Blossom" ]= 1000 ,[ "Cosmic" ]= 900 ;
+[ "Prehistoric" ]= 800 ;
+[ "Abyss Ocean" ]= 700 ,[ "Volcano" ]= 600 ;
+[ "Snow" ]= 500 ,[ "Jungle" ]= 400 ;
+[ "Desert" ]= 300 ,[ "Lake" ]= 200 ;
+[ "Forest" ]= 100 }
+local M={ "Light Dark" ;
+"Titan Temple" ;
+"Cherry Blossom" , "Cosmic" ;
+"Prehistoric" , "Abyss Ocean" ;
+"Volcano" ;
+"Snow" , "Jungle" , "Desert" , "Lake" ;
+"Forest" }
+local I={[ "Light Dark" ]= 420 ,[ "LightDark" ]= 420 ;
+[ "Titan Temple" ]= 380 ,[ "Cherry Blossom" ]= 330 ,[ "Cosmic" ]= 280 ;
+[ "Prehistoric" ]= 240 ,[ "Abyss Ocean" ]= 200 ;
+[ "Volcano" ]= 180 ;
+[ "Snow" ]= 160 ,[ "Jungle" ]= 140 ;
+[ "Desert" ]= 130 ,[ "Lake" ]= 125 ,[ "Forest" ]= 125 }
+local L= -360
+local E= 525
+local b= 620
+local A= 130
+local S=CFrame.new ( 4773.7587890625 , 70.392112731934 , -315.73501586914 )
+
+local Z= "CH3A5Hub_FlightSpeed.txt"
+local z= "CH3A5Hub_EggSelectConfig.json"
+local d={[ "Light Dark" ]=Color3.fromRGB ( 168 , 85 , 247 ),[ "Titan Temple" ]=Color3.fromRGB ( 245 , 158 , 11 );
+[ "Cherry Blossom" ]=Color3.fromRGB ( 236 , 72 , 153 );
+[ "Cosmic" ]=Color3.fromRGB ( 6 , 182 , 212 ),[ "Prehistoric" ]=Color3.fromRGB ( 16 , 185 , 129 ),[ "Abyss Ocean" ]=Color3.fromRGB ( 59 , 130 , 246 );
+[ "Volcano" ]=Color3.fromRGB ( 239 , 68 , 68 ),[ "Snow" ]=Color3.fromRGB ( 147 , 197 , 253 ),[ "Jungle" ]=Color3.fromRGB ( 34 , 197 , 94 ),[ "Desert" ]=Color3.fromRGB ( 234 , 179 , 8 ),[ "Lake" ]=Color3.fromRGB ( 20 , 184 , 166 ),[ "Forest" ]=Color3.fromRGB ( 22 , 163 , 74 )}
+
+local X={ "Divine" , "Eternal" , "Secret" ;
+"Cosmic" , "Mythic" , "Legendary" ;
+"Epic" ;
+"Rare" ;
+"Uncommon" ;
+"Common" }
+local G={[ "Divine" ]=Color3.fromRGB ( 244 , 63 , 94 );
+[ "Eternal" ]=Color3.fromRGB ( 217 , 70 , 239 ),[ "Secret" ]=Color3.fromRGB ( 249 , 115 , 22 ),[ "Cosmic" ]=Color3.fromRGB ( 6 , 182 , 212 ),[ "Mythic" ]=Color3.fromRGB ( 139 , 92 , 246 ),[ "Legendary" ]=Color3.fromRGB ( 251 , 191 , 36 );
+[ "Epic" ]=Color3.fromRGB ( 168 , 85 , 247 );
+[ "Rare" ]=Color3.fromRGB ( 59 , 130 , 246 );
+[ "Uncommon" ]=Color3.fromRGB ( 34 , 197 , 94 ),[ "Common" ]=Color3.fromRGB ( 148 , 163 , 184 )}
+local F={[ "Divine" ]= 6 ;
+[ "Eternal" ]= 5 ;
+[ "Secret" ]= 4 ,[ "Cosmic" ]= 3 ;
+[ "Mythic" ]= 2 ;
+[ "Legendary" ]= 1 ,[ "Epic" ]= 0.5 ,[ "Rare" ]= 0.3 ,[ "Uncommon" ]= 0.1 ;
+[ "Common" ]= 0 }
+local h
+local function O(...)
+    local e= 600 pcall(function(...)
+        local r= false
+        if isfile then
+            r=isfile(Z)
+        elseif readfile then
+            local e,y=pcall(readfile,Z)r=e and(y~=nil)
+        end
+        if r and readfile then
+            local r=readfile(Z)
+            local u=tonumber(r)
+            if u and(u>= 100 and u<= 1000 )then
+                e=math.floor (u)
+            end
+        end
+    end
+    )
+    return e
+end
+local function Y(e,...) pcall(function(...)
+        if writefile then
+            local y=math.clamp (math.floor (tonumber(e)or 600 ), 100 , 1000 )writefile(Z,tostring(y))
+        end
+    end
+    )
+end
+local function T(...)
+    local e=nil pcall(function(...)
+        local r= false
+        if isfile then
+            r=isfile(z)
+        elseif readfile then
+            local e,y=pcall(readfile,z)r=e and(y~=nil)
+        end
+        if r and(readfile and a)then
+            local r=readfile(z)
+            if r and r~= "" then
+                local u=a:JSONDecode(r)
+                if type(u)== "table" then
+                    e=u
+                end
+            end
+        end
+    end
+    )
+    local r={[ "Light Dark" ]= true ,[ "Titan Temple" ]= true ,[ "Cherry Blossom" ]= true ;
+    [ "Cosmic" ]= false ;
+    [ "Prehistoric" ]= false ,[ "Abyss Ocean" ]= false ;
+    [ "Volcano" ]= false ,[ "Snow" ]= false ;
+    [ "Jungle" ]= false ,[ "Desert" ]= false ;
+    [ "Lake" ]= false ,[ "Forest" ]= false }
+    local y={[ "Divine" ]= true ,[ "Eternal" ]= true ,[ "Secret" ]= true ,[ "Cosmic" ]= true ,[ "Mythic" ]= true ;
+    [ "Legendary" ]= false ,[ "Epic" ]= false ,[ "Rare" ]= false ;
+    [ "Uncommon" ]= false ;
+    [ "Common" ]= false }
+    if type(e)~= "table" then
+        e={[ "selectedZones" ]=r;
+        [ "selectedRarities" ]=y,[ "alwaysCollectSecretPlus" ]= true ,[ "minRarityTier" ]= 2 ;
+        [ "autoTreadmill" ]= true ;
+        [ "autoUpgradeTreadmill" ]= true ,[ "autoBuyTrails" ]= true ;
+        [ "hideNotEnoughMoney" ]= true ;
+        [ "performanceMode" ]= false ,[ "disable3D" ]= false ,[ "antiAFK" ]= true ,[ "language" ]= "EN" }
+    else
+        if type(e.selectedZones )~= "table" then
+            e.selectedZones =r
+        end
+        if type(e.selectedRarities )~= "table" then
+            e.selectedRarities =y
+        else
+            for r,w in ipairs(X)do
+                if e.selectedRarities [w]==nil then
+                    e.selectedRarities [w]=(y[w]== true )
+                end
+            end
+        end
+        if e.alwaysCollectSecretPlus ==nil then
+            e.alwaysCollectSecretPlus = true
+        end
+        if e.minRarityTier ==nil then
+            e.minRarityTier = 2
+        end
+        if e.autoTreadmill ==nil then
+            e.autoTreadmill = true
+        end
+        if e.autoUpgradeTreadmill ==nil then
+            e.autoUpgradeTreadmill = true
+        end
+        if e.autoBuyTrails ==nil then
+            e.autoBuyTrails = true
+        end
+        if e.hideNotEnoughMoney ==nil then
+            e.hideNotEnoughMoney = true
+        end
+        if e.performanceMode ==nil then
+            e.performanceMode = false
+        end
+        if e.disable3D ==nil then
+            e.disable3D = false
+        end
+        if e.antiAFK ==nil then
+            e.antiAFK = true
+        end
+        if e.language and((e.language == "EN" or e.language == "TH" ))then
+            currentLang=e.language
+        end
+    end
+    return e
+end
+local function x(...) pcall(function(...)
+        if writefile and(a and h)then
+            local r={[ "selectedZones" ]=h.selectedZones or{};
+            [ "selectedRarities" ]=h.selectedRarities or{};
+            [ "alwaysCollectSecretPlus" ]=(h.alwaysCollectSecretPlus ~= false ),[ "minRarityTier" ]=h.minRarityTier or 2 ,[ "autoTreadmill" ]=(h.autoTreadmill == true );
+            [ "autoUpgradeTreadmill" ]=(h.autoUpgradeTreadmill == true ),[ "autoBuyTrails" ]=(h.autoBuyTrails == true );
+            [ "hideNotEnoughMoney" ]=(h.hideNotEnoughMoney == true );
+            [ "performanceMode" ]=(h.performanceMode == true );
+            [ "disable3D" ]=(h.disable3D == true );
+            [ "antiAFK" ]=(h.antiAFK == true );
+            [ "language" ]=currentLang or "EN" }
+            local y=a:JSONEncode(r)writefile(z,y)
+        end
+    end
+    )
+end
+local W=T()
+h={[ "godmode" ]= true ,[ "autoGlide" ]= true ,[ "autoHatch" ]= true ;
+[ "autoPlaceEvery5" ]= false ;
+[ "batchStealCount" ]= 0 ,[ "isBatchPlacing" ]= false ,[ "isHatching" ]= false ;
+[ "autoFarmLoop" ]= false ,[ "pureTweenFarm" ]= false ;
+[ "glidingToTarget" ]= false ;
+[ "securingEgg" ]= false ,[ "glideSpeed" ]=O();
+[ "selectedZones" ]=W.selectedZones ;
+[ "selectedRarities" ]=W.selectedRarities ;
+[ "alwaysCollectSecretPlus" ]=W.alwaysCollectSecretPlus ,[ "minRarityTier" ]=W.minRarityTier ,[ "autoTreadmill" ]=(W.autoTreadmill ~= false );
+[ "autoUpgradeTreadmill" ]=(W.autoUpgradeTreadmill ~= false ),[ "autoBuyTrails" ]=(W.autoBuyTrails ~= false ),[ "hideNotEnoughMoney" ]= true ;
+[ "performanceMode" ]=(W.performanceMode == true ),[ "disable3D" ]=(W.disable3D == true ),[ "antiAFK" ]=(W.antiAFK ~= false ),[ "onTreadmill" ]= false ,[ "lastTreadmillMount" ]= 0 ,[ "laneZ" ]= -360 ,[ "swapped" ]= false ;
+[ "teleporting" ]= false ,[ "isReturning" ]= false ;
+[ "delivering" ]= false ,[ "holdingEggForGuard" ]= false ,[ "currentTargetModel" ]=nil,[ "targetPosition" ]=nil;
+[ "stateTime" ]=os.clock (),[ "statusText" ]= "Ready" ,[ "bestEggInfo" ]= "Scanning..." ;
+[ "gui" ]=nil;
+[ "alive" ]= true ,[ "plot" ]=nil;
+[ "pen" ]=nil,[ "origin" ]=nil;
+[ "tread" ]=nil}
+
+-- Core Utility Functions (m, e4, r4, y4, u4, w4, j4, h4, k4, a4, o4, V4, H4, S4, Z4, z4, C4, E4...)
+local m, e4, r4, y4, u4, w4, j4, k4, a4, o4, V4, H4, S4, Z4, z4, C4, E4
+m=function(e,...)
+    if not e or not e:IsA( "Tool" )then return false end
+    local r=string.lower (e.Name )
+    if string.find (r, "sword" )or string.find (r, "radar" )or string.find (r, "basket" )or string.find (r, "punch" )then return false end
+    if e:GetAttribute( "EggUid" )or e:GetAttribute( "UID" )or string.find (r, "egg" )or e:GetAttribute( "Category" )or e:GetAttribute( "ItemType" )== "Egg" then return true end
+    return false
+end
+e4=function(...)
+    local e=o.Character
+    if e then
+        for e,y in ipairs(e:GetChildren())do
+            if m(y)then
+                local e=y:GetAttribute( "UID" )or y:GetAttribute( "EggUid" )
+                return y,e or y.Name
+            end
+        end
+    end
+    return nil,nil
+end
+r4=function(...)
+    local e=o:FindFirstChild( "Backpack" )
+    if e then
+        for e,y in ipairs(e:GetChildren())do
+            if m(y)then
+                local e=y:GetAttribute( "UID" )or y:GetAttribute( "EggUid" )
+                return y,e or y.Name
+            end
+        end
+    end
+    return nil,nil
+end
+y4=function(...)
+    local e= 0
+    local r=o:FindFirstChild( "Backpack" )
+    if r then
+        for r,y in ipairs(r:GetChildren())do
+            if m(y)then e=e+ 1 end
+        end
+    end
+    local y=o.Character
+    if y then
+        for r,y in ipairs(y:GetChildren())do
+            if m(y)then e=e+ 1 end
+        end
+    end
+    return e
+end
+u4=function(e,...)
+    if not e and not((h.pureTweenFarm or h.autoFarmLoop or h.teleporting ))then return end
+    local r=o.Character
+    local y=r and r:FindFirstChildOfClass( "Humanoid" )
+    local u=o:FindFirstChild( "Backpack" )
+    if y then pcall(function(...) y:UnequipTools() end) end
+    if r and u then
+        for e,r in ipairs(r:GetChildren())do
+            if r:IsA( "Tool" )then pcall(function(...) r.Parent =u end) end
+        end
+    end
+end
+w4=function(e,...)
+    if((h.pureTweenFarm or h.autoFarmLoop ))and not h.holdingEggForGuard then
+        local e=e4()
+        if e then pcall(u4) end
+        return false
+    end
+    local r,y=e4()
+    if r then
+        if e then if y==e or not y then return true end else return true end
+    end
+    local u=o.Character
+    local w=u and u:FindFirstChild( "HumanoidRootPart" )
+    if w and w.Position.X <=(E+ 15 )then return false end
+    if s and s.ReadFieldEggs then
+        local r,y=pcall(s.ReadFieldEggs )
+        if r and(y and y.Records )then
+            for r,y in ipairs(y.Records )do
+                if((y.State == "Carried" or y.State == 2 ))and((y.CarrierUserId ==o.UserId or y.Carrier ==o.UserId ))then
+                    if e then if y.Uid ==e then return true end else return true end
+                end
+            end
+        end
+    end
+    return false
+end
+j4=function(e,...)
+    local r,y=e4()
+    if r then if not e or y==e or not y then return true end end
+    local u=o:FindFirstChild( "Backpack" )
+    if u then
+        for r,y in ipairs(u:GetChildren())do
+            if m(y)then
+                local r=y:GetAttribute( "UID" )or y:GetAttribute( "EggUid" )
+                if not e or r==e or y.Name ==tostring(e)then return true end
+            end
+        end
+    end
+    if e and(s and s.ReadFieldEggs )then
+        local r,y=pcall(s.ReadFieldEggs )
+        if r and(y and y.Records )then
+            for r,y in ipairs(y.Records )do
+                if y.Uid ==e then
+                    if(y.State == "Carried" or y.State == 2 )then
+                        local e=y.CarrierUserId or y.Carrier
+                        if e==o.UserId then return true end
+                    end
+                end
+            end
+        end
+    end
+    return false
+end
+
+local m4= false
+local F4, G4 = nil, 0
+local function ek(...)
+    if m4 then return end
+    local e=R or j:FindFirstChild( "RF/EggWorld/AskFieldEggSnapshot" , true )or j:FindFirstChild( "AskFieldEggSnapshot" , true )or j:FindFirstChild( "Eggs: RequestAreaEggSnapshot" , true )
+    if not e or not e:IsA( "RemoteFunction" )then return end
+    m4= true task.spawn (function(...)
+        local r,y=pcall(function(...) return e:InvokeServer() end)
+        if r and type(y)== "table" then
+            local e={}
+            local r=y.Records or y
+            if type(r)== "table" then
+                for r,y in pairs(r)do
+                    if type(y)== "table" then
+                        if not y.Uid and type(r)== "string" then y.Uid =r end
+                        table.insert (e,y)
+                    end
+                end
+            end
+            if#e> 0 then F4=e G4=os.clock () end
+        end
+        m4= false
+    end)
+end
+task.spawn (function(...)
+    while true do task.wait ( 1.5 ) pcall(ek) end
+end)
+
+function h4(e,...)
+    local y=os.clock ()
+    if e or(y-G4>= 1.5 )or not F4 then ek() end
+    local u=((F4 and#F4> 0 ))and F4 or nil
+    local w=nil
+    if s and s.ReadFieldEggs then
+        local e,r=pcall(s.ReadFieldEggs )
+        if e and type(r)== "table" then
+            local e={}
+            local y=r.Records or r
+            if type(y)== "table" then
+                for r,y in pairs(y)do
+                    if type(y)== "table" then
+                        if not y.Uid and type(r)== "string" then y.Uid =r end
+                        table.insert (e,y)
+                    end
+                end
+            end
+            if#e> 0 then w=e end
+        end
+    end
+    local j={}
+    local k={}
+    if u then
+        for e,r in ipairs(u)do
+            if r.Uid then k[r.Uid ]= true table.insert (j,r) end
+        end
+    end
+    if w then
+        for e,r in ipairs(w)do
+            if r.Uid and not k[r.Uid ]then k[r.Uid ]= true table.insert (j,r) end
+        end
+    end
+    local a=r:FindFirstChild( "AreaEggSlotsClient" )
+    if a then
+        for e,r in ipairs(a:GetChildren())do
+            local y=r.Name
+            if y and y~= "" then
+                local e=r:GetPivot()
+                local u=e.Position
+                if u.X >= 530 and not string.find (tostring(y), "FirstArea" )then
+                    if not k[y]then
+                        k[y]= true
+                        local u=r:GetAttribute( "Category" )or r:GetAttribute( "AssetCategory" )or r.Name
+                        local w=r:GetAttribute( "AreaId" )or r:GetAttribute( "Area" )
+                        local a=r:GetAttribute( "Rarity" )or r:GetAttribute( "RarityTier" )
+                        local V=r:GetAttribute( "RarityRank" )or r:GetAttribute( "Rank" )
+                        local H=r:GetAttribute( "Income" )or r:GetAttribute( "EarningRate" )
+                        local t=r:GetAttribute( "Scale" )or r:GetAttribute( "AssetScale" )or 1
+                        local s=r:GetAttribute( "Mutations" )or r:GetAttribute( "Mutation" )
+                        table.insert (j,{[ "Uid" ]=y,[ "AssetCategory" ]=u,[ "AreaId" ]=w;[ "Rarity" ]=a,[ "Rank" ]=V,[ "Income" ]=H,[ "BoundsCFrame" ]=e;[ "BottomCFrame" ]=e,[ "CFrame" ]=e;[ "State" ]= "Slot" ;[ "AssetScale" ]=t,[ "Mutations" ]=s,[ "PhysicalModel" ]=r})
+                    else
+                        for u,w in ipairs(j)do
+                            if w.Uid ==y then
+                                w.PhysicalModel =r
+                                if not w.BoundsCFrame then w.BoundsCFrame =e end
+                                if not w.AreaId or w.AreaId == "" or w.AreaId == "Unknown" then
+                                    w.AreaId =r:GetAttribute( "AreaId" )or r:GetAttribute( "Area" )
+                                end
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return j
+end
+
+k4=function(e,...)
+    if not e then return false , "NoUid" end
+    local y=h4( false )
+    if y and#y> 0 then
+        for r,y in ipairs(y)do
+            if y.Uid ==e then
+                if(y.State == "Carried" or y.State == 2 )then
+                    local e=y.CarrierUserId or y.Carrier
+                    if e and e==o.UserId then return true , "CarriedBySelf" else return false , "CarriedByOther" end
+                end
+                if(y.State == "Slot" or y.State == "Dropped" or y.State == "GuardCarried" or y.State == 1 )then return true , "Available" end
+                local e=y.CarrierUserId or y.Carrier
+                if e then if e==o.UserId then return true , "CarriedBySelf" else return false , "CarriedByOther" end end
+                return true , "Available"
+            end
+        end
+    end
+    local u=r:FindFirstChild( "AreaEggSlotsClient" )
+    if u then
+        for r,y in ipairs(u:GetChildren())do
+            if y.Name ==tostring(e)or y:GetAttribute( "UID" )==e or y:GetAttribute( "Uid" )==e then return true , "Available" end
+        end
+    end
+    return true , "Unchecked"
+end
+
+a4=function(...)
+    local e,r=e4()
+    if not r then local e,y=r4() r=y end
+    if not r then return false end
+    if s and s.ReadFieldEggs then
+        local e,u=pcall(s.ReadFieldEggs )
+        if e and(u and u.Records )then
+            for e,u in ipairs(u.Records )do
+                if u.Uid ==r then
+                    local e=tostring(u.AreaId or "" )
+                    if e== "Lake" or string.find (string.lower (e), "lake" )~=nil then return true end
+                end
+            end
+        end
+    end
+    if string.find (string.lower (tostring(r)), "lake" )~=nil then return true end
+    return false
+end
+
+o4=function(...)
+    local e,r=e4()
+    if not r then local e,y=r4() r=y end
+    if not r then return h.glideSpeed or 350 end
+    if s and s.ReadFieldEggs then
+        local e,u=pcall(s.ReadFieldEggs )
+        if e and(u and u.Records )then
+            for e,u in ipairs(u.Records )do
+                if u.Uid ==r and u.AreaId then return I[u.AreaId ]or h.glideSpeed or 350 end
+            end
+        end
+    end
+    return h.glideSpeed or 350
+end
+
+V4=function(e,y,...) y=y or 8
+    local u=Instance.new ( "Part" )
+    u.Name = "SafetyFloorPad_AntiVoid" 
+    u.Size =Vector3.new ( 28 , 1.5 , 28 )
+    u.Position =e-Vector3.new ( 0 , 3.2 , 0 )
+    u.Anchored = true 
+    u.Transparency = 1 
+    u.CanCollide = true 
+    u.Parent =r 
+    task.delay (y,function(...) pcall(function(...) u:Destroy() end) end)
+    return u
+end
+
+H4=function(e,...)
+    if P and e then
+        pcall(function(...)
+            local r=o.Character
+            local y=r and r:FindFirstChild( "HumanoidRootPart" )
+            local u=y and(y.CFrame *CFrame.new ( 0 , 0 , -3 ))or CFrame.new ()
+            if P:IsA( "RemoteFunction" )then
+                P:InvokeServer({[ "EggUid" ]=e,[ "GuardCFrame" ]=u})
+            else
+                P:FireServer({[ "EggUid" ]=e;[ "GuardCFrame" ]=u})
+            end
+        end)
+    end
+end
+
+if typeof(hookmetamethod)== "function" and not _G._DesyncAntiRagdollHooked then
+    _G._DesyncAntiRagdollHooked = true
+    local e e=hookmetamethod(game, "__newindex" ,safeNewCClosure(function(r,y,u,...)
+        if not executorCheckCaller()and typeof(r)== "Instance" then
+            if r:IsA( "Motor6D" )and(y== "Enabled" and u== false )then return nil end
+            if r:IsA( "Humanoid" )then
+                if y== "PlatformStand" and u== true then return nil end
+                if y== "Sit" and(u== true and((h.pureTweenFarm or h.autoFarmLoop or h.isReturning or h.glidingToTarget )))then return nil end
+            end
+        end
+        return e(r,y,u)
+    end))
+end
+
+S4=function(e,...) e=e or o.Character
+    if not e then return end
+    local r=e:FindFirstChild( "HumanoidRootPart" )
+    for e,r in ipairs(e:GetDescendants())do
+        if r:IsA( "BallSocketConstraint" )or r:IsA( "HingeConstraint" )or r:IsA( "NoCollisionConstraint" )then
+            pcall(function(...) r:Destroy() end)
+        end
+    end
+    for e,r in ipairs(e:GetDescendants())do
+        if r:IsA( "Motor6D" )and(r.Part0 and r.Part1 )then
+            r.Enabled = true
+            local e= "RigidJointWeld_" ..r.Name
+            local y=r.Part1 :FindFirstChild(e)
+            if not y then
+                local y=Instance.new ( "WeldConstraint" )
+                y.Name =e y.Part0 =r.Part0 y.Part1 =r.Part1 y.Parent =r.Part1
+            end
+        end
+    end
+end
+
+Z4=function(e,...)
+    if h and h.onTreadmill then return end
+    e=e or o.Character
+    if not e then return end
+    local r=e:FindFirstChildOfClass( "Humanoid" )
+    if r then
+        r:SetStateEnabled(Enum.HumanoidStateType.Ragdoll , false )
+        r:SetStateEnabled(Enum.HumanoidStateType.FallingDown , false )
+        r:SetStateEnabled(Enum.HumanoidStateType.Physics , false )
+        r:SetStateEnabled(Enum.HumanoidStateType.PlatformStanding , false )
+        r:SetStateEnabled(Enum.HumanoidStateType.Seated , false )
+        if r.PlatformStand then r.PlatformStand = false end
+        if r.Sit then r.Sit = false end
+    end
+end
+
+--[================================================================]--
+--  CH3A5 HUB - Dark Luxury + Futuristic UI & Responsive Framework  --
+--[================================================================]--
+
+local CoreGui = game:GetService("CoreGui")
+local existingGui = CoreGui:FindFirstChild("CH3A5Hub_GUI")
+if existingGui then existingGui:Destroy() end
+
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CH3A5Hub"
+ScreenGui.Name = "CH3A5Hub_GUI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = CoreGui
 
--- Use CoreGui if possible, else PlayerGui
-local success, err = pcall(function()
-	ScreenGui.Parent = CoreGui
-end)
-if not success then
-	ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-end
-
---[================================================================]--
--- COLOR PALETTE & CONSTANTS
---[================================================================]--
-local Theme = {
-	Canvas = Color3.fromRGB(15, 15, 20),
-	PrimaryGlass = Color3.fromRGB(25, 25, 35),
-	SecondaryGlass = Color3.fromRGB(40, 40, 55),
-	Accent = Color3.fromRGB(0, 180, 255),
-	TextPrimary = Color3.fromRGB(240, 240, 245),
-	TextSecondary = Color3.fromRGB(160, 160, 175),
-	Border = Color3.fromRGB(60, 60, 80),
-	Success = Color3.fromRGB(46, 204, 113),
-	Warning = Color3.fromRGB(241, 196, 15),
-	Error = Color3.fromRGB(231, 76, 60),
-}
-
-local FontGotham = Enum.Font.GothamSSm
-
---[================================================================]--
--- 1. FLOATING TOGGLE BUTTON
---[================================================================]--
-local ToggleButton = Instance.new("TextButton")
-ToggleButton.Name = "ToggleButton"
-ToggleButton.Size = UDim2.fromOffset(50, 50)
-ToggleButton.Position = UDim2.new(0, 20, 0.5, -25)
-ToggleButton.BackgroundColor3 = Theme.PrimaryGlass
-ToggleButton.BackgroundTransparency = 0.2
-ToggleButton.Text = "C"
-ToggleButton.TextColor3 = Theme.Accent
-ToggleButton.TextSize = 22
-ToggleButton.Font = Enum.Font.GothamBold
-ToggleButton.AutoButtonColor = false
-ToggleButton.Parent = ScreenGui
-
-local ToggleCorner = Instance.new("UICorner")
-ToggleCorner.CornerRadius = UDim.new(1, 0)
-ToggleCorner.Parent = ToggleButton
-
-local ToggleStroke = Instance.new("UIStroke")
-ToggleStroke.Color = Theme.Border
-ToggleStroke.Transparency = 0.5
-ToggleStroke.Thickness = 1
-ToggleStroke.Parent = ToggleButton
-
---[================================================================]--
--- 2. MAIN WINDOW
---[================================================================]--
-local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
-
-local MainWindow = Instance.new("Frame")
-MainWindow.Name = "MainWindow"
-MainWindow.Size = isMobile and UDim2.new(0.9, 0, 0.7, 0) or UDim2.fromOffset(700, 450)
-MainWindow.AnchorPoint = Vector2.new(0.5, 0.5)
-MainWindow.Position = UDim2.new(0.5, 0, 0.5, 0)
-MainWindow.BackgroundColor3 = Theme.Canvas
-MainWindow.BackgroundTransparency = 0.1
-MainWindow.Visible = false
-MainWindow.Parent = ScreenGui
+-- Main Container Frame (Optimized for Mobile/Phones)
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 420, 0, 560)
+MainFrame.Position = UDim2.new(0.5, -210, 0.5, -280)
+MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 15) -- Deep Black/Charcoal Luxury
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
 
 local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 12)
-MainCorner.Parent = MainWindow
+MainCorner.CornerRadius = UDim.new(0, 14)
+MainCorner.Parent = MainFrame
 
 local MainStroke = Instance.new("UIStroke")
-MainStroke.Color = Theme.Border
-MainStroke.Transparency = 0.5
-MainStroke.Thickness = 1
-MainStroke.Parent = MainWindow
+MainStroke.Color = Color3.fromRGB(130, 60, 220) -- Purple Accent Glow Border
+MainStroke.Transparency = 0.4
+MainStroke.Thickness = 1.5
+MainStroke.Parent = MainFrame
 
--- Header Bar
-local HeaderBar = Instance.new("Frame")
-HeaderBar.Name = "HeaderBar"
-HeaderBar.Size = UDim2.new(1, 0, 0, 40)
-HeaderBar.BackgroundColor3 = Theme.PrimaryGlass
-HeaderBar.BackgroundTransparency = 0.2
-HeaderBar.Parent = MainWindow
+-- Top Bar / Header
+local Header = Instance.new("Frame")
+Header.Name = "Header"
+Header.Size = UDim2.new(1, 0, 0, 50)
+Header.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+Header.BorderSizePixel = 0
+Header.Parent = MainFrame
 
 local HeaderCorner = Instance.new("UICorner")
-HeaderCorner.CornerRadius = UDim.new(0, 12)
-HeaderCorner.Parent = HeaderBar
+HeaderCorner.CornerRadius = UDim.new(0, 14)
+HeaderCorner.Parent = Header
 
--- Fix bottom corners of header
 local HeaderFix = Instance.new("Frame")
-HeaderFix.Size = UDim2.new(1, 0, 0, 12)
-HeaderFix.Position = UDim2.new(0, 0, 1, -12)
-HeaderFix.BackgroundColor3 = Theme.PrimaryGlass
-HeaderFix.BackgroundTransparency = 0.2
+HeaderFix.Size = UDim2.new(1, 0, 0, 10)
+HeaderFix.Position = UDim2.new(0, 0, 1, -10)
+HeaderFix.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
 HeaderFix.BorderSizePixel = 0
-HeaderFix.Parent = HeaderBar
-
-local HeaderDivider = Instance.new("Frame")
-HeaderDivider.Size = UDim2.new(1, 0, 0, 1)
-HeaderDivider.Position = UDim2.new(0, 0, 1, 0)
-HeaderDivider.BackgroundColor3 = Theme.Border
-HeaderDivider.BackgroundTransparency = 0.5
-HeaderDivider.BorderSizePixel = 0
-HeaderDivider.Parent = HeaderBar
+HeaderFix.Parent = Header
 
 local TitleLabel = Instance.new("TextLabel")
-TitleLabel.Size = UDim2.new(0, 250, 1, 0)
+TitleLabel.Size = UDim2.new(1, -20, 1, 0)
 TitleLabel.Position = UDim2.new(0, 15, 0, 0)
 TitleLabel.BackgroundTransparency = 1
-TitleLabel.Text = "CH3A5 HUB | V1.0"
-TitleLabel.TextColor3 = Theme.TextPrimary
-TitleLabel.TextSize = 16
 TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.Text = "CH3A5 HUB <font color='#a855f7'>[MOBILE EDITION]</font>"
+TitleLabel.RichText = true
+TitleLabel.TextColor3 = Color3.fromRGB(240, 240, 250)
+TitleLabel.TextSize = 16
 TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-TitleLabel.Parent = HeaderBar
+TitleLabel.Parent = Header
 
--- Window Controls (Close & Minimize)
-local CloseButton = Instance.new("TextButton")
-CloseButton.Size = UDim2.fromOffset(30, 30)
-CloseButton.AnchorPoint = Vector2.new(1, 0.5)
-CloseButton.Position = UDim2.new(1, -10, 0.5, 0)
-CloseButton.BackgroundTransparency = 1
-CloseButton.Text = "X"
-CloseButton.TextColor3 = Theme.TextSecondary
-CloseButton.TextSize = 14
-CloseButton.Font = Enum.Font.GothamBold
-CloseButton.Parent = HeaderBar
+-- Content Area with Bento Cards Layout
+local ContentScroll = Instance.new("ScrollingFrame")
+ContentScroll.Size = UDim2.new(1, -20, 1, -70)
+ContentScroll.Position = UDim2.new(0, 10, 0, 60)
+ContentScroll.BackgroundTransparency = 1
+ContentScroll.BorderSizePixel = 0
+ContentScroll.CanvasSize = UDim2.new(0, 0, 0, 750)
+ContentScroll.ScrollBarThickness = 4
+ContentScroll.ScrollBarImageColor3 = Color3.fromRGB(130, 60, 220)
+ContentScroll.Parent = MainFrame
 
-local MinimizeButton = Instance.new("TextButton")
-MinimizeButton.Size = UDim2.fromOffset(30, 30)
-MinimizeButton.AnchorPoint = Vector2.new(1, 0.5)
-MinimizeButton.Position = UDim2.new(1, -45, 0.5, 0)
-MinimizeButton.BackgroundTransparency = 1
-MinimizeButton.Text = "-"
-MinimizeButton.TextColor3 = Theme.TextSecondary
-MinimizeButton.TextSize = 16
-MinimizeButton.Font = Enum.Font.GothamBold
-MinimizeButton.Parent = HeaderBar
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 12)
+UIListLayout.Parent = ContentScroll
 
---[================================================================]--
--- 3. NAVIGATION & LAYOUT STRUCTURE
---[================================================================]--
-local ContentContainer = Instance.new("Frame")
-ContentContainer.Size = UDim2.new(1, 0, 1, -40)
-ContentContainer.Position = UDim2.new(0, 0, 0, 40)
-ContentContainer.BackgroundTransparency = 1
-ContentContainer.Parent = MainWindow
+-- Helper function to create Bento Cards
+local function CreateBentoCard(titleText, height)
+    local Card = Instance.new("Frame")
+    Card.Size = UDim2.new(1, 0, 0, height or 100)
+    Card.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+    Card.BorderSizePixel = 0
+    Card.Parent = ContentScroll
 
-local Sidebar = Instance.new("Frame")
-Sidebar.Size = UDim2.new(0, 160, 1, 0)
-Sidebar.BackgroundColor3 = Theme.PrimaryGlass
-Sidebar.BackgroundTransparency = 0.4
-Sidebar.Parent = ContentContainer
+    local CardCorner = Instance.new("UICorner")
+    CardCorner.CornerRadius = UDim.new(0, 10)
+    CardCorner.Parent = Card
 
-local SidebarDivider = Instance.new("Frame")
-SidebarDivider.Size = UDim2.new(0, 1, 1, 0)
-SidebarDivider.Position = UDim2.new(1, 0, 0, 0)
-SidebarDivider.BackgroundColor3 = Theme.Border
-SidebarDivider.BackgroundTransparency = 0.5
-SidebarDivider.BorderSizePixel = 0
-SidebarDivider.Parent = Sidebar
+    local CardStroke = Instance.new("UIStroke")
+    CardStroke.Color = Color3.fromRGB(45, 45, 60)
+    CardStroke.Thickness = 1
+    CardStroke.Parent = Card
 
-local TabListLayout = Instance.new("UIListLayout")
-TabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-TabListLayout.Padding = UDim.new(0, 5)
-TabListLayout.Parent = Sidebar
+    local Title = Instance.new("TextLabel")
+    Title.Size = UDim2.new(1, -20, 0, 30)
+    Title.Position = UDim2.new(0, 10, 0, 5)
+    Title.BackgroundTransparency = 1
+    Title.Font = Enum.Font.GothamBold
+    Title.Text = titleText
+    Title.TextColor3 = Color3.fromRGB(200, 200, 220)
+    Title.TextSize = 14
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+    Title.Parent = Card
 
-local TabPadding = Instance.new("UIPadding")
-TabPadding.PaddingTop = UDim.new(0, 10)
-TabPadding.PaddingLeft = UDim.new(0, 10)
-TabPadding.PaddingRight = UDim.new(0, 10)
-TabPadding.Parent = Sidebar
-
--- Pages Container
-local PagesContainer = Instance.new("Frame")
-PagesContainer.Size = UDim2.new(1, -160, 1, 0)
-PagesContainer.Position = UDim2.new(0, 160, 0, 0)
-PagesContainer.BackgroundTransparency = 1
-PagesContainer.Parent = ContentContainer
-
--- Create Pages
-local Pages = {}
-local Tabs = {}
-
-local function CreatePage(name)
-	local page = Instance.new("ScrollingFrame")
-	page.Name = name .. "Page"
-	page.Size = UDim2.new(1, 0, 1, 0)
-	page.BackgroundTransparency = 1
-	page.Visible = false
-	page.ScrollBarThickness = 4
-	page.ScrollBarImageColor3 = Theme.Accent
-	page.CanvasSize = UDim2.new(0, 0, 0, 0)
-	page.AutomaticCanvasSize = Enum.AutomaticSize.Y
-	page.Parent = PagesContainer
-
-	local padding = Instance.new("UIPadding")
-	padding.PaddingTop = UDim.new(0, 15)
-	padding.PaddingBottom = UDim.new(0, 15)
-	padding.PaddingLeft = UDim.new(0, 15)
-	padding.PaddingRight = UDim.new(0, 15)
-	padding.Parent = page
-
-	Pages[name] = page
-	return page
+    return Card
 end
 
-local function CreateTab(name, order)
-	local tabBtn = Instance.new("TextButton")
-	tabBtn.Name = name .. "Tab"
-	tabBtn.Size = UDim2.new(1, 0, 0, 36)
-	tabBtn.BackgroundColor3 = Theme.SecondaryGlass
-	tabBtn.BackgroundTransparency = 1
-	tabBtn.Text = "  " .. name
-	tabBtn.TextColor3 = Theme.TextSecondary
-	tabBtn.TextSize = 14
-	tabBtn.Font = FontGotham
-	tabBtn.TextXAlignment = Enum.TextXAlignment.Left
-	tabBtn.LayoutOrder = order
-	tabBtn.AutoButtonColor = false
-	tabBtn.Parent = Sidebar
+-- Bento Card 1: Status & Info
+local StatusCard = CreateBentoCard("SYSTEM STATUS", 80)
+local StatusText = Instance.new("TextLabel")
+StatusText.Size = UDim2.new(1, -20, 0, 35)
+StatusText.Position = UDim2.new(0, 10, 0, 35)
+StatusText.BackgroundTransparency = 1
+StatusText.Font = Enum.Font.GothamMedium
+StatusText.Text = "Status: Initialized & Ready (CH3A5)"
+StatusText.TextColor3 = Color3.fromRGB(168, 85, 247)
+StatusText.TextSize = 13
+StatusText.TextXAlignment = Enum.TextXAlignment.Left
+StatusText.Parent = StatusCard
 
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, 8)
-	corner.Parent = tabBtn
+-- Bento Card 2: Main Automation toggles
+local AutoCard = CreateBentoCard("AUTOMATION CONTROL", 140)
 
-	local indicator = Instance.new("Frame")
-	indicator.Name = "Indicator"
-	indicator.Size = UDim2.new(0, 3, 0, 18)
-	indicator.AnchorPoint = Vector2.new(0, 0.5)
-	indicator.Position = UDim2.new(0, 0, 0.5, 0)
-	indicator.BackgroundColor3 = Theme.Accent
-	indicator.BorderSizePixel = 0
-	indicator.Visible = false
-	indicator.Parent = tabBtn
+local function CreateToggle(parent, name, yPos, callback)
+    local ToggleBtn = Instance.new("TextButton")
+    ToggleBtn.Size = UDim2.new(1, -20, 0, 36)
+    ToggleBtn.Position = UDim2.new(0, 10, 0, yPos)
+    ToggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 42)
+    ToggleBtn.AutoButtonColor = false
+    ToggleBtn.Font = Enum.Font.GothamMedium
+    ToggleBtn.Text = "  " .. name
+    ToggleBtn.TextColor3 = Color3.fromRGB(220, 220, 240)
+    ToggleBtn.TextSize = 13
+    ToggleBtn.TextXAlignment = Enum.TextXAlignment.Left
+    ToggleBtn.Parent = parent
 
-	local indicatorCorner = Instance.new("UICorner")
-	indicatorCorner.CornerRadius = UDim.new(1, 0)
-	indicatorCorner.Parent = indicator
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 8)
+    Corner.Parent = ToggleBtn
 
-	Tabs[name] = {Button = tabBtn, Indicator = indicator}
-	CreatePage(name)
+    local StatusIndicator = Instance.new("Frame")
+    StatusIndicator.Size = UDim2.new(0, 12, 0, 12)
+    StatusIndicator.Position = UDim2.new(1, -25, 0.5, -6)
+    StatusIndicator.BackgroundColor3 = Color3.fromRGB(80, 80, 100)
+    StatusIndicator.BorderSizePixel = 0
+    StatusIndicator.Parent = ToggleBtn
 
-	return tabBtn
+    local IndCorner = Instance.new("UICorner")
+    IndCorner.CornerRadius = UDim.new(1, 0)
+    IndCorner.Parent = StatusIndicator
+
+    local active = false
+    ToggleBtn.MouseButton1Click:Connect(function()
+        active = not active
+        StatusIndicator.BackgroundColor3 = active and Color3.fromRGB(168, 85, 247) or Color3.fromRGB(80, 80, 100)
+        callback(active)
+    end)
 end
 
--- Initialize Tabs
-local tabNames = {"Home", "Trading Hub", "Favourite", "Keyless", "Key System", "About"}
-for i, name in ipairs(tabNames) do
-	CreateTab(name, i)
-end
-
-local activeTabName = nil
-local function SwitchTab(name)
-	if activeTabName == name then return end
-	activeTabName = name
-
-	for tabName, tabData in pairs(Tabs) do
-		local isActive = (tabName == name)
-		tabData.Indicator.Visible = isActive
-		tabData.Button.TextColor3 = isActive and Theme.TextPrimary or Theme.TextSecondary
-		tabData.Button.BackgroundTransparency = isActive and 0.6 or 1
-	end
-
-	for pageName, pageObj in pairs(Pages) do
-		pageObj.Visible = (pageName == name)
-	end
-end
-
-for name, tabData in pairs(Tabs) do
-	tabData.Button.MouseButton1Click:Connect(function()
-		SwitchTab(name)
-	end)
-end
-
-SwitchTab("Home")
-
---[================================================================]--
--- 4. DYNAMIC TABS CONTENT
---[================================================================]--
-
--- A. HOME TAB
-local homePage = Pages["Home"]
-local homeLayout = Instance.new("UIListLayout")
-homeLayout.SortOrder = Enum.SortOrder.LayoutOrder
-homeLayout.Padding = UDim.new(0, 15)
-homeLayout.Parent = homePage
-
-local WelcomeLabel = Instance.new("TextLabel")
-WelcomeLabel.Size = UDim2.new(1, 0, 0, 25)
-WelcomeLabel.BackgroundTransparency = 1
-WelcomeLabel.Text = "Welcome back, " .. LocalPlayer.DisplayName .. "!"
-WelcomeLabel.TextColor3 = Theme.TextPrimary
-WelcomeLabel.TextSize = 18
-WelcomeLabel.Font = Enum.Font.GothamBold
-WelcomeLabel.TextXAlignment = Enum.TextXAlignment.Left
-WelcomeLabel.LayoutOrder = 1
-WelcomeLabel.Parent = homePage
-
--- Profile Card
-local ProfileCard = Instance.new("Frame")
-ProfileCard.Size = UDim2.new(1, 0, 0, 90)
-ProfileCard.BackgroundColor3 = Theme.PrimaryGlass
-ProfileCard.BackgroundTransparency = 0.2
-ProfileCard.LayoutOrder = 2
-ProfileCard.Parent = homePage
-
-local ProfileCorner = Instance.new("UICorner")
-ProfileCorner.CornerRadius = UDim.new(0, 10)
-ProfileCorner.Parent = ProfileCard
-
-local ProfileStroke = Instance.new("UIStroke")
-ProfileStroke.Color = Theme.Border
-ProfileStroke.Transparency = 0.5
-ProfileStroke.Parent = ProfileCard
-
-local AvatarImg = Instance.new("ImageLabel")
-AvatarImg.Size = UDim2.fromOffset(60, 60)
-AvatarImg.Position = UDim2.new(0, 15, 0.5, -30)
-AvatarImg.BackgroundColor3 = Theme.SecondaryGlass
-AvatarImg.Image = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
-AvatarImg.Parent = ProfileCard
-
-local AvatarCorner = Instance.new("UICorner")
-AvatarCorner.CornerRadius = UDim.new(1, 0)
-AvatarCorner.Parent = AvatarImg
-
-local DisplayNameLabel = Instance.new("TextLabel")
-DisplayNameLabel.Size = UDim2.new(0, 250, 0, 22)
-DisplayNameLabel.Position = UDim2.new(0, 85, 0, 18)
-DisplayNameLabel.BackgroundTransparency = 1
-DisplayNameLabel.Text = LocalPlayer.DisplayName
-DisplayNameLabel.TextColor3 = Theme.TextPrimary
-DisplayNameLabel.TextSize = 16
-DisplayNameLabel.Font = Enum.Font.GothamBold
-DisplayNameLabel.TextXAlignment = Enum.TextXAlignment.Left
-DisplayNameLabel.Parent = ProfileCard
-
-local UsernameLabel = Instance.new("TextLabel")
-UsernameLabel.Size = UDim2.new(0, 250, 0, 18)
-UsernameLabel.Position = UDim2.new(0, 85, 0, 40)
-UsernameLabel.BackgroundTransparency = 1
-UsernameLabel.Text = "@" .. LocalPlayer.Name
-UsernameLabel.TextColor3 = Theme.TextSecondary
-UsernameLabel.TextSize = 13
-UsernameLabel.Font = FontGotham
-UsernameLabel.TextXAlignment = Enum.TextXAlignment.Left
-UsernameLabel.Parent = ProfileCard
-
-local UserDetailsLabel = Instance.new("TextLabel")
-UserDetailsLabel.Size = UDim2.new(0, 250, 0, 18)
-UserDetailsLabel.Position = UDim2.new(0, 85, 0, 58)
-UserDetailsLabel.BackgroundTransparency = 1
-UserDetailsLabel.Text = "ID: " .. LocalPlayer.UserId .. " | Age: 3 Years"
-UserDetailsLabel.TextColor3 = Theme.TextSecondary
-UserDetailsLabel.TextSize = 12
-UserDetailsLabel.Font = FontGotham
-UserDetailsLabel.TextXAlignment = Enum.TextXAlignment.Left
-UserDetailsLabel.Parent = ProfileCard
-
--- Server Stats Grid (2x2)
-local StatsGrid = Instance.new("Frame")
-StatsGrid.Size = UDim2.new(1, 0, 0, 140)
-StatsGrid.BackgroundTransparency = 1
-StatsGrid.LayoutOrder = 3
-StatsGrid.Parent = homePage
-
-local StatsGridFlow = Instance.new("UIGridLayout")
-StatsGridFlow.CellSize = UDim2.new(0.48, 0, 0, 60)
-StatsGridFlow.CellPadding = UDim2.new(0.04, 0, 0, 10)
-StatsGridFlow.Parent = StatsGrid
-
-local function CreateStatCard(labelTitle, initialVal)
-	local card = Instance.new("Frame")
-	card.BackgroundColor3 = Theme.PrimaryGlass
-	card.BackgroundTransparency = 0.3
-	card.Parent = StatsGrid
-
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, 8)
-	corner.Parent = card
-
-	local stroke = Instance.new("UIStroke")
-	stroke.Color = Theme.Border
-	stroke.Transparency = 0.5
-	stroke.Parent = card
-
-	local title = Instance.new("TextLabel")
-	title.Size = UDim2.new(1, -15, 0, 20)
-	title.Position = UDim2.new(0, 10, 0, 8)
-	title.BackgroundTransparency = 1
-	title.Text = labelTitle
-	title.TextColor3 = Theme.TextSecondary
-	title.TextSize = 12
-	title.Font = FontGotham
-	title.TextXAlignment = Enum.TextXAlignment.Left
-	title.Parent = card
-
-	local val = Instance.new("TextLabel")
-	val.Name = "ValueLabel"
-	val.Size = UDim2.new(1, -15, 0, 25)
-	val.Position = UDim2.new(0, 10, 0, 25)
-	val.BackgroundTransparency = 1
-	val.Text = initialVal
-	val.TextColor3 = Theme.TextPrimary
-	val.TextSize = 16
-	val.Font = Enum.Font.GothamBold
-	val.TextXAlignment = Enum.TextXAlignment.Left
-	val.Parent = card
-
-	return val
-end
-
-local fpsVal = CreateStatCard("FPS", "60")
-local pingVal = CreateStatCard("PING", "45ms")
-local regionVal = CreateStatCard("REGION", "US-East")
-local playersVal = CreateStatCard("PLAYERS", #Players:GetPlayers() .. " / " .. Players.MaxPlayers)
-
--- Dynamic Updater
-RunService.RenderStepped:Connect(function(dt)
-	local fps = math.floor(1 / dt)
-	fpsVal.Text = tostring(fps)
-
-	local stats = LocalPlayer:FindFirstChild("PlayerStats")
-	local ping = 45
-	pcall(function()
-		ping = math.floor(LocalPlayer:GetNetworkPing() * 1000)
-	end)
-	pingVal.Text = ping .. "ms"
-	pingVal.TextColor3 = ping < 50 and Theme.Success or (ping <= 150 and Theme.Warning or Theme.Error)
-
-	playersVal.Text = #Players:GetPlayers() .. " / " .. Players.MaxPlayers
+CreateToggle(AutoCard, "Auto Hatch Eggs", 40, function(val)
+    h.autoHatch = val
+    StatusText.Text = "Auto Hatch: " .. tostring(val)
 end)
 
-
--- B. TRADING HUB TAB
-local tradingPage = Pages["Trading Hub"]
-local tradingLayout = Instance.new("UIListLayout")
-tradingLayout.SortOrder = Enum.SortOrder.LayoutOrder
-tradingLayout.Padding = UDim.new(0, 12)
-tradingLayout.Parent = tradingPage
-
-local TradingHeader = Instance.new("TextLabel")
-TradingHeader.Size = UDim2.new(1, 0, 0, 25)
-TradingHeader.BackgroundTransparency = 1
-TradingHeader.Text = "Trading Hub"
-TradingHeader.TextColor3 = Theme.TextPrimary
-TradingHeader.TextSize = 18
-TradingHeader.Font = Enum.Font.GothamBold
-TradingHeader.TextXAlignment = Enum.TextXAlignment.Left
-TradingHeader.LayoutOrder = 1
-TradingHeader.Parent = tradingPage
-
-local SearchBar = Instance.new("TextBox")
-SearchBar.Size = UDim2.new(1, 0, 0, 36)
-SearchBar.BackgroundColor3 = Theme.PrimaryGlass
-SearchBar.BackgroundTransparency = 0.3
-SearchBar.PlaceholderText = "Search Players..."
-SearchBar.PlaceholderColor3 = Theme.TextSecondary
-SearchBar.Text = ""
-SearchBar.TextColor3 = Theme.TextPrimary
-SearchBar.TextSize = 14
-SearchBar.Font = FontGotham
-SearchBar.ClearTextOnFocus = false
-SearchBar.LayoutOrder = 2
-SearchBar.Parent = tradingPage
-
-local SearchCorner = Instance.new("UICorner")
-SearchCorner.CornerRadius = UDim.new(0, 8)
-SearchCorner.Parent = SearchBar
-
-local SearchStroke = Instance.new("UIStroke")
-SearchStroke.Color = Theme.Border
-SearchStroke.Transparency = 0.5
-SearchStroke.Parent = SearchBar
-
-local PlayerListContainer = Instance.new("Frame")
-PlayerListContainer.Size = UDim2.new(1, 0, 0, 200)
-PlayerListContainer.BackgroundTransparency = 1
-PlayerListContainer.LayoutOrder = 3
-PlayerListContainer.Parent = tradingPage
-
-local PlayerListFlow = Instance.new("UIListLayout")
-PlayerListFlow.SortOrder = Enum.SortOrder.LayoutOrder
-PlayerListFlow.Padding = UDim.new(0, 8)
-PlayerListFlow.Parent = PlayerListContainer
-
-local function CreatePlayerCard(plrName, status)
-	local card = Instance.new("Frame")
-	card.Size = UDim2.new(1, 0, 0, 50)
-	card.BackgroundColor3 = Theme.PrimaryGlass
-	card.BackgroundTransparency = 0.3
-	card.Parent = PlayerListContainer
-
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, 8)
-	corner.Parent = card
-
-	local stroke = Instance.new("UIStroke")
-	stroke.Color = Theme.Border
-	stroke.Transparency = 0.5
-	stroke.Parent = card
-
-	local nameLbl = Instance.new("TextLabel")
-	nameLbl.Size = UDim2.new(0, 150, 1, 0)
-	nameLbl.Position = UDim2.new(0, 15, 0, 0)
-	nameLbl.BackgroundTransparency = 1
-	nameLbl.Text = plrName
-	nameLbl.TextColor3 = Theme.TextPrimary
-	nameLbl.TextSize = 14
-	nameLbl.Font = Enum.Font.GothamBold
-	nameLbl.TextXAlignment = Enum.TextXAlignment.Left
-	nameLbl.Parent = card
-
-	local statusLbl = Instance.new("TextLabel")
-	statusLbl.Size = UDim2.new(0, 100, 1, 0)
-	statusLbl.Position = UDim2.new(0, 130, 0, 0)
-	statusLbl.BackgroundTransparency = 1
-	statusLbl.Text = status
-	statusLbl.TextColor3 = status == "Trading" and Theme.Success or Theme.TextSecondary
-	statusLbl.TextSize = 12
-	statusLbl.Font = FontGotham
-	statusLbl.TextXAlignment = Enum.TextXAlignment.Left
-	statusLbl.Parent = card
-
-	local btn = Instance.new("TextButton")
-	btn.Size = UDim2.fromOffset(90, 28)
-	btn.AnchorPoint = Vector2.new(1, 0.5)
-	btn.Position = UDim2.new(1, -10, 0.5, 0)
-	btn.BackgroundColor3 = Theme.Accent
-	btn.BackgroundTransparency = 0.2
-	btn.Text = "Trade"
-	btn.TextColor3 = Theme.TextPrimary
-	btn.TextSize = 12
-	btn.Font = Enum.Font.GothamBold
-	btn.Parent = card
-
-	local btnCorner = Instance.new("UICorner")
-	btnCorner.CornerRadius = UDim.new(0, 6)
-	btnCorner.Parent = btn
-end
-
-CreatePlayerCard("ROBLOX_Trader1", "Trading")
-CreatePlayerCard("ScriptMaster99", "Online")
-CreatePlayerCard("CH3A5_Fan", "Offline")
-
-
--- C. FAVOURITE TAB
-local favPage = Pages["Favourite"]
-local favLayout = Instance.new("UIListLayout")
-favLayout.SortOrder = Enum.SortOrder.LayoutOrder
-favLayout.Padding = UDim.new(0, 12)
-favLayout.Parent = favPage
-
-local FavHeader = Instance.new("TextLabel")
-FavHeader.Size = UDim2.new(1, 0, 0, 25)
-FavHeader.BackgroundTransparency = 1
-FavHeader.Text = "Favorite Scripts"
-FavHeader.TextColor3 = Theme.TextPrimary
-FavHeader.TextSize = 18
-FavHeader.Font = Enum.Font.GothamBold
-FavHeader.TextXAlignment = Enum.TextXAlignment.Left
-FavHeader.LayoutOrder = 1
-FavHeader.Parent = favPage
-
-local FavEmptyContainer = Instance.new("Frame")
-FavEmptyContainer.Size = UDim2.new(1, 0, 0, 150)
-FavEmptyContainer.BackgroundTransparency = 1
-FavEmptyContainer.LayoutOrder = 2
-FavEmptyContainer.Parent = favPage
-
-local FavEmptyMsg = Instance.new("TextLabel")
-FavEmptyMsg.Size = UDim2.new(1, 0, 1, 0)
-FavEmptyMsg.BackgroundTransparency = 1
-FavEmptyMsg.Text = "⭐ No favorites yet.\nStar scripts to see them here!"
-FavEmptyMsg.TextColor3 = Theme.TextSecondary
-FavEmptyMsg.TextSize = 14
-FavEmptyMsg.Font = FontGotham
-FavEmptyMsg.TextWrapped = true
-FavEmptyMsg.Parent = FavEmptyContainer
-
-
--- D. KEYLESS TAB
-local keylessPage = Pages["Keyless"]
-local keylessLayout = Instance.new("UIListLayout")
-keylessLayout.SortOrder = Enum.SortOrder.LayoutOrder
-keylessLayout.Padding = UDim.new(0, 10)
-keylessLayout.Parent = keylessPage
-
-local function CreateScriptCard(parent, title, desc, isKeyRequired)
-	local card = Instance.new("Frame")
-	card.Size = UDim2.new(1, 0, 0, 65)
-	card.BackgroundColor3 = Theme.PrimaryGlass
-	card.BackgroundTransparency = 0.3
-	card.Parent = parent
-
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, 8)
-	corner.Parent = card
-
-	local stroke = Instance.new("UIStroke")
-	stroke.Color = Theme.Border
-	stroke.Transparency = 0.5
-	stroke.Parent = card
-
-	local titleLbl = Instance.new("TextLabel")
-	titleLbl.Size = UDim2.new(1, -110, 0, 20)
-	titleLbl.Position = UDim2.new(0, 15, 0, 10)
-	titleLbl.BackgroundTransparency = 1
-	titleLbl.Text = title
-	titleLbl.TextColor3 = Theme.TextPrimary
-	titleLbl.TextSize = 15
-	titleLbl.Font = Enum.Font.GothamBold
-	titleLbl.TextXAlignment = Enum.TextXAlignment.Left
-	titleLbl.Parent = card
-
-	local descLbl = Instance.new("TextLabel")
-	descLbl.Size = UDim2.new(1, -110, 0, 20)
-	descLbl.Position = UDim2.new(0, 15, 0, 32)
-	descLbl.BackgroundTransparency = 1
-	descLbl.Text = desc
-	descLbl.TextColor3 = Theme.TextSecondary
-	descLbl.TextSize = 12
-	descLbl.Font = FontGotham
-	descLbl.TextXAlignment = Enum.TextXAlignment.Left
-	descLbl.Parent = card
-
-	local execBtn = Instance.new("TextButton")
-	execBtn.Size = UDim2.fromOffset(80, 32)
-	execBtn.AnchorPoint = Vector2.new(1, 0.5)
-	execBtn.Position = UDim2.new(1, -12, 0.5, 0)
-	execBtn.BackgroundColor3 = isKeyRequired and Theme.SecondaryGlass or Theme.Accent
-	execBtn.BackgroundTransparency = 0.2
-	execBtn.Text = isKeyRequired and "Locked" or "Execute"
-	execBtn.TextColor3 = Theme.TextPrimary
-	execBtn.TextSize = 12
-	execBtn.Font = Enum.Font.GothamBold
-	execBtn.Parent = card
-
-	local btnCorner = Instance.new("UICorner")
-	btnCorner.CornerRadius = UDim.new(0, 6)
-	btnCorner.Parent = execBtn
-end
-
-CreateScriptCard(keylessPage, "Infinite Jump", "Allows you to jump infinitely in the air.", false)
-CreateScriptCard(keylessPage, "ESP Highlight", "Highlights all players across the map easily.", false)
-CreateScriptCard(keylessPage, "Fullbright", "Removes shadows and dark atmospheric lighting.", false)
-
-
--- E. KEY SYSTEM TAB
-local keyPage = Pages["Key System"]
-local keyLayout = Instance.new("UIListLayout")
-keyLayout.SortOrder = Enum.SortOrder.LayoutOrder
-keyLayout.Padding = UDim.new(0, 12)
-keyLayout.Parent = keyPage
-
-local KeyHeader = Instance.new("TextLabel")
-KeyHeader.Size = UDim2.new(1, 0, 0, 25)
-KeyHeader.BackgroundTransparency = 1
-KeyHeader.Text = "Key System Verification"
-KeyHeader.TextColor3 = Theme.TextPrimary
-KeyHeader.TextSize = 18
-KeyHeader.Font = Enum.Font.GothamBold
-KeyHeader.TextXAlignment = Enum.TextXAlignment.Left
-KeyHeader.LayoutOrder = 1
-KeyHeader.Parent = keyPage
-
-CreateScriptCard(keyPage, "Premium Aimbot", "Advanced combat assistance with smooth camera locking.", true)
-CreateScriptCard(keyPage, "Silent Aim / Hitbox", "Enables custom expanded hitboxes for players.", true)
-
-local KeyInputBox = Instance.new("TextBox")
-KeyInputBox.Size = UDim2.new(1, 0, 0, 38)
-KeyInputBox.BackgroundColor3 = Theme.PrimaryGlass
-KeyInputBox.BackgroundTransparency = 0.3
-KeyInputBox.PlaceholderText = "Enter your access key here..."
-KeyInputBox.PlaceholderColor3 = Theme.TextSecondary
-KeyInputBox.Text = ""
-KeyInputBox.TextColor3 = Theme.TextPrimary
-KeyInputBox.TextSize = 14
-KeyInputBox.Font = FontGotham
-KeyInputBox.LayoutOrder = 4
-KeyInputBox.Parent = keyPage
-
-local KeyCorner = Instance.new("UICorner")
-KeyCorner.CornerRadius = UDim.new(0, 8)
-KeyCorner.Parent = KeyInputBox
-
-local KeyStroke = Instance.new("UIStroke")
-KeyStroke.Color = Theme.Border
-KeyStroke.Transparency = 0.5
-KeyStroke.Parent = KeyInputBox
-
-local KeyActionHolder = Instance.new("Frame")
-KeyActionHolder.Size = UDim2.new(1, 0, 0, 36)
-KeyActionHolder.BackgroundTransparency = 1
-KeyActionHolder.LayoutOrder = 5
-KeyActionHolder.Parent = keyPage
-
-local GetKeyBtn = Instance.new("TextButton")
-GetKeyBtn.Size = UDim2.new(0.48, 0, 1, 0)
-GetKeyBtn.BackgroundColor3 = Theme.SecondaryGlass
-GetKeyBtn.BackgroundTransparency = 0.3
-GetKeyBtn.Text = "Get Key"
-GetKeyBtn.TextColor3 = Theme.TextPrimary
-GetKeyBtn.TextSize = 13
-GetKeyBtn.Font = Enum.Font.GothamBold
-GetKeyBtn.Parent = KeyActionHolder
-
-local GetKeyCorner = Instance.new("UICorner")
-GetKeyCorner.CornerRadius = UDim.new(0, 8)
-GetKeyCorner.Parent = GetKeyBtn
-
-local VerifyKeyBtn = Instance.new("TextButton")
-VerifyKeyBtn.Size = UDim2.new(0.48, 0, 1, 0)
-VerifyKeyBtn.Position = UDim2.new(0.52, 0, 0, 0)
-VerifyKeyBtn.BackgroundColor3 = Theme.Accent
-VerifyKeyBtn.BackgroundTransparency = 0.2
-VerifyKeyBtn.Text = "Verify Key"
-VerifyKeyBtn.TextColor3 = Theme.TextPrimary
-VerifyKeyBtn.TextSize = 13
-VerifyKeyBtn.Font = Enum.Font.GothamBold
-VerifyKeyBtn.Parent = KeyActionHolder
-
-local VerifyKeyCorner = Instance.new("UICorner")
-VerifyKeyCorner.CornerRadius = UDim.new(0, 8)
-VerifyKeyCorner.Parent = VerifyKeyBtn
-
-local KeyFeedback = Instance.new("TextLabel")
-KeyFeedback.Size = UDim2.new(1, 0, 0, 20)
-KeyFeedback.BackgroundTransparency = 1
-KeyFeedback.Text = "Status: Locked. Please enter a valid key."
-KeyFeedback.TextColor3 = Theme.TextSecondary
-KeyFeedback.TextSize = 12
-KeyFeedback.Font = FontGotham
-KeyFeedback.TextXAlignment = Enum.TextXAlignment.Left
-KeyFeedback.LayoutOrder = 6
-KeyFeedback.Parent = keyPage
-
-VerifyKeyBtn.MouseButton1Click:Connect(function()
-	if KeyInputBox.Text == "CH3A5-VALID" then
-		KeyFeedback.Text = "Success! Key verified successfully."
-		KeyFeedback.TextColor3 = Theme.Success
-	else
-		KeyFeedback.Text = "Error! Invalid access key provided."
-		KeyFeedback.TextColor3 = Theme.Error
-	end
+CreateToggle(AutoCard, "Auto Treadmill / Training", 85, function(val)
+    h.autoTreadmill = val
+    StatusText.Text = "Auto Treadmill: " .. tostring(val)
 end)
 
+-- Bento Card 3: Utilities & Flight
+local UtilCard = CreateBentoCard("UTILITIES & SPEED", 100)
+local SpeedLabel = Instance.new("TextLabel")
+SpeedLabel.Size = UDim2.new(1, -20, 0, 30)
+SpeedLabel.Position = UDim2.new(0, 10, 0, 45)
+SpeedLabel.BackgroundTransparency = 1
+SpeedLabel.Font = Enum.Font.Gotham
+SpeedLabel.Text = "Glide Speed: " .. tostring(h.glideSpeed)
+SpeedLabel.TextColor3 = Color3.fromRGB(180, 180, 200)
+SpeedLabel.TextSize = 12
+SpeedLabel.TextXAlignment = Enum.TextXAlignment.Left
+SpeedLabel.Parent = UtilCard
 
--- F. ABOUT TAB
-local aboutPage = Pages["About"]
-local aboutLayout = Instance.new("UIListLayout")
-aboutLayout.SortOrder = Enum.SortOrder.LayoutOrder
-aboutLayout.Padding = UDim.new(0, 12)
-aboutLayout.Parent = aboutPage
-
-local AboutLogo = Instance.new("TextLabel")
-AboutLogo.Size = UDim2.new(1, 0, 0, 35)
-AboutLogo.BackgroundTransparency = 1
-AboutLogo.Text = "CH3A5 HUB"
-AboutLogo.TextColor3 = Theme.Accent
-AboutLogo.TextSize = 22
-AboutLogo.Font = Enum.Font.GothamBold
-AboutLogo.LayoutOrder = 1
-AboutLogo.Parent = aboutPage
-
-local AboutInfoCard = Instance.new("Frame")
-AboutInfoCard.Size = UDim2.new(1, 0, 0, 85)
-AboutInfoCard.BackgroundColor3 = Theme.PrimaryGlass
-AboutInfoCard.BackgroundTransparency = 0.3
-AboutInfoCard.LayoutOrder = 2
-AboutInfoCard.Parent = aboutPage
-
-local AboutCorner = Instance.new("UICorner")
-AboutCorner.CornerRadius = UDim.new(0, 8)
-AboutCorner.Parent = AboutInfoCard
-
-local AboutStroke = Instance.new("UIStroke")
-AboutStroke.Color = Theme.Border
-AboutStroke.Transparency = 0.5
-AboutStroke.Parent = AboutInfoCard
-
-local AboutDetailsText = Instance.new("TextLabel")
-AboutDetailsText.Size = UDim2.new(1, -20, 1, 0)
-AboutDetailsText.Position = UDim2.new(0, 10, 0, 0)
-AboutDetailsText.BackgroundTransparency = 1
-AboutDetailsText.Text = "Version: 1.0\nDeveloper: CH3A5\nStatus: Online 🟢\nRelease: 2026"
-AboutDetailsText.TextColor3 = Theme.TextSecondary
-AboutDetailsText.TextSize = 13
-AboutDetailsText.Font = FontGotham
-AboutDetailsText.TextXAlignment = Enum.TextXAlignment.Left
-AboutDetailsText.Parent = AboutInfoCard
-
-local function CreateSocialButton(text, link)
-	local btn = Instance.new("TextButton")
-	btn.Size = UDim2.new(1, 0, 0, 36)
-	btn.BackgroundColor3 = Theme.SecondaryGlass
-	btn.BackgroundTransparency = 0.3
-	btn.Text = text
-	btn.TextColor3 = Theme.TextPrimary
-	btn.TextSize = 13
-	btn.Font = FontGotham
-	btn.Parent = aboutPage
-
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, 8)
-	corner.Parent = btn
-
-	btn.MouseButton1Click:Connect(function()
-		pcall(function()
-			setclipboard(link)
-		end)
-		btn.Text = "Copied Link to Clipboard!"
-		task.wait(1.5)
-		btn.Text = text
-	end)
-end
-
-CreateSocialButton("Telegram Channel: t.me/stealanegg_ch3a5_script", "https://t.me/stealanegg_ch3a5_script")
-CreateSocialButton("Telegram Support: t.me/ch3a5", "https://t.me/ch3a5")
-CreateSocialButton("TikTok: @ch3a5smos_404", "https://www.tiktok.com/@ch3a5smos_404")
-
-
---[================================================================]--
--- 5. ANIMATIONS & INTERACTIONS
---[================================================================]--
-local isOpen = false
-
-local function ToggleUI()
-	isOpen = not isOpen
-	if isOpen then
-		MainWindow.Visible = true
-		MainWindow.Size = isMobile and UDim2.new(0.85, 0, 0.65, 0) or UDim2.fromOffset(600, 380)
-		MainWindow.BackgroundTransparency = 1
-		
-		local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-		TweenService:Create(MainWindow, tweenInfo, {
-			Size = isMobile and UDim2.new(0.9, 0, 0.7, 0) or UDim2.fromOffset(700, 450),
-			BackgroundTransparency = 0.1
-		}):Play()
-	else
-		local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
-		local tween = TweenService:Create(MainWindow, tweenInfo, {
-			Size = isMobile and UDim2.new(0.8, 0, 0.6, 0) or UDim2.fromOffset(600, 380),
-			BackgroundTransparency = 1
-		})
-		tween:Play()
-		tween.Completed:Connect(function()
-			if not isOpen then MainWindow.Visible = false end
-		end)
-	end
-end
-
-ToggleButton.MouseButton1Click:Connect(ToggleUI)
-CloseButton.MouseButton1Click:Connect(ToggleUI)
-
-MinimizeButton.MouseButton1Click:Connect(function()
-	ToggleUI()
-end)
-
--- Draggable Window logic
-local dragging, dragInput, dragStart, startPos
-HeaderBar.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		dragging = true
-		dragStart = input.Position
-		startPos = MainWindow.Position
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
-	end
-end)
-
-HeaderBar.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-		dragInput = input
-	end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-	if input == dragInput and dragging then
-		local delta = input.Position - dragStart
-		MainWindow.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-	end
-end)
-
--- Auto open on execution for instant test feedback
-ToggleUI()
+print("[CH3A5 HUB] Successfully loaded with Dark Luxury + Futuristic Bento UI (Mobile Responsive)!")
