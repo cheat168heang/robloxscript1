@@ -1,47 +1,38 @@
 --[================================================================[
-	CH3A5 HUB - v1.0
+	CH3A5 HUB - v1.0 (Executor Optimized Edition)
 	Developer: CH3A5
 	Style: Premium Dark Hacker UI
-	Environment: Client-side Script Executor (Roblox Luau)
 --================================================================]--
 
 if not game:IsLoaded() then
 	game.Loaded:Wait()
 end
 
--- Prevent duplicate instances
-local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
-if CoreGui:FindFirstChild("CH3A5_HUB") then
-	CoreGui.CH3A5_HUB:Destroy()
+-- Prevent duplicate instances safely
+if PlayerGui:FindFirstChild("CH3A5_HUB") then
+	PlayerGui.CH3A5_HUB:Destroy()
 end
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "CH3A5_HUB"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-local success, err = pcall(function()
-	ScreenGui.Parent = CoreGui
-end)
-if not success then
-	ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-end
+ScreenGui.Parent = PlayerGui
 
 -- Services
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
-local UserInputService = game:GetService("UserInputService")
 local MarketplaceService = game:GetService("MarketplaceService")
 
 -- Configuration & State
 local Config = {
 	Scale = 0.7,
-	Theme = "Neon Green",
 	Animations = true,
 	AutoHopDelay = 5,
 	MinPlayers = 0,
@@ -51,10 +42,9 @@ local Config = {
 
 local AutoHopRunning = false
 local AutoHopAttempts = 0
-local CurrentStatus = "Idle"
 local ActiveConnections = {}
 
--- Theme Colors
+-- Theme Colors (Dark Hacker Palette)
 local Colors = {
 	Background = Color3.fromRGB(11, 13, 16),
 	Panel = Color3.fromRGB(20, 24, 32),
@@ -99,7 +89,6 @@ local TopBarCorner = Instance.new("UICorner")
 TopBarCorner.CornerRadius = UDim.new(0, 8)
 TopBarCorner.Parent = TopBar
 
--- Fix bottom corners of top bar
 local TopBarCover = Instance.new("Frame")
 TopBarCover.Size = UDim2.new(1, 0, 0, 6)
 TopBarCover.Position = UDim2.new(0, 0, 1, -6)
@@ -119,7 +108,7 @@ TitleLabel.TextSize = 14
 TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 TitleLabel.Parent = TopBar
 
--- Window Controls (Close, Minimize)
+-- Window Controls Container
 local ButtonContainer = Instance.new("Frame")
 ButtonContainer.Size = UDim2.new(0, 70, 1, 0)
 ButtonContainer.Position = UDim2.new(1, -75, 0, 0)
@@ -154,7 +143,7 @@ local CloseBtn = createWinButton("X", Colors.Error)
 CloseBtn.Parent = ButtonContainer
 CloseBtn.MouseButton1Click:Connect(function()
 	for _, conn in ipairs(ActiveConnections) do
-		conn:Disconnect()
+		pcall(function() conn:Disconnect() end)
 	end
 	ScreenGui:Destroy()
 end)
@@ -174,13 +163,15 @@ MinimizeBtn.MouseButton1Click:Connect(function()
 	ContentContainer.Visible = not Minimized
 	local targetSize = Minimized and UDim2.new(0, 560 * Config.Scale, 0, 36) or UDim2.new(0, 560 * Config.Scale, 0, 360 * Config.Scale)
 	if Config.Animations then
-		TweenService:Create(MainFrame, TweenInfo.new(0.2), {Size = targetSize}):Play()
+		pcall(function()
+			TweenService:Create(MainFrame, TweenInfo.new(0.2), {Size = targetSize}):Play()
+		end)
 	else
 		MainFrame.Size = targetSize
 	end
 end)
 
--- Navigation Sidebar
+-- Sidebar Navigation
 local Sidebar = Instance.new("Frame")
 Sidebar.Size = UDim2.new(0, 130, 1, 0)
 Sidebar.BackgroundColor3 = Colors.Panel
@@ -274,7 +265,6 @@ local function createNavButton(name)
 	return btn
 end
 
--- Create Tabs
 local tabNames = {"HOME", "SERVER HOP", "AUTO HOP", "SETTINGS", "ABOUT"}
 for i, name in ipairs(tabNames) do
 	createPage(name)
@@ -286,7 +276,6 @@ for i, name in ipairs(tabNames) do
 	end
 end
 
--- UI Component Helpers
 local function createCard(parent, height)
 	local card = Instance.new("Frame")
 	card.Size = UDim2.new(1, 0, 0, height or 40)
@@ -310,13 +299,15 @@ end
 -- 1. HOME TAB
 -- ==========================================
 local homePage = Pages["HOME"]
-
 local profileCard = createCard(homePage, 70)
+
 local avatarImg = Instance.new("ImageLabel")
 avatarImg.Size = UDim2.new(0, 50, 0, 50)
 avatarImg.Position = UDim2.new(0, 10, 0, 10)
 avatarImg.BackgroundTransparency = 1
-avatarImg.Image = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
+pcall(function()
+	avatarImg.Image = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
+end)
 avatarImg.Parent = profileCard
 
 local avatarCorner = Instance.new("UICorner")
@@ -339,13 +330,12 @@ statusLabel.Size = UDim2.new(1, -70, 0, 16)
 statusLabel.Position = UDim2.new(0, 70, 0, 36)
 statusLabel.BackgroundTransparency = 1
 statusLabel.Font = Enum.Font.Code
-statusLabel.Text = "Status: Online | Executor Ready"
+statusLabel.Text = "Status: Executor Ready"
 statusLabel.TextColor3 = Colors.Accent
 statusLabel.TextSize = 11
 statusLabel.TextXAlignment = Enum.TextXAlignment.Left
 statusLabel.Parent = profileCard
 
--- Game Info Card
 local gameInfoCard = createCard(homePage, 120)
 local gameListLayout = Instance.new("UIListLayout")
 gameListLayout.Padding = UDim.new(0, 6)
@@ -378,9 +368,8 @@ end)
 
 createInfoRow("Game Name", gameName)
 createInfoRow("PlaceId", game.PlaceId)
-createInfoRow("JobId", game.JobId ~= "" and game.JobId or "Local/Studio")
+createInfoRow("JobId", game.JobId ~= "" and game.JobId or "Studio")
 local playerStatsRow = createInfoRow("Players", #Players:GetPlayers() .. " / " .. Players.MaxPlayers)
-
 local fpsPingRow = createInfoRow("Performance", "FPS: 60 | Ping: 0ms")
 
 local lastUpdate = 0
@@ -401,7 +390,6 @@ end))
 -- 2. SERVER HOP TAB
 -- ==========================================
 local serverHopPage = Pages["SERVER HOP"]
-
 local serverControlsCard = createCard(serverHopPage, 90)
 local scList = Instance.new("UIListLayout")
 scList.Padding = UDim.new(0, 8)
@@ -416,7 +404,7 @@ local infoServerHopNote = Instance.new("TextLabel")
 infoServerHopNote.Size = UDim2.new(1, 0, 0, 24)
 infoServerHopNote.BackgroundTransparency = 1
 infoServerHopNote.Font = Enum.Font.Code
-infoServerHopNote.Text = "Note: Public server discovery relies on TeleportService/HTTP APIs."
+infoServerHopNote.Text = "Note: Requires httpGet support enabled in executor."
 infoServerHopNote.TextColor3 = Colors.SubText
 infoServerHopNote.TextSize = 10
 infoServerHopNote.TextXAlignment = Enum.TextXAlignment.Left
@@ -432,17 +420,14 @@ findLowBtn.Size = UDim2.new(0.48, 0, 1, 0)
 findLowBtn.BackgroundColor3 = Colors.Accent
 findLowBtn.BorderSizePixel = 0
 findLowBtn.Font = Enum.Font.Code
-findLowBtn.Text = "Find Low Servers"
+findLowBtn.Text = "Find Servers"
 findLowBtn.TextColor3 = Colors.Background
 findLowBtn.TextSize = 12
 findLowBtn.Parent = buttonRow
 
-local findCorner = Instance.new("UICorner")
-findCorner.CornerRadius = UDim.new(0, 4)
-findCorner.Parent = findLowBtn
+local findCorner = Instance.new("UICorner") findCorner.CornerRadius = UDim.new(0, 4) findCorner.Parent = findLowBtn
 
 local refreshBtn = Instance.new("TextButton")
-findLowBtn.Size = UDim2.new(0.48, 0, 1, 0)
 refreshBtn.Size = UDim2.new(0.48, 0, 1, 0)
 refreshBtn.Position = UDim2.new(0.52, 0, 0, 0)
 refreshBtn.BackgroundColor3 = Colors.PanelAlt
@@ -453,9 +438,7 @@ refreshBtn.TextColor3 = Colors.Text
 refreshBtn.TextSize = 12
 refreshBtn.Parent = buttonRow
 
-local refCorner = Instance.new("UICorner")
-refCorner.CornerRadius = UDim.new(0, 4)
-refCorner.Parent = refreshBtn
+local refCorner = Instance.new("UICorner") refCorner.CornerRadius = UDim.new(0, 4) refCorner.Parent = refreshBtn
 
 local serverListContainer = createCard(serverHopPage, 180)
 serverListContainer.ClipsDescendants = true
@@ -480,16 +463,14 @@ serverScrollPad.PaddingRight = UDim.new(0, 6)
 serverScrollPad.PaddingTop = UDim.new(0, 6)
 serverScrollPad.Parent = serverScroll
 
-local function addServerRow(jobId, playersMax, ping)
+local function addServerRow(jobId, playersMax)
 	local row = Instance.new("Frame")
 	row.Size = UDim2.new(1, 0, 0, 30)
 	row.BackgroundColor3 = Colors.PanelAlt
 	row.BorderSizePixel = 0
 	row.Parent = serverScroll
 	
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, 4)
-	corner.Parent = row
+	local corner = Instance.new("UICorner") corner.CornerRadius = UDim.new(0, 4) corner.Parent = row
 	
 	local lbl = Instance.new("TextLabel")
 	lbl.Size = UDim2.new(0.7, 0, 1, 0)
@@ -513,9 +494,7 @@ local function addServerRow(jobId, playersMax, ping)
 	joinBtn.TextSize = 11
 	joinBtn.Parent = row
 	
-	local jCorner = Instance.new("UICorner")
-    jCorner.CornerRadius = UDim.new(0, 3)
-    jCorner.Parent = joinBtn
+	local jCorner = Instance.new("UICorner") jCorner.CornerRadius = UDim.new(0, 3) jCorner.Parent = joinBtn
 	
 	joinBtn.MouseButton1Click:Connect(function()
 		pcall(function()
@@ -539,7 +518,7 @@ local function fetchServers()
 		for _, srv in ipairs(response.data) do
 			if srv.id ~= game.JobId and srv.playing < srv.maxPlayers then
 				found = true
-				addServerRow(srv.id, srv.playing .. "/" .. srv.maxPlayers, 0)
+				addServerRow(srv.id, srv.playing .. "/" .. srv.maxPlayers)
 			end
 		end
 		if not found then
@@ -547,7 +526,7 @@ local function fetchServers()
 			errLbl.Size = UDim2.new(1, 0, 0, 30)
 			errLbl.BackgroundTransparency = 1
 			errLbl.Font = Enum.Font.Code
-			errLbl.Text = "No alternate public servers found via API."
+			errLbl.Text = "No alternative public servers available."
 			errLbl.TextColor3 = Colors.Error
 			errLbl.TextSize = 11
 			errLbl.Parent = serverScroll
@@ -557,7 +536,7 @@ local function fetchServers()
 		errLbl.Size = UDim2.new(1, 0, 0, 30)
 		errLbl.BackgroundTransparency = 1
 		errLbl.Font = Enum.Font.Code
-		errLbl.Text = "HTTP GET restricted in this executor/environment."
+		errLbl.Text = "HTTP GET blocked by current environment."
 		errLbl.TextColor3 = Colors.Error
 		errLbl.TextSize = 11
 		errLbl.Parent = serverScroll
@@ -571,7 +550,6 @@ findLowBtn.MouseButton1Click:Connect(fetchServers)
 -- 3. AUTO HOP TAB
 -- ==========================================
 local autoHopPage = Pages["AUTO HOP"]
-
 local autoCard = createCard(autoHopPage, 160)
 local autoList = Instance.new("UIListLayout")
 autoList.Padding = UDim.new(0, 8)
@@ -624,7 +602,7 @@ local autoNote = Instance.new("TextLabel")
 autoNote.Size = UDim2.new(1, 0, 0, 40)
 autoNote.BackgroundTransparency = 1
 autoNote.Font = Enum.Font.Code
-autoNote.Text = "Continuously attempts to find and teleport to a different server until successful."
+autoNote.Text = "Automatically loops server checks until a target low-player server is found."
 autoNote.TextWrapped = true
 autoNote.TextColor3 = Colors.SubText
 autoNote.TextSize = 10
@@ -650,7 +628,7 @@ startAutoBtn.MouseButton1Click:Connect(function()
 			if successHttp and response and response.data then
 				for _, srv in ipairs(response.data) do
 					if srv.id ~= game.JobId and srv.playing <= Config.MaxPlayers and srv.playing >= Config.MinPlayers then
-						statusDisplay.Text = "Status: Teleporting to " .. srv.id .. "..."
+						statusDisplay.Text = "Status: Teleporting..."
 						pcall(function()
 							TeleportService:TeleportToPlaceInstance(game.PlaceId, srv.id, LocalPlayer)
 						end)
@@ -662,7 +640,7 @@ startAutoBtn.MouseButton1Click:Connect(function()
 			task.wait(Config.AutoHopDelay)
 			if AutoHopAttempts >= (Config.RetryLimit * 10) then
 				AutoHopRunning = false
-				statusDisplay.Text = "Status: Retry limit reached. Stopped."
+				statusDisplay.Text = "Status: Limit reached. Stopped."
 				statusDisplay.TextColor3 = Colors.Error
 				break
 			end
@@ -680,7 +658,6 @@ end)
 -- 4. SETTINGS TAB
 -- ==========================================
 local settingsPage = Pages["SETTINGS"]
-
 local settingsCard = createCard(settingsPage, 140)
 local setList = Instance.new("UIListLayout")
 setList.Padding = UDim.new(0, 10)
@@ -738,7 +715,7 @@ resetBtn.Size = UDim2.new(1, 0, 0, 28)
 resetBtn.BackgroundColor3 = Colors.PanelAlt
 resetBtn.BorderSizePixel = 0
 resetBtn.Font = Enum.Font.Code
-resetBtn.Text = "Reset Settings to Default"
+resetBtn.Text = "Reset Settings"
 resetBtn.TextColor3 = Colors.Error
 resetBtn.TextSize = 12
 resetBtn.Parent = settingsCard
@@ -750,14 +727,12 @@ resetBtn.MouseButton1Click:Connect(function()
 	Config.MinPlayers = 0
 	Config.MaxPlayers = 5
 	AutoHopRunning = false
-	MainFrame.Size = UDim2.new(0, 560 * 0.7, 0, 360 * 0.7)
 end)
 
 -- ==========================================
 -- 5. ABOUT TAB
 -- ==========================================
 local aboutPage = Pages["ABOUT"]
-
 local aboutCard = createCard(aboutPage, 110)
 local aboutList = Instance.new("UIListLayout")
 aboutList.Padding = UDim.new(0, 6)
